@@ -665,13 +665,15 @@
                 name: document.getElementById('regName').value,
                 idNum: document.getElementById('regId').value,
                 phone: document.getElementById('regPhone').value,
-                location: document.getElementById('regLoc').value
+                location: document.getElementById('regLoc').value,
+                role: 'client'
             };
-            registeredClients.push(newUser);
+            set(ref(db, 'users/clients/' + email.replace('.', '_')), newUser);
             alert('Registro de Cliente exitoso. Ya puedes iniciar sesión.');
         } else {
+            const tid = Date.now();
             const newTrans = {
-                id: transporters.length + 1,
+                id: tid,
                 email, password: pass,
                 name: document.getElementById('regTName').value,
                 idNum: document.getElementById('regTId').value,
@@ -682,9 +684,10 @@
                 plate: document.getElementById('regTPlate').value,
                 license: document.getElementById('regTLicense').value,
                 insurance: document.getElementById('regTInsurance').value,
-                rating: 5.0
+                rating: 5.0,
+                role: 'transporter'
             };
-            transporters.push(newTrans);
+            set(ref(db, 'users/transporters/' + tid), newTrans);
             alert('Registro de Socio exitoso. Ya puedes iniciar sesión.');
         }
         document.getElementById('backToLoginBtn').click();
@@ -994,11 +997,15 @@
             document.getElementById('netBalance').textContent = '₡' + (companyRegal - (50 * 600)).toLocaleString(); // Simulación $50 a ₡600
         });
 
-        const partnersList = document.getElementById('partnersList');
-        partnersList.innerHTML = transporters.map(t => `<div class="partner-item" data-tid="${t.id}"><i class="fas fa-user-tie"></i> ${t.name} <span style="font-size:10px; color:#666;">(${t.plate})</span></div>`).join('');
+        const partnersList = document.getElementById('adminPartnersList');
+        if (partnersList) {
+            partnersList.innerHTML = transporters.map(t => `<div class="partner-item" data-tid="${t.id}"><i class="fas fa-user-tie"></i> ${t.name} <span style="font-size:10px; color:#666;">(${t.plate})</span></div>`).join('');
+        }
 
-        const clientsList = document.getElementById('clientsList');
-        clientsList.innerHTML = registeredClients.map(c => `<div class="partner-item client-item" data-email="${c.email}"><i class="fas fa-user"></i> ${c.name} <span style="font-size:10px; color:#666;">(${c.email})</span></div>`).join('');
+        const clientsList = document.getElementById('adminClientsList');
+        if (clientsList) {
+            clientsList.innerHTML = registeredClients.map(c => `<div class="partner-item client-item" data-email="${c.email}"><i class="fas fa-user"></i> ${c.name} <span style="font-size:10px; color:#666;">(${c.email})</span></div>`).join('');
+        }
     };
 
     document.getElementById('financeCalendar').addEventListener('change', listenToAdmin);
@@ -1096,12 +1103,42 @@
                 <div class="detail-item"><div class="detail-label">Vehículo</div><input type="text" class="edit-input" id="editTVehicle" value="${t.vehicle}"></div>
                 <div class="detail-item"><div class="detail-label">Licencia</div><input type="text" class="edit-input" id="editTLicense" value="${t.license}"></div>
                 <div class="detail-item"><div class="detail-label">Seguro</div><input type="text" class="edit-input" id="editTInsurance" value="${t.insurance}"></div>
-                <div style="grid-column: span 2; display:flex; gap:10px;">
+                <div style="grid-column: span 2; margin-top:15px; font-weight:bold; color:#00d4ff; border-bottom:1px solid #333; padding-bottom:5px;">Historial de Servicios</div>
+                <div id="partnerHistoryList" style="grid-column: span 2; margin-top:10px; max-height:200px; overflow-y:auto;"></div>
+                <div style="grid-column: span 2; display:flex; gap:10px; margin-top:15px;">
                     <button class="btn" id="savePartnerBtn" data-tid="${t.id}">Guardar Cambios</button>
                     <button class="btn btn-whatsapp" id="msgPartnerBtn" data-email="${t.email}">Mensaje</button>
                     <button class="btn btn-reject" id="deletePartnerBtn" data-tid="${t.id}">Borrar</button>
                 </div>
             `;
+            
+            // HISTORIAL DEL SOCIO
+            onValue(ref(db, 'moves'), (snapshot) => {
+                const data = snapshot.val();
+                const hList = document.getElementById('partnerHistoryList');
+                if(!hList) return;
+                hList.innerHTML = '';
+                let count = 0;
+                if(data) {
+                    Object.keys(data).forEach(key => {
+                        const m = data[key];
+                        if (m.transporter === t.email || m.transporterName === t.name) {
+                            count++;
+                            hList.innerHTML += `
+                                <div class="history-item" style="padding:12px; border-left:3px solid #4ade80; display:flex; justify-content:space-between; align-items:center;">
+                                    <div style="flex:1;">
+                                        <strong style="color:#4ade80;">${m.date} | ${m.time || '--:--'}</strong><br>
+                                        Cliente: ${m.clientName}<br>
+                                        ${m.origin.name.split(',')[0]} → ${m.destination.name.split(',')[0]}<br>
+                                        <span style="color:#aaa; font-size:11px;">Total: ₡${m.price.toLocaleString()} | Estado: ${m.status}</span>
+                                    </div>
+                                </div>`;
+                        }
+                    });
+                }
+                if(count === 0) hList.innerHTML = '<div style="color:#666; font-size:12px;">Sin historial.</div>';
+            }, { onlyOnce: true });
+            
             openModal('partnerDetailModal');
         }
 
