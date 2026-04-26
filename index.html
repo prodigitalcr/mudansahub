@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MudanzasHub Costa Rica - Conectado</title>
+    <title>MudanzasHub Costa Rica - Acceso Corregido</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
@@ -28,7 +28,7 @@
         .modal.active { display: flex; }
         .modal-content { background: #1a1a1a; border: 1px solid #444; border-radius: 12px; padding: 28px; width: 92%; max-width: 620px; max-height: 92vh; overflow-y: auto; position: relative; }
         .section { display: none; }
-        .section.active { display: block; }
+        .section.active { display: block !important; }
         .tabs { display: flex; background: #222; border-radius: 8px; padding: 4px; margin-bottom: 18px; }
         .tab-btn { flex: 1; padding: 10px; background: none; border: none; color: #888; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 6px; }
         .tab-btn.active { background: #333; color: #00d4ff; }
@@ -69,13 +69,13 @@
                 </select>
             </div>
             <button class="btn" onclick="login()">Entrar</button>
-            <p style="font-size:11px; color:#666; margin-top:15px; text-align:center;">Conectado a Firebase: mudanzascanaan</p>
+            <p id="connStatus" style="font-size:11px; color:#666; margin-top:15px; text-align:center;">Conectando a Firebase...</p>
         </div>
 
         <!-- CLIENT SECTION -->
         <div class="section" id="clientSection">
             <div class="logo"><i class="fas fa-truck"></i> MudanzasHub</div>
-            <div class="user-greeting"><i class="fas fa-user"></i> <span id="clientName">Cliente</span></div>
+            <div class="user-greeting"><i class="fas fa-user"></i> <span id="clientNameDisplay">Cliente</span></div>
             <button class="btn btn-secondary" onclick="logout()">Cerrar Sesión</button>
             
             <div class="form-group" style="position:relative;">
@@ -98,21 +98,13 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Programación (Opcional)</label>
-                <div style="display:flex; gap:5px;">
-                    <input type="date" id="resDate" class="search-input">
-                    <input type="time" id="resTime" class="search-input">
-                </div>
-            </div>
-
             <button class="btn" onclick="requestMove()">Solicitar Mudanza</button>
         </div>
 
         <!-- TRANSPORTER SECTION -->
         <div class="section" id="transporterSection">
             <div class="logo"><i class="fas fa-truck"></i> MudanzasHub</div>
-            <div class="user-greeting"><i class="fas fa-id-card"></i> <span id="transName">Transportista</span></div>
+            <div class="user-greeting"><i class="fas fa-id-card"></i> <span id="transNameDisplay">Transportista</span></div>
             <button class="btn btn-secondary" onclick="logout()">Cerrar Sesión</button>
             
             <div class="tabs">
@@ -150,7 +142,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set, push, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // CONFIGURACIÓN DEL USUARIO
     const firebaseConfig = {
         apiKey: "AIzaSyCppQ2yPzQxTMSs8GfBCSyKzoQoUUzaWJo",
         authDomain: "mudanzascanaan.firebaseapp.com",
@@ -164,6 +155,7 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+    document.getElementById('connStatus').innerText = "Conectado a Firebase: mudanzascanaan";
 
     // VARIABLES GLOBALES
     let currentUser = null;
@@ -176,20 +168,32 @@
     map = L.map('map').setView([9.9281, -84.0907], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    // FUNCIONES DE AUTH
+    // FUNCIONES DE NAVEGACIÓN (GLOBALES)
     window.login = function() {
-        const email = document.getElementById('authEmail').value;
-        const pass = document.getElementById('authPassword').value;
+        const email = document.getElementById('authEmail').value.trim();
+        const pass = document.getElementById('authPassword').value.trim();
         const role = document.getElementById('authRole').value;
         
-        // Demo Login
+        // Validación simple para demo
+        if (!email || !pass) return alert('Por favor ingresa email y contraseña');
+
         currentUser = { email, role, name: email.split('@')[0] };
-        document.getElementById('authSection').classList.remove('active');
-        document.getElementById(role + 'Section').classList.add('active');
         
-        if(role === 'client') document.getElementById('clientName').innerText = currentUser.name;
+        // OCULTAR TODAS LAS SECCIONES
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        
+        // MOSTRAR LA SECCIÓN CORRESPONDIENTE
+        const targetSection = document.getElementById(role + 'Section');
+        if (targetSection) {
+            targetSection.classList.add('active');
+            console.log("Cambiando a sección:", role);
+        } else {
+            console.error("No se encontró la sección:", role + 'Section');
+        }
+        
+        if(role === 'client') document.getElementById('clientNameDisplay').innerText = currentUser.name;
         if(role === 'transporter') {
-            document.getElementById('transName').innerText = currentUser.name;
+            document.getElementById('transNameDisplay').innerText = currentUser.name;
             listenToJobs();
         }
         if(role === 'admin') listenToAdmin();
@@ -244,8 +248,6 @@
             origin: selectedOrigin,
             destination: selectedDestination,
             vehicle: currentVehicle,
-            date: document.getElementById('resDate').value || 'Hoy',
-            time: document.getElementById('resTime').value || 'Ahora',
             status: 'pending',
             price: Math.floor(Math.random() * 50000) + 15000,
             timestamp: Date.now()
@@ -264,6 +266,8 @@
             const data = snapshot.val();
             const jobsDiv = document.getElementById('jobsTab');
             const myJobsDiv = document.getElementById('my-jobsTab');
+            if (!jobsDiv || !myJobsDiv) return;
+            
             jobsDiv.innerHTML = '';
             myJobsDiv.innerHTML = '';
 
@@ -275,7 +279,7 @@
                             <p><strong>De:</strong> ${move.origin.name.split(',')[0]}</p>
                             <p><strong>A:</strong> ${move.destination.name.split(',')[0]}</p>
                             <p><strong>Precio:</strong> ₡${move.price.toLocaleString()}</p>
-                            ${move.status === 'pending' ? `<button class="btn btn-sm" onclick="acceptJob('${key}')" style="margin-top:10px;">Aceptar</button>` : `<span class="status-badge status-${move.status}">${move.status}</span>`}
+                            ${move.status === 'pending' ? `<button class="btn btn-sm" onclick="acceptJob('${key}')" style="margin-top:10px; width:auto; padding:5px 15px;">Aceptar</button>` : `<span class="status-badge status-${move.status}">${move.status}</span>`}
                         </div>
                     `;
                     if(move.status === 'pending') jobsDiv.innerHTML += html;
@@ -299,6 +303,7 @@
         onValue(movesRef, (snapshot) => {
             const data = snapshot.val();
             const list = document.getElementById('adminMovesList');
+            if (!list) return;
             list.innerHTML = '';
             if(data) {
                 Object.keys(data).forEach(key => {
