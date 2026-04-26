@@ -67,6 +67,18 @@
         .finance-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px; }
         .finance-label { color: #aaa; }
         .finance-value { font-weight: bold; color: #00d4ff; }
+        
+        /* NAVEGACIÓN GPS MÓVIL */
+        #gpsView { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 3000; flex-direction: column; }
+        #gpsView.active { display: flex; }
+        .gps-header { background: #1a1a1a; padding: 15px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+        .gps-map { flex: 1; width: 100%; }
+        .gps-instructions { background: #1a1a1a; padding: 20px; border-top: 1px solid #333; font-size: 16px; font-weight: bold; color: #00d4ff; text-align: center; }
+        
+        /* EDICIÓN DE PERFILES */
+        .edit-input { width: 100%; padding: 8px; background: #333; border: 1px solid #444; border-radius: 4px; color: #fff; font-size: 12px; margin-bottom: 10px; }
+        .history-item { background: #222; padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 11px; border-left: 3px solid #00d4ff; }
+        
         .status-badge { padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; }
         .status-pending { background: #f59e0b22; color: #f59e0b; }
         .status-in_progress { background: #3b82f622; color: #3b82f6; }
@@ -298,23 +310,60 @@
             </div>
             <div id="docsTab" class="tab-content">
                 <div class="calendar-container">
-                    <label style="font-size:12px; color:#aaa;">Filtrar por Fecha:</label>
-                    <input type="date" id="financeCalendar" class="search-input" style="margin-top:5px;">
+                    <label style="font-size:12px; color:#aaa;">Filtrar por Mes:</label>
+                    <input type="month" id="financeCalendar" class="search-input" style="margin-top:5px;">
                 </div>
                 <div id="financeReport">
                     <div class="finance-card">
-                        <div style="font-weight:bold; color:#00d4ff; margin-bottom:10px;">Regalías Empresa</div>
-                        <div class="finance-row"><span class="finance-label">Total Recibido:</span><span class="finance-value" id="companyRegal">₡0</span></div>
-                    </div>
-                    <div class="finance-card">
-                        <div style="font-weight:bold; color:#4ade80; margin-bottom:10px;">Regalías Socios</div>
-                        <div class="finance-row"><span class="finance-label">Total Distribuido:</span><span class="finance-value" id="partnersRegal">₡0</span></div>
+                        <div style="font-weight:bold; color:#00d4ff; margin-bottom:10px;">Finanzas de la Plataforma (Mensual)</div>
+                        <div class="finance-row"><span class="finance-label">Regalías Empresa:</span><span class="finance-value" id="companyRegal">₡0</span></div>
+                        <div class="finance-row"><span class="finance-label">Regalías Socios:</span><span class="finance-value" id="partnersRegal">₡0</span></div>
+                        <div class="finance-row"><span class="finance-label">Mantenimiento:</span><span class="finance-value" style="color:#ff4b4b;">-$50.00</span></div>
+                        <div class="finance-row" style="border-top:1px solid #333; margin-top:10px; padding-top:5px;">
+                            <span class="finance-label">Balance Neto:</span><span class="finance-value" id="netBalance">₡0</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <div class="map-container"><div id="map"></div></div>
+</div>
+
+<!-- VISTA GPS NAVEGACIÓN -->
+<div id="gpsView">
+    <div class="gps-header">
+        <div style="font-weight:bold; color:#00d4ff;"><i class="fas fa-location-arrow"></i> Navegación GPS</div>
+        <button class="btn btn-sm btn-reject" id="closeGpsBtn" style="width:auto;">Salir</button>
+    </div>
+    <div id="gpsMap" class="gps-map"></div>
+    <div class="gps-instructions" id="gpsInstructions">Iniciando navegación...</div>
+</div>
+
+<!-- MODAL DETALLE CLIENTE (ADMIN) -->
+<div class="modal" id="clientDetailModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('clientDetailModal')">&times;</button>
+        <div class="modal-header">Perfil del Cliente</div>
+        <div id="clientDetailContent"></div>
+        <div style="margin-top:20px; font-weight:bold; color:#00d4ff; border-bottom:1px solid #333; padding-bottom:5px;">Historial de Servicios</div>
+        <div id="clientHistoryList" style="margin-top:10px; max-height:200px; overflow-y:auto;"></div>
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button class="btn" id="saveClientBtn">Guardar Cambios</button>
+            <button class="btn btn-reject" id="deleteClientBtn">Eliminar Cliente</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL MENSAJERÍA ADMIN -->
+<div class="modal" id="messageModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('messageModal')">&times;</button>
+        <div class="modal-header">Enviar Mensaje</div>
+        <div id="messageTargetInfo" style="margin-bottom:15px; color:#aaa; font-size:13px;"></div>
+        <textarea id="adminMessageText" class="search-input" style="height:120px; resize:none;" placeholder="Escribe tu mensaje aquí..."></textarea>
+        <button class="btn" id="sendAdminMessageBtn" style="margin-top:15px;">Enviar Mensaje</button>
+    </div>
 </div>
 
 <!-- MODAL SOCIO DETALLE -->
@@ -401,6 +450,9 @@
     let activeNavMove = null;
     let pendingMoveData = null;
     let searchTimeout = null;
+    
+    // GPS NAVEGACIÓN
+    let gpsMap = null, gpsRouting = null, userMarker = null, watchId = null;
 
     // CONFIGURACIÓN DE VEHÍCULOS (Consumo y Capacidad)
     const vehicleConfig = {
@@ -749,7 +801,9 @@
 
     document.getElementById('confirmMoveBtn').addEventListener('click', () => {
         push(ref(db, 'moves'), pendingMoveData).then(() => {
-            alert('¡Solicitud enviada! Código: ' + pendingMoveData.code);
+            // SIMULACIÓN DE NOTIFICACIÓN POR CORREO
+            console.log(`[SIMULACIÓN CORREO] Enviando notificación a ${selectedTransporter.email}: "Tienes una nueva oferta de mudanza vigente de ${currentUser.name}"`);
+            alert('¡Solicitud enviada! El transportista ha sido notificado por correo. Código: ' + pendingMoveData.code);
             closeModal('facturaModal');
             location.reload();
         });
@@ -826,84 +880,201 @@
             const tbody = document.getElementById('movesTableBody');
             if (!tbody) return;
             tbody.innerHTML = '';
-            let totalSales = 0;
-            let totalComm = 0;
-            let companyRegal = 0;
-            let partnersRegal = 0;
-            const selectedDate = document.getElementById('financeCalendar').value;
+            let totalSales = 0, totalComm = 0, companyRegal = 0, partnersRegal = 0;
+            const selectedMonth = document.getElementById('financeCalendar').value; // YYYY-MM
 
             if(data) {
                 Object.keys(data).forEach(key => {
                     const m = data[key];
                     const comm = m.price * 0.2;
                     const net = m.price * 0.8;
-                    
                     totalSales += m.price;
                     totalComm += comm;
 
-                    if (!selectedDate || m.date === new Date(selectedDate).toLocaleDateString()) {
+                    const moveDate = new Date(m.timestamp);
+                    const moveMonth = `${moveDate.getFullYear()}-${String(moveDate.getMonth()+1).padStart(2,'0')}`;
+
+                    if (!selectedMonth || moveMonth === selectedMonth) {
                         if (m.status === 'completed') {
                             companyRegal += comm;
                             partnersRegal += net;
                         }
                     }
 
-                    tbody.innerHTML += `<tr>
-                        <td>#${key.slice(-4)}</td>
-                        <td>${m.clientName}</td>
-                        <td>${m.transporterName}</td>
-                        <td>₡${m.price.toLocaleString()}</td>
-                        <td style="color:#4ade80;">₡${comm.toLocaleString()}</td>
-                        <td><span class="status-badge status-${m.status}">${m.status}</span></td>
-                    </tr>`;
+                    tbody.innerHTML += `<tr><td>#${key.slice(-4)}</td><td>${m.clientName}</td><td>${m.transporterName}</td><td>₡${m.price.toLocaleString()}</td><td style="color:#4ade80;">₡${comm.toLocaleString()}</td><td><span class="status-badge status-${m.status}">${m.status}</span></td></tr>`;
                 });
             }
             document.getElementById('totalAdminSales').textContent = '₡' + totalSales.toLocaleString();
             document.getElementById('totalAdminComm').textContent = '₡' + totalComm.toLocaleString();
             document.getElementById('companyRegal').textContent = '₡' + companyRegal.toLocaleString();
             document.getElementById('partnersRegal').textContent = '₡' + partnersRegal.toLocaleString();
+            document.getElementById('netBalance').textContent = '₡' + (companyRegal - (50 * 600)).toLocaleString(); // Simulación $50 a ₡600
         });
 
         const partnersList = document.getElementById('adminPartnersList');
-        partnersList.innerHTML = transporters.map(t => `
-            <div class="partner-item" data-tid="${t.id}">
-                <i class="fas fa-user-tie"></i> ${t.name} <span style="font-size:10px; color:#666;">(${t.plate})</span>
-            </div>
-        `).join('');
+        partnersList.innerHTML = transporters.map(t => `<div class="partner-item" data-tid="${t.id}"><i class="fas fa-user-tie"></i> ${t.name} <span style="font-size:10px; color:#666;">(${t.plate})</span></div>`).join('');
 
         const clientsList = document.getElementById('adminClientsList');
-        clientsList.innerHTML = registeredClients.map(c => `
-            <div class="partner-item">
-                <i class="fas fa-user"></i> ${c.name} <span style="font-size:10px; color:#666;">(${c.email})</span>
-                <div style="font-size:10px; color:#888; margin-left:20px;">Tel: ${c.phone} | Céd: ${c.idNum}</div>
-            </div>
-        `).join('');
+        clientsList.innerHTML = registeredClients.map(c => `<div class="partner-item client-item" data-email="${c.email}"><i class="fas fa-user"></i> ${c.name} <span style="font-size:10px; color:#666;">(${c.email})</span></div>`).join('');
     };
 
     document.getElementById('financeCalendar').addEventListener('change', listenToAdmin);
 
+    // LÓGICA GPS NAVEGACIÓN EN VIVO
+    const startGpsNavigation = (moveId) => {
+        onValue(ref(db, `moves/${moveId}`), (snapshot) => {
+            const m = snapshot.val();
+            if (!m) return;
+            document.getElementById('gpsView').classList.add('active');
+            if (!gpsMap) {
+                gpsMap = L.map('gpsMap').setView([m.origin.lat, m.origin.lng], 16);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(gpsMap);
+            }
+            if (gpsRouting) gpsMap.removeControl(gpsRouting);
+            gpsRouting = L.Routing.control({
+                waypoints: [L.latLng(m.origin.lat, m.origin.lng), L.latLng(m.destination.lat, m.destination.lng)],
+                lineOptions: { styles: [{ color: '#00d4ff', weight: 6 }] },
+                addWaypoints: false, draggableWaypoints: false
+            }).addTo(gpsMap);
+            if ("geolocation" in navigator) {
+                watchId = navigator.geolocation.watchPosition((pos) => {
+                    const { latitude, longitude } = pos.coords;
+                    if (userMarker) userMarker.setLatLng([latitude, longitude]);
+                    else userMarker = L.marker([latitude, longitude], { icon: L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png', iconSize: [25, 41] }) }).addTo(gpsMap);
+                    gpsMap.panTo([latitude, longitude]);
+                }, null, { enableHighAccuracy: true });
+            }
+        }, { onlyOnce: true });
+    };
+
+    document.getElementById('closeGpsBtn').addEventListener('click', () => {
+        document.getElementById('gpsView').classList.remove('active');
+        if (watchId) navigator.geolocation.clearWatch(watchId);
+    });
+
     document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('startNavBtn')) startGpsNavigation(e.target.dataset.id);
+
         const partnerItem = e.target.closest('.partner-item');
-        if (partnerItem) {
+        if (partnerItem && !partnerItem.classList.contains('client-item')) {
             const t = transporters.find(x => x.id === parseInt(partnerItem.dataset.tid));
+            if (!t) return;
             document.getElementById('partnerDetailName').innerText = t.name;
             document.getElementById('partnerDetailContent').innerHTML = `
                 <div style="grid-column: span 2; text-align:center; margin-bottom:10px;">
-                    <div style="width:80px; height:80px; background:#333; border-radius:50%; margin:0 auto 10px; display:flex; align-items:center; justify-content:center; border:2px solid #00d4ff;">
+                    <div style="width:80px; height:80px; background:#333; border-radius:50%; margin:0 auto 10px; display:flex; align-items:center; justify-content:center; border:2px solid #00d4ff; position:relative;">
                         <i class="fas fa-user-tie" style="font-size:40px; color:#00d4ff;"></i>
+                        <label style="position:absolute; bottom:0; right:0; background:#00d4ff; color:#000; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; cursor:pointer;"><i class="fas fa-camera" style="font-size:12px;"></i><input type="file" style="display:none;"></label>
                     </div>
-                    <div style="font-size:12px; color:#aaa;">Foto de Perfil (Socio Verificado)</div>
                 </div>
-                <div class="detail-item"><div class="detail-label">Cédula</div>${t.idNum || 'N/A'}</div>
-                <div class="detail-item"><div class="detail-label">Edad</div>${t.age || 'N/A'} años</div>
-                <div class="detail-item"><div class="detail-label">Discapacidad</div>${t.physical === 'si' ? 'Sí presenta' : 'Ninguna'}</div>
-                <div class="detail-item"><div class="detail-label">Teléfono</div>${t.phone}</div>
-                <div class="detail-item"><div class="detail-label">Placa</div>${t.plate}</div>
-                <div class="detail-item"><div class="detail-label">Vehículo</div>${t.vehicle}</div>
-                <div class="detail-item"><div class="detail-label">Licencia</div>${t.license}</div>
-                <div class="detail-item"><div class="detail-label">Seguro</div>${t.insurance}</div>
+                <div class="detail-item"><div class="detail-label">Nombre</div><input type="text" class="edit-input" id="editTName" value="${t.name}"></div>
+                <div class="detail-item"><div class="detail-label">Cédula</div><input type="text" class="edit-input" id="editTId" value="${t.idNum || ''}"></div>
+                <div class="detail-item"><div class="detail-label">Edad</div><input type="number" class="edit-input" id="editTAge" value="${t.age || ''}"></div>
+                <div class="detail-item"><div class="detail-label">Discapacidad</div><select class="edit-input" id="editTPhys"><option value="no" ${t.physical==='no'?'selected':''}>No</option><option value="si" ${t.physical==='si'?'selected':''}>Sí</option></select></div>
+                <div class="detail-item"><div class="detail-label">Teléfono</div><input type="text" class="edit-input" id="editTPhone" value="${t.phone}"></div>
+                <div class="detail-item"><div class="detail-label">Placa</div><input type="text" class="edit-input" id="editTPlate" value="${t.plate}"></div>
+                <div class="detail-item"><div class="detail-label">Vehículo</div><input type="text" class="edit-input" id="editTVehicle" value="${t.vehicle}"></div>
+                <div class="detail-item"><div class="detail-label">Licencia</div><input type="text" class="edit-input" id="editTLicense" value="${t.license}"></div>
+                <div class="detail-item"><div class="detail-label">Seguro</div><input type="text" class="edit-input" id="editTInsurance" value="${t.insurance}"></div>
+                <div style="grid-column: span 2; display:flex; gap:10px;">
+                    <button class="btn" id="savePartnerBtn" data-tid="${t.id}">Guardar Cambios</button>
+                    <button class="btn btn-whatsapp" id="msgPartnerBtn" data-email="${t.email}">Mensaje</button>
+                    <button class="btn btn-reject" id="deletePartnerBtn" data-tid="${t.id}">Borrar</button>
+                </div>
             `;
             openModal('partnerDetailModal');
+        }
+
+        if (partnerItem && partnerItem.classList.contains('client-item')) {
+            const c = registeredClients.find(x => x.email === partnerItem.dataset.email);
+            if (!c) return;
+            document.getElementById('clientDetailContent').innerHTML = `
+                <div class="detail-grid">
+                    <div class="detail-item"><div class="detail-label">Nombre</div><input type="text" class="edit-input" id="editCName" value="${c.name}"></div>
+                    <div class="detail-item"><div class="detail-label">Email</div><input type="text" class="edit-input" id="editCEmail" value="${c.email}" disabled></div>
+                    <div class="detail-item"><div class="detail-label">Teléfono</div><input type="text" class="edit-input" id="editCPhone" value="${c.phone}"></div>
+                    <div class="detail-item"><div class="detail-label">Cédula</div><input type="text" class="edit-input" id="editCId" value="${c.idNum}"></div>
+                </div>
+            `;
+            
+            // HISTORIAL DEL CLIENTE
+            onValue(ref(db, 'moves'), (snapshot) => {
+                const data = snapshot.val();
+                const hList = document.getElementById('clientHistoryList');
+                hList.innerHTML = '';
+                let count = 0;
+                if(data) {
+                    Object.keys(data).forEach(key => {
+                        const m = data[key];
+                        if (m.client === c.email) {
+                            count++;
+                            hList.innerHTML += `
+                                <div class="history-item">
+                                    <strong>${m.date} | ${m.vehicle.toUpperCase()}</strong><br>
+                                    ${m.origin.name.split(',')[0]} → ${m.destination.name.split(',')[0]}<br>
+                                    <span style="color:#aaa;">Carga: ${m.weight}kg | ${m.service}</span>
+                                </div>`;
+                        }
+                    });
+                }
+                if(count === 0) hList.innerHTML = '<div style="color:#666; font-size:12px;">Sin historial.</div>';
+            }, { onlyOnce: true });
+
+            document.getElementById('saveClientBtn').onclick = () => {
+                c.name = document.getElementById('editCName').value;
+                c.phone = document.getElementById('editCPhone').value;
+                c.idNum = document.getElementById('editCId').value;
+                alert('Cliente actualizado');
+                listenToAdmin();
+                closeModal('clientDetailModal');
+            };
+
+            document.getElementById('deleteClientBtn').onclick = () => {
+                if(confirm('¿Borrar cliente?')) {
+                    registeredClients = registeredClients.filter(x => x.email !== c.email);
+                    listenToAdmin();
+                    closeModal('clientDetailModal');
+                }
+            };
+            openModal('clientDetailModal');
+        }
+
+        if (e.target.id === 'savePartnerBtn') {
+            const tid = parseInt(e.target.dataset.tid);
+            const t = transporters.find(x => x.id === tid);
+            t.name = document.getElementById('editTName').value;
+            t.idNum = document.getElementById('editTId').value;
+            t.age = document.getElementById('editTAge').value;
+            t.physical = document.getElementById('editTPhys').value;
+            t.phone = document.getElementById('editTPhone').value;
+            t.plate = document.getElementById('editTPlate').value;
+            t.vehicle = document.getElementById('editTVehicle').value;
+            t.license = document.getElementById('editTLicense').value;
+            t.insurance = document.getElementById('editTInsurance').value;
+            alert('Socio actualizado');
+            listenToAdmin();
+            closeModal('partnerDetailModal');
+        }
+
+        if (e.target.id === 'deletePartnerBtn') {
+            if(confirm('¿Borrar socio?')) {
+                transporters = transporters.filter(x => x.id !== parseInt(e.target.dataset.tid));
+                listenToAdmin();
+                closeModal('partnerDetailModal');
+            }
+        }
+
+        if (e.target.id === 'msgPartnerBtn' || e.target.classList.contains('btn-whatsapp')) {
+            const email = e.target.dataset.email;
+            document.getElementById('messageTargetInfo').innerText = `Para: ${email}`;
+            document.getElementById('sendAdminMessageBtn').onclick = () => {
+                const msg = document.getElementById('adminMessageText').value;
+                if(!msg) return alert('Escribe un mensaje');
+                console.log(`[MENSAJE ADMIN] Para ${email}: ${msg}`);
+                alert('Mensaje enviado correctamente');
+                closeModal('messageModal');
+            };
+            openModal('messageModal');
         }
 
         if (e.target.classList.contains('acceptJobBtn')) update(ref(db, `moves/${e.target.dataset.id}`), { status: 'in_progress' });
