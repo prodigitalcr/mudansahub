@@ -44,7 +44,7 @@
         .tab-btn.active { background: #333; color: #00d4ff; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .admin-table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 10px; }
+        .admin-table { width: 100%; border-collapse: collapse; font-size: 9px; margin-top: 10px; }
         .admin-table th { text-align: left; padding: 6px; background: #222; color: #aaa; border: 1px solid #333; }
         .admin-table td { padding: 6px; border: 1px solid #222; }
         .admin-footer { background: #1a3a3a; padding: 10px; border-radius: 0 0 8px 8px; border: 1px solid #333; border-top: none; display: flex; justify-content: flex-end; gap: 20px; font-size: 12px; font-weight: bold; }
@@ -73,7 +73,7 @@
         #gpsView.active { display: flex; }
         .gps-header { background: #1a1a1a; padding: 15px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
         .gps-map { flex: 1; width: 100%; }
-        .gps-instructions { background: #1a1a1a; padding: 20px; border-top: 1px solid #333; font-size: 16px; font-weight: bold; color: #00d4ff; text-align: center; }
+        .gps-instructions { background: #fff; padding: 20px; border-top: 1px solid #333; font-size: 16px; font-weight: bold; color: #000; text-align: center; }
         
         /* EDICIÓN DE PERFILES */
         .edit-input { width: 100%; padding: 8px; background: #333; border: 1px solid #444; border-radius: 4px; color: #fff; font-size: 12px; margin-bottom: 10px; }
@@ -291,7 +291,7 @@
             <div id="movesTab" class="tab-content active">
                 <div style="overflow-x:auto;">
                     <table class="admin-table">
-                        <thead><tr><th>ID</th><th>Cliente</th><th>Socio</th><th>Total</th><th>Comisión (20%)</th><th>Estado</th></tr></thead>
+                        <thead><tr><th>ID</th><th>Cliente</th><th>Socio</th><th>Fecha</th><th>Hora</th><th>Total</th><th>Comisión (20%)</th><th>Estado</th></tr></thead>
                         <tbody id="movesTableBody"></tbody>
                     </table>
                 </div>
@@ -348,6 +348,7 @@
         <div id="clientDetailContent"></div>
         <div style="margin-top:20px; font-weight:bold; color:#00d4ff; border-bottom:1px solid #333; padding-bottom:5px;">Historial de Servicios</div>
         <div id="clientHistoryList" style="margin-top:10px; max-height:200px; overflow-y:auto;"></div>
+        <div id="adminHistoryMap" style="height:200px; margin-top:15px; border-radius:8px; display:none;"></div>
         <div style="display:flex; gap:10px; margin-top:20px;">
             <button class="btn" id="saveClientBtn">Guardar Cambios</button>
             <button class="btn btn-reject" id="deleteClientBtn">Eliminar Cliente</button>
@@ -546,13 +547,18 @@
         // Login exitoso
         _loginAttempts = 0;
         _loginBlockedUntil = 0;
-        document.getElementById('connStatus').innerText = '\u2705 Firebase Conectado';
-        document.getElementById('connStatus').style.color = '#4ade80';
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById('connStatus').innerText = '✅ Firebase Conectado';
+        document.getElementById('authSection').classList.remove('active');
         document.getElementById(role + 'Section').classList.add('active');
-        if(role === 'client') document.getElementById('clientNameDisplay').innerText = currentUser.name;
-        if(role === 'transporter') { document.getElementById('transNameDisplay').innerText = currentUser.name; listenToJobs(); }
-        if(role === 'admin') listenToAdmin();
+        
+        if(role === 'admin') {
+            document.querySelector('.map-container').style.display = 'none';
+            listenToAdmin();
+        } else {
+            document.querySelector('.map-container').style.display = 'block';
+            if(role === 'client') document.getElementById('clientNameDisplay').innerText = currentUser.name;
+            if(role === 'transporter') { document.getElementById('transNameDisplay').innerText = currentUser.name; listenToJobs(); }
+        }
     });
 
     document.querySelectorAll('.logoutBtn').forEach(btn => btn.addEventListener('click', () => location.reload()));
@@ -744,26 +750,28 @@
 
     const openFactura = (tid, price) => {
         selectedTransporter = transporters.find(t => t.id === tid);
-        pendingMoveData = {
-            client: currentUser.email,
-            clientName: currentUser.name,
-            clientPhone: currentUser.phone || '',
-            transporter: selectedTransporter.id,
-            transporterName: selectedTransporter.name,
-            transporterPhone: selectedTransporter.phone,
-            transporterPlate: selectedTransporter.plate,
-            origin: selectedOrigin,
-            destination: selectedDestination,
-            price: price,
-            vehicle: selectedVehicle,
-            service: selectedServiceType,
-            weight: document.getElementById('loadWeight').value,
-            access: document.getElementById('accessType').value,
-            status: 'pending',
-            code: Math.floor(1000 + Math.random() * 9000),
-            timestamp: Date.now(),
-            date: new Date().toLocaleDateString()
-        };
+            const now = new Date();
+            pendingMoveData = {
+                client: currentUser.email,
+                clientName: currentUser.name,
+                clientPhone: currentUser.phone || '',
+                transporter: selectedTransporter.id,
+                transporterName: selectedTransporter.name,
+                transporterPhone: selectedTransporter.phone,
+                transporterPlate: selectedTransporter.plate,
+                origin: selectedOrigin,
+                destination: selectedDestination,
+                price: price,
+                vehicle: selectedVehicle,
+                service: selectedServiceType,
+                weight: document.getElementById('loadWeight').value,
+                access: document.getElementById('accessType').value,
+                status: 'pending',
+                code: Math.floor(1000 + Math.random() * 9000),
+                timestamp: Date.now(),
+                date: now.toLocaleDateString(),
+                time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
 
         // FICHA TÉCNICA (MODELO)
         document.getElementById('fichaTransportista').innerHTML = `
@@ -858,10 +866,14 @@
                                     <a href="https://wa.me/${m.clientPhone || ''}" target="_blank" class="btn btn-whatsapp" style="text-decoration:none; text-align:center; font-size:12px; padding:10px;">
                                         <i class="fab fa-whatsapp"></i> Llamar al Cliente
                                     </a>
+                                    <button class="btn btn-sm shareLocBtn" style="background:#25d366; color:#fff;" data-id="${key}">
+                                        <i class="fab fa-whatsapp"></i> Compartir Ubicación
+                                    </button>
                                     <div style="display:flex; gap:10px;">
                                         <button class="btn btn-sm startNavBtn" data-id="${key}">Ver Ruta</button>
                                         <button class="btn btn-sm openCodeBtn" style="background:#4ade80;" data-id="${key}">Finalizar</button>
                                     </div>
+                                    <button class="btn btn-sm btn-reject cancelInProgressBtn" data-id="${key}">Cancelar en Curso</button>
                                 </div>` : ''}
                         </div>`;
 
@@ -901,7 +913,7 @@
                         }
                     }
 
-                    tbody.innerHTML += `<tr><td>#${key.slice(-4)}</td><td>${m.clientName}</td><td>${m.transporterName}</td><td>₡${m.price.toLocaleString()}</td><td style="color:#4ade80;">₡${comm.toLocaleString()}</td><td><span class="status-badge status-${m.status}">${m.status}</span></td></tr>`;
+                    tbody.innerHTML += `<tr><td>#${key.slice(-4)}</td><td>${m.clientName}</td><td>${m.transporterName}</td><td>${m.date}</td><td>${m.time || '--:--'}</td><td>₡${m.price.toLocaleString()}</td><td style="color:#4ade80;">₡${comm.toLocaleString()}</td><td><span class="status-badge status-${m.status}">${m.status}</span></td></tr>`;
                 });
             }
             document.getElementById('totalAdminSales').textContent = '₡' + totalSales.toLocaleString();
@@ -1083,6 +1095,24 @@
                 update(ref(db, `moves/${e.target.dataset.id}`), { transporter: null, status: 'pending' });
             }
         }
+        if (e.target.classList.contains('cancelInProgressBtn')) {
+            if(confirm('¿Deseas cancelar este viaje en curso? Volverá a estar pendiente.')) {
+                update(ref(db, `moves/${e.target.dataset.id}`), { status: 'pending' });
+            }
+        }
+        if (e.target.classList.contains('shareLocBtn')) {
+            const mId = e.target.dataset.id;
+            onValue(ref(db, `moves/${mId}`), (snap) => {
+                const m = snap.val();
+                if(m && "geolocation" in navigator) {
+                    navigator.geolocation.getCurrentPosition((pos) => {
+                        const link = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                        const text = encodeURIComponent(`Hola ${m.clientName}, estoy en camino. Puedes ver mi ubicación actual aquí: ${link}`);
+                        window.open(`https://wa.me/${m.clientPhone}?text=${text}`, '_blank');
+                    });
+                }
+            }, { onlyOnce: true });
+        }
         if (e.target.classList.contains('startNavBtn')) {
             onValue(ref(db, `moves/${e.target.dataset.id}`), (snap) => {
                 const m = snap.val();
@@ -1106,6 +1136,13 @@
             section.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             tabBtn.classList.add('active');
             section.querySelector(`#${tabBtn.dataset.tab}Tab`).classList.add('active');
+            
+            // OCULTAR MAPA EN ADMIN EXCEPTO EN HISTORIAL
+            if (section.id === 'adminSection') {
+                document.querySelector('.map-container').style.display = 'none';
+            } else {
+                document.querySelector('.map-container').style.display = 'block';
+            }
         }
         if (e.target.dataset.close) closeModal(e.target.dataset.close);
     });
