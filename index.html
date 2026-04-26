@@ -340,6 +340,35 @@
     <div class="gps-instructions" id="gpsInstructions">Iniciando navegación...</div>
 </div>
 
+
+<!-- MODAL AGREGAR CLIENTE (ADMIN) -->
+<div class="modal" id="addClientModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('addClientModal')">&times;</button>
+        <div class="modal-header">Agregar Nuevo Cliente</div>
+        <div class="form-group">
+            <label>Nombre Completo</label>
+            <input type="text" id="addCName" class="search-input">
+        </div>
+        <div class="form-group">
+            <label>Correo Electrónico</label>
+            <input type="email" id="addCEmail" class="search-input">
+        </div>
+        <div class="form-group">
+            <label>Contraseña</label>
+            <input type="password" id="addCPass" class="search-input">
+        </div>
+        <div class="form-group">
+            <label>Teléfono</label>
+            <input type="text" id="addCPhone" class="search-input">
+        </div>
+        <div class="form-group">
+            <label>Cédula</label>
+            <input type="text" id="addCId" class="search-input">
+        </div>
+        <button class="btn" id="saveNewClientBtn">Crear Cliente</button>
+    </div>
+</div>
 <!-- MODAL DETALLE CLIENTE (ADMIN) -->
 <div class="modal" id="clientDetailModal">
     <div class="modal-content">
@@ -412,7 +441,7 @@
 <!-- MODAL CÓDIGO -->
 <div class="modal" id="codeModal">
     <div class="modal-content" style="text-align:center;">
-        <button class="modal-close" data-close="codeModal">×</button>
+        <button class="modal-close" onclick="closeModal('codeModal')">×</button>
         <div class="modal-header">Finalizar Servicio</div>
         <p style="margin-bottom:20px; color:#aaa;">Pide el código de confirmación al cliente.</p>
         <input type="text" id="confirmCodeInput" class="search-input" style="text-align:center; font-size:24px; letter-spacing:5px; margin-bottom:20px;" placeholder="0000">
@@ -462,14 +491,20 @@
         camion: { multiplier: 1.8, fuelCost: 1.7, capacity: 3500, name: 'Camión' }
     };
 
-    let transporters = [
-        { id: 1, email: 'carlos@test.com', password: '1234', name: 'Carlos Rodríguez', phone: '8888-1111', plate: 'BC-123', vehicle: 'Toyota Hiace', rating: 4.8, model: '2022', license: 'B2', insurance: 'INS-992', emergency: '8888-0000' },
-        { id: 2, email: 'miguel@test.com', password: '1234', name: 'Miguel Vargas', phone: '8888-2222', plate: 'CL-456', vehicle: 'Hino 300', rating: 4.6, model: '2021', license: 'B3', insurance: 'INS-112', emergency: '8888-0001' },
-        { id: 3, email: 'ana@test.com', password: '1234', name: 'Ana Quesada', phone: '8888-3333', plate: 'PK-789', vehicle: 'Nissan Frontier', rating: 4.9, model: '2023', license: 'B1', insurance: 'INS-445', emergency: '8888-0002' }
-    ];
-    let registeredClients = [
-        { email: 'cliente@test.com', password: '1234', name: 'Laura Fernández', phone: '8888-0000', idNum: '1-1111-1111', location: 'San José' }
-    ];
+    let transporters = [];
+    let registeredClients = [];
+
+    // Sincronización de usuarios con Firebase
+    onValue(ref(db, 'users/transporters'), (snap) => {
+        const data = snap.val();
+        transporters = data ? Object.values(data) : [];
+        if(currentUser && currentUser.role === 'admin') listenToAdmin();
+    });
+    onValue(ref(db, 'users/clients'), (snap) => {
+        const data = snap.val();
+        registeredClients = data ? Object.values(data) : [];
+        if(currentUser && currentUser.role === 'admin') listenToAdmin();
+    });
 
     // INICIALIZAR MAPA
     map = L.map('map').setView([9.9281, -84.0907], 12);
@@ -923,10 +958,10 @@
             document.getElementById('netBalance').textContent = '₡' + (companyRegal - (50 * 600)).toLocaleString(); // Simulación $50 a ₡600
         });
 
-        const partnersList = document.getElementById('adminPartnersList');
+        const partnersList = document.getElementById('partnersList');
         partnersList.innerHTML = transporters.map(t => `<div class="partner-item" data-tid="${t.id}"><i class="fas fa-user-tie"></i> ${t.name} <span style="font-size:10px; color:#666;">(${t.plate})</span></div>`).join('');
 
-        const clientsList = document.getElementById('adminClientsList');
+        const clientsList = document.getElementById('clientsList');
         clientsList.innerHTML = registeredClients.map(c => `<div class="partner-item client-item" data-email="${c.email}"><i class="fas fa-user"></i> ${c.name} <span style="font-size:10px; color:#666;">(${c.email})</span></div>`).join('');
     };
 
@@ -1038,45 +1073,67 @@
             }, { onlyOnce: true });
 
             document.getElementById('saveClientBtn').onclick = () => {
-                c.name = document.getElementById('editCName').value;
-                c.phone = document.getElementById('editCPhone').value;
-                c.idNum = document.getElementById('editCId').value;
+                const updated = {
+                    ...c,
+                    name: document.getElementById('editCName').value,
+                    phone: document.getElementById('editCPhone').value,
+                    idNum: document.getElementById('editCId').value
+                };
+                update(ref(db, 'users/clients/' + c.email.replace('.', '_')), updated);
                 alert('Cliente actualizado');
-                listenToAdmin();
                 closeModal('clientDetailModal');
             };
 
             document.getElementById('deleteClientBtn').onclick = () => {
                 if(confirm('¿Borrar cliente?')) {
-                    registeredClients = registeredClients.filter(x => x.email !== c.email);
-                    listenToAdmin();
+                    set(ref(db, 'users/clients/' + c.email.replace('.', '_')), null);
                     closeModal('clientDetailModal');
                 }
             };
             openModal('clientDetailModal');
         }
 
+        
+        if (e.target.id === 'saveNewClientBtn') {
+            const name = document.getElementById('addCName').value;
+            const email = document.getElementById('addCEmail').value.trim().toLowerCase();
+            const pass = document.getElementById('addCPass').value;
+            const phone = document.getElementById('addCPhone').value;
+            const idNum = document.getElementById('addCId').value;
+            
+            if(!name || !email || !pass) return alert('Nombre, Email y Contraseña son obligatorios');
+            
+            const newUser = { email, password: pass, name, phone, idNum, role: 'client' };
+            set(ref(db, 'users/clients/' + email.replace('.', '_')), newUser);
+            alert('Cliente creado exitosamente');
+            closeModal('addClientModal');
+            // Limpiar campos
+            ['addCName', 'addCEmail', 'addCPass', 'addCPhone', 'addCId'].forEach(id => document.getElementById(id).value = '');
+        }
         if (e.target.id === 'savePartnerBtn') {
-            const tid = parseInt(e.target.dataset.tid);
-            const t = transporters.find(x => x.id === tid);
-            t.name = document.getElementById('editTName').value;
-            t.idNum = document.getElementById('editTId').value;
-            t.age = document.getElementById('editTAge').value;
-            t.physical = document.getElementById('editTPhys').value;
-            t.phone = document.getElementById('editTPhone').value;
-            t.plate = document.getElementById('editTPlate').value;
-            t.vehicle = document.getElementById('editTVehicle').value;
-            t.license = document.getElementById('editTLicense').value;
-            t.insurance = document.getElementById('editTInsurance').value;
+            const tid = e.target.dataset.tid;
+            const t = transporters.find(x => x.id == tid);
+            const updated = {
+                ...t,
+                name: document.getElementById('editTName').value,
+                idNum: document.getElementById('editTId').value,
+                age: document.getElementById('editTAge').value,
+                physical: document.getElementById('editTPhys').value,
+                phone: document.getElementById('editTPhone').value,
+                plate: document.getElementById('editTPlate').value,
+                vehicle: document.getElementById('editTVehicle').value,
+                license: document.getElementById('editTLicense').value,
+                insurance: document.getElementById('editTInsurance').value
+            };
+            update(ref(db, 'users/transporters/' + tid), updated);
             alert('Socio actualizado');
-            listenToAdmin();
             closeModal('partnerDetailModal');
         }
 
         if (e.target.id === 'deletePartnerBtn') {
             if(confirm('¿Borrar socio?')) {
-                transporters = transporters.filter(x => x.id !== parseInt(e.target.dataset.tid));
-                listenToAdmin();
+                const tid = e.target.dataset.tid;
+                set(ref(db, 'users/transporters/' + tid), null);
                 closeModal('partnerDetailModal');
             }
         }
