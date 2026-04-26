@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MudanzasHub Costa Rica</title>
+    <title>MudanzasHub Costa Rica - Ultimate</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
@@ -558,6 +558,66 @@
 
         .client-admin-name { font-weight: 700; font-size: 14px; }
 
+        /* NUEVOS ESTILOS ULTIMATE */
+        .vehicle-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+        .vehicle-option {
+            background: #2a2a2a;
+            border: 2px solid #444;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .vehicle-option.active {
+            border-color: #00d4ff;
+            background: #1a3a3a;
+        }
+        .vehicle-option i { font-size: 20px; display: block; margin-bottom: 5px; }
+        .vehicle-option span { font-size: 11px; font-weight: 600; }
+
+        .service-type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+        .service-type-option {
+            flex: 1;
+            background: #2a2a2a;
+            border: 2px solid #444;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .service-type-option.active {
+            border-color: #00d4ff;
+            background: #1a3a3a;
+        }
+
+        .nav-overlay {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(26, 26, 26, 0.9);
+            padding: 15px 25px;
+            border-radius: 50px;
+            border: 1px solid #00d4ff;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+        }
+
         @media (max-width: 768px) {
             .container { flex-direction: column; }
             .sidebar { width: 100%; height: 55%; border-right: none; border-bottom: 1px solid #333; }
@@ -566,6 +626,13 @@
     </style>
 </head>
 <body>
+
+<div class="nav-overlay" id="navOverlay">
+    <i class="fas fa-navigation" style="color:#00d4ff;"></i>
+    <span id="navStatus">En ruta al destino...</span>
+    <span id="navDistance" style="font-weight:bold; color:#4ade80;">0.0 km</span>
+    <button class="btn btn-sm" style="margin-left:10px;" onclick="finishNavigation()">Finalizar</button>
+</div>
 
 <div class="container">
     <div class="sidebar">
@@ -608,25 +675,60 @@
             </button>
 
             <div class="search-container">
-                <label class="form-group label" style="display:block;margin-bottom:5px;font-size:12px;color:#aaa;">Punto de Origen</label>
+                <label class="form-group label">Punto de Origen</label>
                 <input type="text" id="originSearch" class="search-input" placeholder="Busca el origen...">
                 <div id="originSuggestions" class="search-suggestions"></div>
             </div>
 
             <div class="search-container">
-                <label class="form-group label" style="display:block;margin-bottom:5px;font-size:12px;color:#aaa;">Punto de Destino</label>
+                <label class="form-group label">Punto de Destino</label>
                 <input type="text" id="destinationSearch" class="search-input" placeholder="Busca el destino...">
                 <div id="destinationSuggestions" class="search-suggestions"></div>
             </div>
 
             <div class="form-group">
-                <label>Peso Estimado (kg)</label>
-                <input type="number" id="weight" class="search-input" placeholder="Ej: 500">
+                <label>Tipo de Vehículo</label>
+                <div class="vehicle-selector">
+                    <div class="vehicle-option active" onclick="selectVehicle('pickup', this)">
+                        <i class="fas fa-truck-pickup"></i>
+                        <span>Pickup</span>
+                    </div>
+                    <div class="vehicle-option" onclick="selectVehicle('camion', this)">
+                        <i class="fas fa-truck"></i>
+                        <span>Camión</span>
+                    </div>
+                    <div class="vehicle-option" onclick="selectVehicle('buseta', this)">
+                        <i class="fas fa-bus"></i>
+                        <span>Buseta</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Tipo de Servicio</label>
+                <div class="service-type-selector">
+                    <div class="service-type-option active" onclick="selectServiceType('acarreo', this)">Con Acarreo</div>
+                    <div class="service-type-option" onclick="selectServiceType('afuera', this)">Puesta Afuera</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>¿Cómo está el acceso a la ruta de destino?</label>
+                <input type="text" id="routeAccess" class="search-input" placeholder="Ej: Calle estrecha, pavimentada...">
+            </div>
+
+            <div class="form-group">
+                <label>Programación</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="date" id="reserveDate" class="search-input" style="flex:2;">
+                    <input type="time" id="reserveTime" class="search-input" style="flex:1;">
+                </div>
+                <p style="font-size:10px; color:#888; margin-top:5px;">Deja en blanco para solicitud en tiempo real.</p>
             </div>
 
             <div class="form-group">
                 <label>Descripción de la Carga</label>
-                <textarea id="description" class="search-input" style="height: 80px; resize: none;" placeholder="Ej: Muebles de sala, 4 cajas..."></textarea>
+                <textarea id="description" class="search-input" style="height: 60px; resize: none;" placeholder="Ej: Muebles de sala..."></textarea>
             </div>
 
             <button class="btn" onclick="searchTransporters()">
@@ -659,10 +761,9 @@
             </div>
 
             <div class="tabs">
-                <button class="tab-btn active" onclick="switchTransporterTab('available', event)">Disponibles</button>
-                <button class="tab-btn" onclick="switchTransporterTab('active', event)">Mis Viajes</button>
+                <button class="tab-btn active" onclick="switchTransporterTab('available', event)">Ofertas en Vivo</button>
+                <button class="tab-btn" onclick="switchTransporterTab('active', event)">En Curso (Max 3)</button>
                 <button class="tab-btn" onclick="switchTransporterTab('history', event)">Historial</button>
-                <button class="tab-btn" onclick="switchTransporterTab('opportunities', event)">Oportunidades</button>
             </div>
 
             <div id="availableTab" class="tab-content active">
@@ -675,10 +776,6 @@
 
             <div id="historyTab" class="tab-content">
                 <div id="historyJobs"></div>
-            </div>
-
-            <div id="opportunitiesTab" class="tab-content">
-                <div id="opportunitiesJobs"></div>
             </div>
         </div>
 
@@ -693,45 +790,11 @@
                 <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
             </button>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="todayMoves">0</div>
-                    <div class="stat-label">Mudanzas Hoy</div>
-                </div>
-                <div class="stat-card green">
-                    <div class="stat-value" id="todayIncome">₡0</div>
-                    <div class="stat-label">Ingreso Hoy</div>
-                </div>
-                <div class="stat-card yellow">
-                    <div class="stat-value" id="activeTransporters">0</div>
-                    <div class="stat-label">Transp. Activos</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="totalClients">0</div>
-                    <div class="stat-label">Clientes Totales</div>
-                </div>
-            </div>
-
-            <div style="background:#222; border-radius:10px; padding:15px; margin-bottom:18px; border:1px solid #333;">
-                <div style="font-size:12px; color:#aaa; margin-bottom:10px; text-transform:uppercase; letter-spacing:1px;">Resumen de Comisiones (20%)</div>
-                <div style="display:flex; justify-content:space-between; align-items:flex-end;">
-                    <div>
-                        <div style="font-size:24px; font-weight:bold; color:#818cf8;" id="totalCommission">₡0</div>
-                        <div style="font-size:10px; color:#666;">Total Acumulado</div>
-                    </div>
-                    <div style="text-align:right;">
-                        <div style="font-size:14px; font-weight:bold; color:#eee;" id="weekCommission">₡0</div>
-                        <div style="font-size:10px; color:#666;">Esta Semana</div>
-                        <div style="font-size:14px; font-weight:bold; color:#eee; margin-top:5px;" id="todayCommission">₡0</div>
-                        <div style="font-size:10px; color:#666;">Hoy</div>
-                    </div>
-                </div>
-            </div>
-
             <div class="tabs">
                 <button class="tab-btn active" onclick="switchAdminTab('moves', event)">Mudanzas</button>
                 <button class="tab-btn" onclick="switchAdminTab('transporters', event)">Transportistas</button>
                 <button class="tab-btn" onclick="switchAdminTab('clients', event)">Clientes</button>
+                <button class="tab-btn" onclick="switchAdminTab('reservations', event)">Reservas</button>
             </div>
 
             <div id="movesTab" class="tab-content active">
@@ -742,13 +805,9 @@
                                 <th>ID</th>
                                 <th>Cliente</th>
                                 <th>Transp.</th>
-                                <th>Origen</th>
-                                <th>Destino</th>
                                 <th>Total</th>
-                                <th>Com.</th>
-                                <th>Gan. T</th>
+                                <th>Com. (20%)</th>
                                 <th>Estado</th>
-                                <th>Fecha</th>
                             </tr>
                         </thead>
                         <tbody id="movesTableBody"></tbody>
@@ -762,6 +821,10 @@
 
             <div id="clientsTab" class="tab-content">
                 <div id="adminClientsList"></div>
+            </div>
+
+            <div id="reservationsTab" class="tab-content">
+                <div id="adminReservationsList"></div>
             </div>
         </div>
 
@@ -797,29 +860,11 @@
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('registerClientModal')">×</button>
         <div class="modal-header"><i class="fas fa-user-plus"></i> Registro de Cliente</div>
-        
-        <div class="form-group">
-            <label>Email</label>
-            <input type="email" id="clientRegEmail" class="search-input" placeholder="tu@email.com">
-        </div>
-        <div class="form-group">
-            <label>Contraseña</label>
-            <input type="password" id="clientRegPassword" class="search-input" placeholder="contraseña segura">
-        </div>
-        <div class="form-group">
-            <label>Nombre Completo</label>
-            <input type="text" id="clientRegName" class="search-input" placeholder="Tu nombre completo">
-        </div>
-        <div class="form-group">
-            <label>Teléfono</label>
-            <input type="tel" id="clientRegPhone" class="search-input" placeholder="+506 8765-1234">
-        </div>
-        <div class="form-group">
-            <label>Cédula</label>
-            <input type="text" id="clientRegCedula" class="search-input" placeholder="1-2345-6789">
-        </div>
-
-        <button class="btn" onclick="registerClient()">Registrarse como Cliente</button>
+        <div class="form-group"><label>Email</label><input type="email" id="clientRegEmail" class="search-input"></div>
+        <div class="form-group"><label>Contraseña</label><input type="password" id="clientRegPassword" class="search-input"></div>
+        <div class="form-group"><label>Nombre Completo</label><input type="text" id="clientRegName" class="search-input"></div>
+        <div class="form-group"><label>Teléfono</label><input type="tel" id="clientRegPhone" class="search-input"></div>
+        <button class="btn" onclick="registerClient()">Registrarse</button>
     </div>
 </div>
 
@@ -828,51 +873,12 @@
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('registerTransporterModal')">×</button>
         <div class="modal-header"><i class="fas fa-truck"></i> Registro de Transportista</div>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" id="transRegEmail" class="search-input" placeholder="tu@email.com">
-            </div>
-            <div class="form-group">
-                <label>Contraseña</label>
-                <input type="password" id="transRegPassword" class="search-input" placeholder="contraseña">
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>Nombre Completo</label>
-            <input type="text" id="transRegName" class="search-input" placeholder="Tu nombre completo">
-        </div>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-            <div class="form-group">
-                <label>Teléfono</label>
-                <input type="tel" id="transRegPhone" class="search-input" placeholder="8765-1234">
-            </div>
-            <div class="form-group">
-                <label>Cédula</label>
-                <input type="text" id="transRegCedula" class="search-input" placeholder="1-0234-0567">
-            </div>
-        </div>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-            <div class="form-group">
-                <label>Número de Placa</label>
-                <input type="text" id="transRegPlate" class="search-input" placeholder="ABC-123">
-            </div>
-            <div class="form-group">
-                <label>Modelo de Vehículo</label>
-                <input type="text" id="transRegVehicle" class="search-input" placeholder="Toyota Hiace 2021">
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>Número de Seguro / Póliza</label>
-            <input type="text" id="transRegInsurance" class="search-input" placeholder="POL-123456 (INS)">
-        </div>
-
-        <button class="btn" onclick="registerTransporter()">Registrarse como Transportista</button>
+        <div class="form-group"><label>Email</label><input type="email" id="transRegEmail" class="search-input"></div>
+        <div class="form-group"><label>Contraseña</label><input type="password" id="transRegPassword" class="search-input"></div>
+        <div class="form-group"><label>Nombre Completo</label><input type="text" id="transRegName" class="search-input"></div>
+        <div class="form-group"><label>Placa</label><input type="text" id="transRegPlate" class="search-input"></div>
+        <div class="form-group"><label>Vehículo</label><input type="text" id="transRegVehicle" class="search-input"></div>
+        <button class="btn" onclick="registerTransporter()">Registrarse</button>
     </div>
 </div>
 
@@ -880,40 +886,11 @@
 <div class="modal" id="facturaModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('facturaModal')">×</button>
+        <div class="modal-header">Confirmación de Mudanza</div>
+        <div id="facturaDetails" style="font-size:13px; line-height:1.6; margin-bottom:15px;"></div>
         
-        <div class="factura-header">
-            <div class="modal-header" style="margin-bottom:0;">Confirmación de Mudanza</div>
-            <div style="text-align:right;">
-                <div style="font-size:11px;color:#aaa;">Transacción #</div>
-                <div style="font-weight:bold;color:#00d4ff;" id="comprobanteNumero">TRX-000000</div>
-            </div>
-        </div>
-
-        <div class="factura-grid">
-            <div>
-                <div class="factura-section-title">Detalles del Viaje</div>
-                <div class="factura-item"><span class="factura-label">Origen:</span> <span class="factura-value" id="facturaOrigin">-</span></div>
-                <div class="factura-item"><span class="factura-label">Destino:</span> <span class="factura-value" id="facturaDestination">-</span></div>
-                <div class="factura-item"><span class="factura-label">Distancia:</span> <span class="factura-value" id="facturaDistance">-</span></div>
-                <div class="factura-item"><span class="factura-label">Peso:</span> <span class="factura-value" id="facturaWeight">-</span></div>
-                <div class="factura-item"><span class="factura-label">Carga:</span> <span class="factura-value" id="facturaDesc">-</span></div>
-            </div>
-            <div>
-                <div class="factura-section-title">Transportista Asignado</div>
-                <div class="factura-item"><span class="factura-label">Nombre:</span> <span class="factura-value" id="facturaTransporterName">-</span></div>
-                <div class="factura-item"><span class="factura-label">Teléfono:</span> <span class="factura-value" id="facturaTransporterPhone">-</span></div>
-                <div class="factura-item"><span class="factura-label">Cédula:</span> <span class="factura-value" id="facturaTransporterCedula">-</span></div>
-                <div class="factura-item"><span class="factura-label">Vehículo:</span> <span class="factura-value" id="facturaTransporterVehicle">-</span></div>
-                <div class="factura-item"><span class="factura-label">Placa:</span> <span class="factura-value" id="facturaTransporterPlate">-</span></div>
-                <div class="factura-item"><span class="factura-label">Seguro:</span> <span class="factura-value" id="facturaTransporterInsurance">-</span></div>
-            </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="factura-section-title">Información de Pago</div>
-        <div style="background:#222;padding:15px;border-radius:8px;margin-bottom:15px;">
-            <div style="display:flex;justify-content:space-between;font-weight:bold;font-size:18px;color:#4ade80;">
+        <div style="background:#222; padding:15px; border-radius:8px; margin-bottom:15px;">
+            <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:18px; color:#4ade80;">
                 <span>Total a Pagar:</span>
                 <span id="facturaTotal">₡0</span>
             </div>
@@ -923,50 +900,27 @@
         </div>
 
         <div class="alert-box alert-info">
-            <i class="fas fa-info-circle"></i> Realiza el pago vía SINPE Móvil al número <strong>7228-4602</strong> y adjunta el comprobante abajo.
+            <i class="fas fa-info-circle"></i> Pago por adelantado requerido. Adjunta el comprobante para activar el servicio.
         </div>
 
-        <div class="upload-area" id="uploadArea" onclick="document.getElementById('comprobanteFileInput').click()">
-            <input type="file" id="comprobanteFileInput" style="display:none" accept="image/*,application/pdf" onchange="handleComprobanteUpload(event)">
+        <div class="upload-area" onclick="document.getElementById('comprobanteFileInput').click()">
+            <input type="file" id="comprobanteFileInput" style="display:none" onchange="handleUpload(event)">
             <i class="fas fa-cloud-upload-alt upload-icon"></i>
-            <div class="upload-text">Haz clic o arrastra el comprobante aquí</div>
-            <div id="uploadFileName" style="margin-top:10px;font-weight:600;color:#4ade80;"></div>
+            <div class="upload-text" id="uploadText">Haz clic para adjuntar comprobante</div>
         </div>
 
-        <div class="comprobante-preview" id="comprobantePreview">
-            <img id="comprobantePreviewImg" src="" alt="Vista previa">
-        </div>
+        <button class="btn" id="confirmMoveBtn" onclick="confirmMove()" disabled>Confirmar y Pagar</button>
+    </div>
+</div>
 
-        <div style="margin-bottom:15px;">
-            <div style="display:flex;justify-content:space-between;font-size:11px;color:#888;margin-bottom:5px;">
-                <span>Estado del Pago:</span>
-                <span id="comprobanteEstado" style="font-weight:bold;">Pendiente</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;font-size:11px;color:#888;">
-                <span>Hora de Transacción:</span>
-                <span id="comprobanteHora">-</span>
-            </div>
-        </div>
-
-        <div style="margin-bottom:15px;">
-            <label style="display:flex;align-items:center;gap:10px;font-size:12px;color:#aaa;cursor:pointer;">
-                <input type="checkbox" id="agreementCheckbox" onchange="toggleConfirmBtn()">
-                Acepto los términos y condiciones del servicio de MudanzasHub.
-            </label>
-        </div>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-            <div class="form-group">
-                <label>Tu Nombre</label>
-                <input type="text" id="clientName" class="search-input" placeholder="Nombre para factura">
-            </div>
-            <div class="form-group">
-                <label>Tu Teléfono</label>
-                <input type="tel" id="clientPhone" class="search-input" placeholder="8888-8888">
-            </div>
-        </div>
-
-        <button class="btn" id="confirmMoveBtn" onclick="confirmMove()" disabled>Confirmar y Enviar Solicitud</button>
+<!-- Modal: Código de Confirmación -->
+<div class="modal" id="codeModal">
+    <div class="modal-content" style="text-align:center;">
+        <button class="modal-close" onclick="closeModal('codeModal')">×</button>
+        <div class="modal-header">Finalizar Servicio</div>
+        <p style="margin-bottom:20px; color:#aaa;">Pide el código de confirmación al cliente para concluir.</p>
+        <input type="text" id="confirmCodeInput" class="search-input" style="text-align:center; font-size:24px; letter-spacing:5px; margin-bottom:20px;" placeholder="0000">
+        <button class="btn" onclick="validateCode()">Validar y Finalizar</button>
     </div>
 </div>
 
@@ -974,475 +928,285 @@
 <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
 
 <script>
-    // ============================================================
-    //  ESTADO GLOBAL
-    // ============================================================
+    // ESTADO GLOBAL
     let map, selectedOrigin, selectedDestination, currentUser, selectedTransporter;
     let markers = {};
-    let debounceTimer = null;
     let moves = [];
-    let comprobanteFileData = null;
+    let selectedVehicle = 'pickup';
+    let selectedServiceType = 'acarreo';
+    let routingControl = null;
+    let activeNavMove = null;
 
-    // Base de datos de transportistas registrados
+    const vehicleMultipliers = { pickup: 1, camion: 1.8, buseta: 1.4 };
+
     let transporters = [
-        {
-            id: 1,
-            email: 'carlos@test.com',
-            password: '1234',
-            name: 'Carlos Rodríguez Mora',
-            phone: '8765-1234',
-            cedula: '1-0234-0567',
-            plate: 'ABC-123',
-            vehicle: 'Toyota Hiace 2021 — Van 3.5T',
-            insurance: 'POL-123456 (INS)',
-            registeredDate: '2024-01-15',
-            status: 'active',
-            inLabor: true,
-            rating: 4.8,
-            totalTrips: 47,
-            bio: 'Especialista en mudanzas residenciales.'
-        },
-        {
-            id: 2,
-            email: 'miguel@test.com',
-            password: '1234',
-            name: 'Miguel Ángel Vargas',
-            phone: '8765-5678',
-            cedula: '2-0345-0678',
-            plate: 'XYZ-789',
-            vehicle: 'Hino 300 — Camión 5T',
-            insurance: 'POL-234567 (INS)',
-            registeredDate: '2024-01-10',
-            status: 'active',
-            inLabor: true,
-            rating: 4.6,
-            totalTrips: 62,
-            bio: 'Mudanzas comerciales y residenciales.'
-        }
+        { id: 1, email: 'carlos@test.com', password: '1234', name: 'Carlos Rodríguez', phone: '8765-1234', plate: 'ABC-123', vehicle: 'Toyota Hiace', rating: 4.8, status: 'active' },
+        { id: 2, email: 'miguel@test.com', password: '1234', name: 'Miguel Vargas', phone: '8765-5678', plate: 'XYZ-789', vehicle: 'Hino 300', rating: 4.6, status: 'active' }
     ];
 
     let registeredClients = [
-        {
-            id: 'c1',
-            email: 'cliente@test.com',
-            password: '1234',
-            name: 'Laura Fernández Rojas',
-            phone: '8801-2345',
-            cedula: '5-0123-0456',
-            registeredDate: '2024-03-01'
-        }
+        { email: 'cliente@test.com', password: '1234', name: 'Laura Fernández', phone: '8801-2345' }
     ];
 
-    // ============================================================
-    //  INICIALIZACIÓN
-    // ============================================================
     window.onload = function() {
         initMap();
-        moves = loadMoves();
+        moves = JSON.parse(localStorage.getItem('mh_moves_ultimate') || '[]');
         
-        // Listeners para búsqueda
-        document.getElementById('originSearch').addEventListener('input', function(e) {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => searchLocations(e.target.value, 'origin'), 500);
-        });
-
-        document.getElementById('destinationSearch').addEventListener('input', function(e) {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => searchLocations(e.target.value, 'destination'), 500);
-        });
-
-        // Cerrar sugerencias al hacer clic fuera
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.search-container')) {
-                document.querySelectorAll('.search-suggestions').forEach(s => s.classList.remove('active'));
-            }
+        document.getElementById('originSearch').addEventListener('input', (e) => searchLoc(e.target.value, 'origin'));
+        document.getElementById('destinationSearch').addEventListener('input', (e) => searchLoc(e.target.value, 'destination'));
+        
+        // Sincronización entre pestañas
+        window.addEventListener('storage', () => {
+            moves = JSON.parse(localStorage.getItem('mh_moves_ultimate') || '[]');
+            if (currentUser && currentUser.role === 'transporter') loadTransporterData();
+            if (currentUser && currentUser.role === 'admin') loadAdminData();
         });
     };
 
     function initMap() {
         map = L.map('map').setView([9.9281, -84.0907], 12);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
-            maxZoom: 19
-        }).addTo(map);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     }
 
-    // ============================================================
-    //  BÚSQUEDA DE UBICACIONES
-    // ============================================================
-    async function searchLocations(query, type) {
-        if (query.length < 3) {
-            document.getElementById(type === 'origin' ? 'originSuggestions' : 'destinationSuggestions').classList.remove('active');
-            return;
-        }
-
-        const container = type === 'origin' ? 'originSuggestions' : 'destinationSuggestions';
-        const suggestionsDiv = document.getElementById(container);
-        suggestionsDiv.innerHTML = '<div style="padding:10px;color:#aaa;">Buscando...</div>';
-        suggestionsDiv.classList.add('active');
-        
-        try {
-            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}, Costa Rica&limit=5&countrycodes=cr`);
-            const results = await response.json();
-            
-            if (results.length === 0) {
-                suggestionsDiv.innerHTML = '<div style="padding:10px;color:#aaa;">No se encontraron resultados</div>';
-                return;
-            }
-            
-            suggestionsDiv.innerHTML = results.map(r => `
-                <div class="suggestion-item" onclick="selectLocation(${r.lat}, ${r.lon}, '${r.display_name.replace(/'/g, "\\'")}', '${type}')">
-                    <div><strong>${r.display_name.split(',')[0]}</strong></div>
-                    <div class="suggestion-address">${r.display_name}</div>
-                </div>
-            `).join('');
-        } catch (e) {
-            suggestionsDiv.innerHTML = '<div style="padding:10px;color:#f87171;">Error de conexión</div>';
-        }
+    async function searchLoc(q, type) {
+        if (q.length < 3) return;
+        const div = document.getElementById(type + 'Suggestions');
+        div.innerHTML = '<div style="padding:10px;">Buscando...</div>';
+        div.classList.add('active');
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${q}, Costa Rica&limit=5`);
+        const data = await res.json();
+        div.innerHTML = data.map(r => `<div class="suggestion-item" onclick="selectLoc(${r.lat}, ${r.lon}, '${r.display_name.replace(/'/g,"")}', '${type}')">${r.display_name}</div>`).join('');
     }
 
-    function selectLocation(lat, lon, name, type) {
-        const isOrigin = type === 'origin';
+    function selectLoc(lat, lon, name, type) {
         const loc = { lat, lng: lon, name };
-        
-        if (isOrigin) {
+        if (type === 'origin') {
             selectedOrigin = loc;
             document.getElementById('originSearch').value = name.split(',')[0];
-            document.getElementById('originSuggestions').classList.remove('active');
             if (markers.origin) map.removeLayer(markers.origin);
             markers.origin = L.marker([lat, lon]).addTo(map).bindPopup('Origen');
         } else {
             selectedDestination = loc;
             document.getElementById('destinationSearch').value = name.split(',')[0];
-            document.getElementById('destinationSuggestions').classList.remove('active');
             if (markers.destination) map.removeLayer(markers.destination);
             markers.destination = L.marker([lat, lon]).addTo(map).bindPopup('Destino');
         }
-
-        if (selectedOrigin && selectedDestination) {
-            drawRoute(selectedOrigin, selectedDestination);
-        } else {
-            map.setView([lat, lon], 14);
-        }
+        document.querySelectorAll('.search-suggestions').forEach(s => s.classList.remove('active'));
+        if (selectedOrigin && selectedDestination) drawRoute();
     }
 
-    function drawRoute(origin, dest) {
-        if (window.routingControl) map.removeControl(window.routingControl);
-        
-        window.routingControl = L.Routing.control({
-            waypoints: [L.latLng(origin.lat, origin.lng), L.latLng(dest.lat, dest.lng)],
-            routeWhileDragging: false,
-            addWaypoints: false,
-            draggableWaypoints: false,
-            fitSelectedRoutes: true,
+    function drawRoute() {
+        if (routingControl) map.removeControl(routingControl);
+        routingControl = L.Routing.control({
+            waypoints: [L.latLng(selectedOrigin.lat, selectedOrigin.lng), L.latLng(selectedDestination.lat, selectedDestination.lng)],
             show: false,
-            lineOptions: { styles: [{ color: '#00d4ff', opacity: 0.7, weight: 5 }] }
+            lineOptions: { styles: [{ color: '#00d4ff', weight: 5 }] }
         }).addTo(map);
     }
 
-    // ============================================================
-    //  LÓGICA DE NEGOCIO
-    // ============================================================
-    function calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371;
-        const dLat = (lat2-lat1) * Math.PI / 180;
-        const dLon = (lon2-lon1) * Math.PI / 180;
-        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                Math.sin(dLon/2) * Math.sin(dLon/2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        return R * c;
+    function selectVehicle(v, el) {
+        selectedVehicle = v;
+        document.querySelectorAll('.vehicle-option').forEach(o => o.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    function selectServiceType(t, el) {
+        selectedServiceType = t;
+        document.querySelectorAll('.service-type-option').forEach(o => o.classList.remove('active'));
+        el.classList.add('active');
     }
 
     function searchTransporters() {
-        if (!selectedOrigin || !selectedDestination) {
-            alert('Por favor selecciona origen y destino en el mapa');
-            return;
-        }
+        if (!selectedOrigin || !selectedDestination) return alert('Selecciona origen y destino');
+        const dist = calculateDist(selectedOrigin, selectedDestination);
+        const base = 15000 + (dist * 1200);
+        const multiplier = vehicleMultipliers[selectedVehicle];
+        const serviceAdd = selectedServiceType === 'acarreo' ? 5000 : 0;
+        const finalPrice = Math.round((base * multiplier) + serviceAdd);
 
-        const weight = document.getElementById('weight').value;
-        if (!weight) { alert('Por favor ingresa el peso estimado'); return; }
-
-        const dist = calculateDistance(selectedOrigin.lat, selectedOrigin.lng, selectedDestination.lat, selectedDestination.lng);
-        
-        let html = transporters.map(t => {
-            const price = Math.round(15000 + (dist * 1200) + (weight * 10));
-            return `
-                <div class="transportista-card" onclick="selectTransporter(${t.id}, ${price})">
-                    <div class="transportista-header">
-                        <div class="transportista-name">${t.name}</div>
-                        <div class="transportista-price">₡${price.toLocaleString()}</div>
-                    </div>
-                    <div class="transportista-stars">★★★★★ 5.0</div>
-                    <div class="transportista-info"><i class="fas fa-truck"></i> ${t.vehicle}</div>
-                    <div class="transportista-offer-label">Oferta para ${dist.toFixed(1)} km</div>
+        document.getElementById('transportistasList').innerHTML = transporters.map(t => `
+            <div class="transportista-card" onclick="openFactura(${t.id}, ${finalPrice})">
+                <div class="transportista-header">
+                    <div class="transportista-name">${t.name}</div>
+                    <div class="transportista-price">₡${finalPrice.toLocaleString()}</div>
                 </div>
-            `;
-        }).join('');
-        
-        document.getElementById('transportistasList').innerHTML = html;
+                <div class="transportista-info"><i class="fas fa-truck"></i> ${t.vehicle} (${selectedVehicle.toUpperCase()})</div>
+                <div style="font-size:11px; color:#aaa; margin-top:5px;">Servicio: ${selectedServiceType === 'acarreo' ? 'Con Acarreo' : 'Puesta Afuera'}</div>
+            </div>
+        `).join('');
     }
 
-    function selectTransporter(id, price) {
-        const t = transporters.find(x => x.id === id);
-        if (!t) return;
-        selectedTransporter = { ...t, price };
-
-        const distance = calculateDistance(
-            selectedOrigin.lat, selectedOrigin.lng,
-            selectedDestination.lat, selectedDestination.lng
-        );
-        const weight = parseInt(document.getElementById('weight').value);
-        const desc = document.getElementById('description').value || '-';
-
-        document.getElementById('facturaOrigin').textContent = selectedOrigin.name.split(',')[0];
-        document.getElementById('facturaDestination').textContent = selectedDestination.name.split(',')[0];
-        document.getElementById('facturaDistance').textContent = distance.toFixed(2) + ' km';
-        document.getElementById('facturaWeight').textContent = weight + ' kg';
-        document.getElementById('facturaDesc').textContent = desc;
+    function openFactura(tid, price) {
+        selectedTransporter = transporters.find(t => t.id === tid);
+        selectedTransporter.price = price;
+        const isReserve = document.getElementById('reserveDate').value !== '';
+        
+        let html = `
+            <p><strong>Origen:</strong> ${selectedOrigin.name}</p>
+            <p><strong>Destino:</strong> ${selectedDestination.name}</p>
+            <p><strong>Vehículo:</strong> ${selectedVehicle.toUpperCase()}</p>
+            <p><strong>Servicio:</strong> ${selectedServiceType === 'acarreo' ? 'Con Acarreo' : 'Puesta Afuera'}</p>
+            <p><strong>Acceso Ruta:</strong> ${document.getElementById('routeAccess').value || 'No especificado'}</p>
+            <p><strong>Modo:</strong> ${isReserve ? 'RESERVA (' + document.getElementById('reserveDate').value + ' ' + document.getElementById('reserveTime').value + ')' : 'TIEMPO REAL'}</p>
+        `;
+        document.getElementById('facturaDetails').innerHTML = html;
         document.getElementById('facturaTotal').textContent = '₡' + price.toLocaleString();
-
-        document.getElementById('facturaTransporterName').textContent = t.name;
-        document.getElementById('facturaTransporterPhone').textContent = t.phone;
-        document.getElementById('facturaTransporterCedula').textContent = t.cedula;
-        document.getElementById('facturaTransporterVehicle').textContent = t.vehicle;
-        document.getElementById('facturaTransporterPlate').textContent = t.plate;
-        document.getElementById('facturaTransporterInsurance').textContent = t.insurance;
-
-        const transactionNumber = 'TRX-' + Date.now().toString().slice(-8);
-        document.getElementById('comprobanteNumero').textContent = transactionNumber;
-        document.getElementById('comprobanteHora').textContent = new Date().toLocaleString('es-CR');
-        document.getElementById('comprobanteEstado').textContent = 'Pendiente de Comprobante';
-        document.getElementById('comprobanteEstado').style.color = '#fbbf24';
-
-        // Limpiar comprobante anterior
-        comprobanteFileData = null;
-        document.getElementById('uploadArea').classList.remove('has-file');
-        document.getElementById('uploadFileName').textContent = '';
-        document.getElementById('comprobantePreview').style.display = 'none';
-        document.getElementById('comprobanteFileInput').value = '';
-
-        document.getElementById('agreementCheckbox').checked = false;
-        document.getElementById('confirmMoveBtn').disabled = true;
-
-        // Pre-llenar nombre si está en sesión
-        if (currentUser) {
-            const clientData = registeredClients.find(c => c.email === currentUser.email);
-            if (clientData) {
-                document.getElementById('clientName').value = clientData.name;
-                document.getElementById('clientPhone').value = clientData.phone;
-            }
-        }
-
         openModal('facturaModal');
     }
 
-    function handleComprobanteUpload(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const uploadArea = document.getElementById('uploadArea');
-        const fileName = document.getElementById('uploadFileName');
-        const preview = document.getElementById('comprobantePreview');
-        const previewImg = document.getElementById('comprobantePreviewImg');
-        const estadoEl = document.getElementById('comprobanteEstado');
-
-        fileName.textContent = '✓ ' + file.name;
-        uploadArea.classList.add('has-file');
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            comprobanteFileData = { name: file.name, type: file.type, dataUrl: e.target.result };
-            if (file.type.startsWith('image/')) {
-                previewImg.src = e.target.result;
-                preview.style.display = 'block';
-            }
-            estadoEl.textContent = 'Comprobante Adjunto ✓';
-            estadoEl.style.color = '#4ade80';
-        };
-        reader.readAsDataURL(file);
-    }
-
-    function toggleConfirmBtn() {
-        const checked = document.getElementById('agreementCheckbox').checked;
-        document.getElementById('confirmMoveBtn').disabled = !checked;
+    function handleUpload(e) {
+        if (e.target.files[0]) {
+            document.getElementById('uploadText').textContent = '✓ Comprobante adjunto: ' + e.target.files[0].name;
+            document.getElementById('confirmMoveBtn').disabled = false;
+        }
     }
 
     function confirmMove() {
-        const name = document.getElementById('clientName').value.trim();
-        const phone = document.getElementById('clientPhone').value.trim();
-
-        if (!name || !phone) { alert('Por favor completa tu nombre y teléfono'); return; }
-
-        const distance = calculateDistance(selectedOrigin.lat, selectedOrigin.lng, selectedDestination.lat, selectedDestination.lng);
-
+        const isReserve = document.getElementById('reserveDate').value !== '';
         const move = {
             id: Date.now(),
             client: currentUser.email,
-            clientName: name,
-            clientPhone: phone,
+            clientName: currentUser.name,
             transporter: selectedTransporter.id,
             transporterName: selectedTransporter.name,
             origin: selectedOrigin,
             destination: selectedDestination,
-            distance: distance,
-            weight: parseInt(document.getElementById('weight').value),
             price: selectedTransporter.price,
-            status: 'confirmed',
+            vehicle: selectedVehicle,
+            service: selectedServiceType,
+            access: document.getElementById('routeAccess').value,
+            mode: isReserve ? 'reserva' : 'realtime',
+            reserveDate: document.getElementById('reserveDate').value,
+            reserveTime: document.getElementById('reserveTime').value,
+            status: 'pending',
+            code: Math.floor(1000 + Math.random() * 9000),
             date: new Date().toISOString()
         };
-
         moves.push(move);
         saveMoves();
-        alert('¡Mudanza confirmada! El transportista ha sido notificado.');
+        alert('¡Pago recibido! Tu solicitud ha sido enviada. Recibirás un correo con el código de confirmación.');
         closeModal('facturaModal');
-        
-        // Resetear búsqueda
-        selectedOrigin = null; selectedDestination = null;
-        document.getElementById('originSearch').value = '';
-        document.getElementById('destinationSearch').value = '';
-        document.getElementById('transportistasList').innerHTML = '';
-        if (markers.origin) map.removeLayer(markers.origin);
-        if (markers.destination) map.removeLayer(markers.destination);
-        if (window.routingControl) map.removeControl(window.routingControl);
+        logout(); // Simular fin de flujo cliente
     }
 
-    // ============================================================
-    //  TRANSPORTISTA
-    // ============================================================
+    // TRANSPORTISTA LOGIC
     function loadTransporterData() {
-        moves = loadMoves();
         const myMoves = moves.filter(m => m.transporter === currentUser.id);
-        const completedMoves = myMoves.filter(m => m.status === 'completed');
-        const activeMoves = myMoves.filter(m => m.status === 'in_progress' || m.status === 'confirmed');
+        const available = moves.filter(m => m.status === 'pending' && m.transporter === currentUser.id);
+        const active = myMoves.filter(m => m.status === 'in_progress');
+        const history = myMoves.filter(m => m.status === 'completed');
 
-        const totalGain = completedMoves.reduce((acc, m) => acc + (m.price * 0.80), 0);
-        document.getElementById('completedTrips').textContent = completedMoves.length;
-        document.getElementById('totalEarnings').textContent = '₡' + Math.round(totalGain).toLocaleString();
+        document.getElementById('completedTrips').textContent = history.length;
+        document.getElementById('totalEarnings').textContent = '₡' + Math.round(history.reduce((a,b)=>a+(b.price*0.8),0)).toLocaleString();
 
-        // Tab: Disponibles (Solicitudes confirmadas por clientes)
-        const availableHtml = myMoves.filter(m => m.status === 'confirmed').map(m => `
+        document.getElementById('availableJobs').innerHTML = available.map(m => `
             <div class="uber-job-card">
                 <div class="job-header">
-                    <div>
-                        <div style="font-weight:700;">${m.origin.name.split(',')[0]} → ${m.destination.name.split(',')[0]}</div>
-                        <div class="job-distance">${m.distance.toFixed(1)} km</div>
-                    </div>
-                    <div class="job-price">₡${Math.round(m.price * 0.80).toLocaleString()}</div>
+                    <div style="font-weight:bold;">${m.origin.name.split(',')[0]} → ${m.destination.name.split(',')[0]}</div>
+                    <div class="job-price">₡${Math.round(m.price*0.8).toLocaleString()}</div>
                 </div>
-                <div style="font-size:11px; color:#4ade80; margin-bottom:10px;">Tu ganancia neta: ₡${Math.round(m.price * 0.80).toLocaleString()}</div>
-                <button class="btn" onclick="acceptJob(${m.id})">Aceptar Viaje</button>
+                <div style="font-size:11px; color:#aaa; margin-bottom:10px;">Modo: ${m.mode.toUpperCase()} | Vehículo: ${m.vehicle.toUpperCase()}</div>
+                <button class="btn" onclick="acceptJob(${m.id})" ${active.length >= 3 ? 'disabled' : ''}>Aceptar Oferta</button>
             </div>
-        `).join('') || '<p style="text-align:center;color:#555;font-size:12px;">No hay solicitudes nuevas</p>';
-        document.getElementById('availableJobs').innerHTML = availableHtml;
+        `).join('') || '<p style="text-align:center;color:#555;">No hay ofertas nuevas</p>';
 
-        // Tab: Activos
-        const activeHtml = myMoves.filter(m => m.status === 'in_progress').map(m => `
+        document.getElementById('activeJobs').innerHTML = active.map(m => `
             <div class="uber-job-card" style="border-color:#4ade80;">
-                <div class="job-header"><div>${m.clientName}</div><div class="job-price">₡${Math.round(m.price * 0.80).toLocaleString()}</div></div>
-                <button class="btn" style="background:#4ade80;" onclick="completeJob(${m.id})">Finalizar Viaje</button>
+                <div style="font-weight:bold; margin-bottom:10px;">Cliente: ${m.clientName}</div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn btn-sm" onclick="startNav(${m.id})">Ver Ruta</button>
+                    <button class="btn btn-sm" style="background:#4ade80;" onclick="openCodeModal(${m.id})">Finalizar</button>
+                </div>
             </div>
-        `).join('') || '<p style="text-align:center;color:#555;font-size:12px;">Sin viajes activos</p>';
-        document.getElementById('activeJobs').innerHTML = activeHtml;
+        `).join('') || '<p style="text-align:center;color:#555;">Sin viajes en curso</p>';
 
-        // Tab: Historial
-        document.getElementById('historyJobs').innerHTML = completedMoves.map(m => `
+        document.getElementById('historyJobs').innerHTML = history.map(m => `
             <div class="historial-item">
-                <div class="historial-header"><span>${m.origin.name.split(',')[0]} → ${m.destination.name.split(',')[0]}</span><span>₡${Math.round(m.price*0.8).toLocaleString()}</span></div>
-                <div class="historial-info">Fecha: ${new Date(m.date).toLocaleDateString()} | Cliente: ${m.clientName}</div>
+                <div class="historial-header"><span>${m.origin.name.split(',')[0]}</span><span>₡${Math.round(m.price*0.8).toLocaleString()}</span></div>
+                <div class="historial-info">${new Date(m.date).toLocaleDateString()}</div>
             </div>
-        `).join('') || '<p style="text-align:center;color:#555;font-size:12px;">Historial vacío</p>';
+        `).join('');
     }
 
     function acceptJob(id) {
-        let moves = loadMoves();
-        moves.find(m => m.id === id).status = 'in_progress';
-        saveMoves(moves);
+        const move = moves.find(m => m.id === id);
+        move.status = 'in_progress';
+        saveMoves();
         loadTransporterData();
+        alert('Viaje aceptado. Se ha enviado una notificación al cliente: "Su mudanza se ha puesto en marcha. Link de seguimiento: https://mudanzashub.cr/track/' + id + '"');
     }
 
-    function completeJob(id) {
-        let moves = loadMoves();
-        moves.find(m => m.id === id).status = 'completed';
-        saveMoves(moves);
-        loadTransporterData();
+    function startNav(id) {
+        const move = moves.find(m => m.id === id);
+        activeNavMove = move;
+        selectedOrigin = move.origin;
+        selectedDestination = move.destination;
+        drawRoute();
+        document.getElementById('navOverlay').style.display = 'flex';
+        document.getElementById('navDistance').textContent = calculateDist(move.origin, move.destination).toFixed(1) + ' km';
     }
 
-    // ============================================================
-    //  ADMINISTRADOR
-    // ============================================================
+    function finishNavigation() {
+        document.getElementById('navOverlay').style.display = 'none';
+        if (routingControl) map.removeControl(routingControl);
+    }
+
+    function openCodeModal(id) {
+        activeNavMove = moves.find(m => m.id === id);
+        openModal('codeModal');
+    }
+
+    function validateCode() {
+        const input = document.getElementById('confirmCodeInput').value;
+        if (parseInt(input) === activeNavMove.code) {
+            activeNavMove.status = 'completed';
+            saveMoves();
+            alert('¡Servicio concluido con éxito!');
+            closeModal('codeModal');
+            loadTransporterData();
+            finishNavigation();
+        } else {
+            alert('Código incorrecto. Pídelo al cliente.');
+        }
+    }
+
+    // ADMIN LOGIC
     function loadAdminData() {
-        moves = loadMoves();
-        const today = new Date().toDateString();
-        const todayMoves = moves.filter(m => new Date(m.date).toDateString() === today);
-        
-        let totalComm = moves.reduce((acc, m) => acc + (m.price * 0.20), 0);
-        let todayComm = todayMoves.reduce((acc, m) => acc + (m.price * 0.20), 0);
-
-        document.getElementById('todayMoves').textContent = todayMoves.length;
-        document.getElementById('todayIncome').textContent = '₡' + todayMoves.reduce((a,b)=>a+b.price,0).toLocaleString();
-        document.getElementById('activeTransporters').textContent = transporters.length;
-        document.getElementById('totalClients').textContent = registeredClients.length;
-        document.getElementById('totalCommission').textContent = '₡' + Math.round(totalComm).toLocaleString();
-        document.getElementById('todayCommission').textContent = '₡' + Math.round(todayComm).toLocaleString();
-
-        // Tabla de Mudanzas
         document.getElementById('movesTableBody').innerHTML = moves.map(m => `
             <tr>
                 <td>#${String(m.id).slice(-4)}</td>
                 <td>${m.clientName}</td>
                 <td>${m.transporterName}</td>
-                <td>${m.origin.name.split(',')[0]}</td>
-                <td>${m.destination.name.split(',')[0]}</td>
                 <td>₡${m.price.toLocaleString()}</td>
                 <td style="color:#818cf8;">₡${Math.round(m.price*0.2).toLocaleString()}</td>
-                <td style="color:#4ade80;">₡${Math.round(m.price*0.8).toLocaleString()}</td>
                 <td><span class="status-badge status-${m.status}">${m.status}</span></td>
-                <td>${new Date(m.date).toLocaleDateString()}</td>
             </tr>
         `).join('');
 
-        // Lista de Transportistas Detallada
-        document.getElementById('adminTransportersList').innerHTML = transporters.map(t => {
-            const tMoves = moves.filter(m => m.transporter === t.id);
-            const tComm = tMoves.reduce((acc, m) => acc + (m.price * 0.20), 0);
-            return `
-                <div class="transporter-admin-card">
-                    <div class="transporter-admin-header">
-                        <div class="transporter-admin-name">${t.name}</div>
-                        <span class="status-badge status-active">Activo</span>
-                    </div>
-                    <div style="font-size:11px; color:#888; margin-bottom:10px;">
-                        Email: ${t.email} | Tel: ${t.phone} | Placa: ${t.plate}
-                    </div>
-                    <div class="transporter-admin-stats">
-                        <div class="transporter-mini-stat"><div class="val">${tMoves.length}</div><div class="lbl">Solicitudes</div></div>
-                        <div class="transporter-mini-stat"><div class="val" style="color:#4ade80;">₡${Math.round(tMoves.reduce((a,b)=>a+b.price,0)*0.8/1000)}K</div><div class="lbl">Ganó</div></div>
-                        <div class="transporter-mini-stat"><div class="val" style="color:#818cf8;">₡${Math.round(tComm/1000)}K</div><div class="lbl">Dio a Empresa</div></div>
-                    </div>
-                </div>
-            `;
-        }).join('');
+        document.getElementById('adminTransportersList').innerHTML = transporters.map(t => `
+            <div class="transporter-admin-card">
+                <div class="transporter-admin-name">${t.name}</div>
+                <div style="font-size:11px; color:#888;">Email: ${t.email} | Placa: ${t.plate}</div>
+            </div>
+        `).join('');
 
-        // Lista de Clientes Detallada
-        document.getElementById('adminClientsList').innerHTML = registeredClients.map(c => {
-            const cMoves = moves.filter(m => m.client === c.email);
-            const cTotal = cMoves.reduce((acc, m) => acc + m.price, 0);
-            const cComm = cMoves.reduce((acc, m) => acc + (m.price * 0.20), 0);
-            return `
-                <div class="client-admin-card">
-                    <div class="client-admin-header"><div class="client-admin-name">${c.name}</div><div style="color:#4ade80; font-weight:bold;">₡${cTotal.toLocaleString()}</div></div>
-                    <div style="font-size:11px; color:#aaa;">
-                        Email: ${c.email} | Mudanzas: ${cMoves.length} | Ganancia Empresa: ₡${Math.round(cComm).toLocaleString()}
-                    </div>
-                </div>
-            `;
-        }).join('');
+        document.getElementById('adminClientsList').innerHTML = registeredClients.map(c => `
+            <div class="client-admin-card">
+                <div class="client-admin-name">${c.name}</div>
+                <div style="font-size:11px; color:#888;">Email: ${c.email} | Tel: ${c.phone}</div>
+            </div>
+        `).join('');
+
+        document.getElementById('adminReservationsList').innerHTML = moves.filter(m => m.mode === 'reserva').map(m => `
+            <div class="historial-item">
+                <div style="font-weight:bold; color:#00d4ff;">${m.reserveDate} @ ${m.reserveTime}</div>
+                <div style="font-size:12px;">Cliente: ${m.clientName} | Transp: ${m.transporterName}</div>
+                <div class="historial-status status-${m.status}">${m.status.toUpperCase()}</div>
+            </div>
+        `).join('') || '<p style="text-align:center;color:#555;">No hay reservas programadas</p>';
     }
 
-    // ============================================================
-    //  AUTH & UTILS
-    // ============================================================
+    // AUTH & UTILS
     function login() {
         const email = document.getElementById('authEmail').value.trim().toLowerCase();
         const pass = document.getElementById('authPassword').value;
@@ -1458,20 +1222,12 @@
             if (c) currentUser = { ...c, role };
         }
 
-        if (!currentUser) { alert('Credenciales inválidas'); return; }
+        if (!currentUser) return alert('Credenciales inválidas');
 
         document.getElementById('authSection').classList.remove('active');
-        if (role === 'client') {
-            document.getElementById('clientSection').classList.add('active');
-            document.getElementById('clientGreetingText').textContent = 'Hola, ' + currentUser.name;
-        } else if (role === 'transporter') {
-            document.getElementById('transporterSection').classList.add('active');
-            document.getElementById('transporterGreetingText').textContent = 'Hola, ' + currentUser.name;
-            loadTransporterData();
-        } else {
-            document.getElementById('adminSection').classList.add('active');
-            loadAdminData();
-        }
+        if (role === 'client') document.getElementById('clientSection').classList.add('active');
+        else if (role === 'transporter') { document.getElementById('transporterSection').classList.add('active'); loadTransporterData(); }
+        else { document.getElementById('adminSection').classList.add('active'); loadAdminData(); }
     }
 
     function logout() {
@@ -1480,29 +1236,17 @@
         document.getElementById('authSection').classList.add('active');
     }
 
-    function registerClient() {
-        const email = document.getElementById('clientRegEmail').value;
-        const pass = document.getElementById('clientRegPassword').value;
-        const name = document.getElementById('clientRegName').value;
-        if (!email || !pass || !name) return alert('Completa los campos');
-        registeredClients.push({ email, password: pass, name, phone: document.getElementById('clientRegPhone').value });
-        alert('Registro exitoso'); closeModal('registerClientModal');
+    function calculateDist(p1, p2) {
+        const R = 6371;
+        const dLat = (p2.lat-p1.lat) * Math.PI / 180;
+        const dLon = (p2.lng-p1.lng) * Math.PI / 180;
+        const a = Math.sin(dLat/2)**2 + Math.cos(p1.lat*Math.PI/180)*Math.cos(p2.lat*Math.PI/180)*Math.sin(dLon/2)**2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
-    function registerTransporter() {
-        const email = document.getElementById('transRegEmail').value;
-        const pass = document.getElementById('transRegPassword').value;
-        const name = document.getElementById('transRegName').value;
-        if (!email || !pass || !name) return alert('Completa los campos');
-        transporters.push({ id: Date.now(), email, password: pass, name, plate: document.getElementById('transRegPlate').value, vehicle: document.getElementById('transRegVehicle').value, status: 'active', inLabor: true });
-        alert('Registro exitoso'); closeModal('registerTransporterModal');
-    }
-
+    function saveMoves() { localStorage.setItem('mh_moves_ultimate', JSON.stringify(moves)); window.dispatchEvent(new Event('storage')); }
     function openModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-    function selectRegisterType(type) { closeModal('registerTypeModal'); openModal(type === 'client' ? 'registerClientModal' : 'registerTransporterModal'); }
-    function saveMoves() { localStorage.setItem('mh_moves', JSON.stringify(moves)); window.dispatchEvent(new Event('storage')); }
-    function loadMoves() { return JSON.parse(localStorage.getItem('mh_moves') || '[]'); }
     function switchTransporterTab(tab, e) {
         document.querySelectorAll('#transporterSection .tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('#transporterSection .tab-content').forEach(c => c.classList.remove('active'));
