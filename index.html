@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MudanzasHub Costa Rica - Solución Total V2</title>
+    <title>MudanzasHub Costa Rica - Solución Total V3</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <style>
-        /* ESTILOS ORIGINALES Y NUEVOS */
+        /* ESTILOS BASE Y MEJORAS */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f0f0f; color: #fff; overflow: hidden; }
         .container { display: flex; height: 100vh; }
@@ -19,28 +19,21 @@
         .user-greeting { background: linear-gradient(135deg, #1a3a3a, #2a2a2a); border: 1px solid #00d4ff44; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 13px; color: #00d4ff; display: flex; align-items: center; gap: 8px; }
         .form-group { margin-bottom: 18px; }
         .form-group label { display: block; margin-bottom: 7px; font-size: 13px; font-weight: 600; color: #aaa; }
-        .search-container { position: relative; margin-bottom: 18px; }
         .search-input { width: 100%; padding: 11px 12px; background: #2a2a2a; border: 1px solid #444; border-radius: 8px; color: #fff; font-size: 14px; }
         .search-input:focus { outline: none; border-color: #00d4ff; box-shadow: 0 0 10px rgba(0,212,255,0.3); }
-        .search-suggestions { position: absolute; top: 100%; left: 0; right: 0; background: #2a2a2a; border: 1px solid #444; border-top: none; border-radius: 0 0 8px 8px; max-height: 300px; overflow-y: auto; z-index: 100; display: none; }
-        .search-suggestions.active { display: block; }
-        .suggestion-item { padding: 11px 12px; border-bottom: 1px solid #333; cursor: pointer; transition: all 0.2s ease; font-size: 13px; }
-        .suggestion-item:hover { background: #3a3a3a; color: #00d4ff; }
-        .suggestion-address { color: #aaa; font-size: 12px; margin-top: 3px; }
         .btn { width: 100%; padding: 13px; background: #00d4ff; color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.3s ease; }
-        .btn:hover { background: #00b8d4; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,212,255,0.4); }
-        .btn:disabled { background: #555; color: #888; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn:hover { background: #00b8d4; transform: translateY(-2px); }
         .btn-secondary { background: #333; color: #fff; margin-bottom: 10px; }
         .btn-sm { width: auto; padding: 7px 14px; font-size: 12px; display: inline-block; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
         .modal.active { display: flex; }
-        .modal-content { background: #1a1a1a; border: 1px solid #444; border-radius: 12px; padding: 28px; width: 92%; max-width: 620px; max-height: 92vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.9); position: relative; }
-        .modal-header { font-size: 19px; font-weight: bold; margin-bottom: 18px; color: #00d4ff; }
-        .modal-close { position: absolute; top: 14px; right: 14px; background: none; border: none; color: #aaa; font-size: 24px; cursor: pointer; width: auto; padding: 0; }
+        .modal-content { background: #1a1a1a; border: 1px solid #444; border-radius: 12px; padding: 28px; width: 92%; max-width: 620px; max-height: 92vh; overflow-y: auto; position: relative; }
+        .modal-header { font-size: 19px; font-weight: bold; margin-bottom: 18px; color: #00d4ff; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .modal-close { position: absolute; top: 14px; right: 14px; background: none; border: none; color: #aaa; font-size: 24px; cursor: pointer; }
         .section { display: none; }
         .section.active { display: block; }
-        .tabs { display: flex; background: #222; border-radius: 8px; padding: 4px; margin-bottom: 18px; }
-        .tab-btn { flex: 1; padding: 10px; background: none; border: none; color: #888; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 6px; }
+        .tabs { display: flex; background: #222; border-radius: 8px; padding: 4px; margin-bottom: 18px; overflow-x: auto; }
+        .tab-btn { flex: 1; padding: 10px; background: none; border: none; color: #888; font-size: 11px; font-weight: 600; cursor: pointer; border-radius: 6px; white-space: nowrap; }
         .tab-btn.active { background: #333; color: #00d4ff; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -51,39 +44,23 @@
         .status-pending { background: #f59e0b22; color: #f59e0b; }
         .status-in_progress { background: #3b82f622; color: #3b82f6; }
         .status-completed { background: #10b98122; color: #10b981; }
-        .vehicle-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
-        .vehicle-option { background: #2a2a2a; border: 2px solid #444; border-radius: 8px; padding: 10px; text-align: center; cursor: pointer; }
-        .vehicle-option.active { border-color: #00d4ff; background: #1a3a3a; }
-        .transportista-card { background: #2a2a2a; border: 1px solid #444; border-radius: 10px; padding: 16px; margin-bottom: 14px; cursor: pointer; transition: all 0.3s ease; }
-        .transportista-card:hover { border-color: #00d4ff; background: #2a3535; }
-        .transportista-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-        .transportista-name { font-weight: 700; font-size: 15px; color: #fff; }
-        .transportista-price { font-size: 20px; font-weight: bold; color: #4ade80; }
-        .uber-job-card { background: linear-gradient(135deg, #2a2a2a 0%, #303030 100%); border: 2px solid #00d4ff; border-radius: 12px; padding: 18px; margin-bottom: 14px; box-shadow: 0 4px 15px rgba(0,212,255,0.15); }
-        .job-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-        .job-price { font-size: 22px; font-weight: bold; color: #4ade80; }
-        .nav-overlay { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(26, 26, 26, 0.9); padding: 15px 25px; border-radius: 50px; border: 1px solid #00d4ff; z-index: 1000; display: none; align-items: center; gap: 15px; }
-        .alert-box { padding: 12px 15px; border-radius: 8px; font-size: 12px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        .alert-info { background: #00d4ff11; color: #00d4ff; border: 1px solid #00d4ff33; }
-        .upload-area { border: 2px dashed #444; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; margin-bottom: 15px; transition: all 0.3s ease; }
-        .upload-area:hover { border-color: #00d4ff; background: #1a3a3a; }
-        .upload-icon { font-size: 30px; color: #555; margin-bottom: 10px; }
-        .upload-text { font-size: 12px; color: #888; }
-        .partner-item { padding: 10px; border-bottom: 1px solid #333; cursor: pointer; transition: background 0.2s; }
-        .partner-item:hover { background: #2a2a2a; color: #00d4ff; }
+        .transportista-card { background: #2a2a2a; border: 1px solid #444; border-radius: 10px; padding: 16px; margin-bottom: 14px; cursor: pointer; }
+        .uber-job-card { background: linear-gradient(135deg, #2a2a2a 0%, #303030 100%); border: 2px solid #00d4ff; border-radius: 12px; padding: 18px; margin-bottom: 14px; }
+        .job-price { font-size: 20px; font-weight: bold; color: #4ade80; }
         .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 13px; }
         .detail-item { background: #222; padding: 10px; border-radius: 6px; border: 1px solid #333; }
         .detail-label { color: #888; font-size: 11px; margin-bottom: 4px; }
+        .profile-img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #00d4ff; margin-bottom: 10px; }
+        .factura-box { background: #fff; color: #000; padding: 20px; border-radius: 8px; font-family: 'Courier New', Courier, monospace; }
+        .factura-header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
+        .factura-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 12px; }
+        .factura-total { border-top: 2px solid #000; padding-top: 10px; margin-top: 10px; font-weight: bold; font-size: 16px; }
+        .finance-card { background: #1a3a3a; padding: 15px; border-radius: 10px; border: 1px solid #00d4ff44; margin-bottom: 15px; }
+        .clickable-row { cursor: pointer; transition: background 0.2s; }
+        .clickable-row:hover { background: #333; }
     </style>
 </head>
 <body>
-
-<div class="nav-overlay" id="navOverlay">
-    <i class="fas fa-navigation" style="color:#00d4ff;"></i>
-    <span id="navStatusText">En ruta...</span>
-    <span id="navDistance" style="font-weight:bold; color:#4ade80;">0.0 km</span>
-    <button class="btn btn-sm" id="finishNavBtn">Finalizar</button>
-</div>
 
 <div class="container">
     <div class="sidebar">
@@ -110,59 +87,33 @@
             <div class="user-greeting"><i class="fas fa-user"></i> <span id="clientNameDisplay">Cliente</span></div>
             <button class="btn btn-secondary logoutBtn">Cerrar Sesión</button>
             
-            <div class="search-container">
-                <label style="font-size:12px; color:#aaa; margin-bottom:5px; display:block;">Origen</label>
-                <input type="text" id="originSearch" class="search-input" placeholder="¿De dónde salen las cosas?">
+            <div class="form-group">
+                <label>Origen</label>
+                <input type="text" id="originSearch" class="search-input" placeholder="¿De dónde salen?">
                 <div id="originSuggestions" class="search-suggestions"></div>
             </div>
-            <div class="search-container">
-                <label style="font-size:12px; color:#aaa; margin-bottom:5px; display:block;">Destino</label>
-                <input type="text" id="destinationSearch" class="search-input" placeholder="¿A dónde las llevamos?">
+            <div class="form-group">
+                <label>Destino</label>
+                <input type="text" id="destinationSearch" class="search-input" placeholder="¿A dónde van?">
                 <div id="destinationSuggestions" class="search-suggestions"></div>
-            </div>
-
-            <div class="form-group">
-                <label>Tipo de Vehículo</label>
-                <div class="vehicle-selector" id="vehicleSelector">
-                    <div class="vehicle-option active" data-vehicle="pickup">Pickup</div>
-                    <div class="vehicle-option" data-vehicle="buseta">Buseta</div>
-                    <div class="vehicle-option" data-vehicle="camion">Camión</div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Servicio</label>
-                <div class="vehicle-selector" id="serviceSelector">
-                    <div class="vehicle-option active" data-service="acarreo">Con Acarreo</div>
-                    <div class="vehicle-option" data-service="afuera">Puesta Afuera</div>
-                </div>
             </div>
 
             <div style="display:flex; gap:10px; margin-bottom:18px;">
                 <div style="flex:1;">
-                    <label style="font-size:12px; color:#aaa; margin-bottom:5px; display:block;">Peso (kg)</label>
-                    <input type="number" id="loadWeight" class="search-input" placeholder="Ej: 500" value="100">
+                    <label style="font-size:12px; color:#aaa;">Peso (kg)</label>
+                    <input type="number" id="loadWeight" class="search-input" value="100">
                 </div>
                 <div style="flex:1;">
-                    <label style="font-size:12px; color:#aaa; margin-bottom:5px; display:block;">Acceso Destino</label>
-                    <select id="accessType" class="search-input">
-                        <option value="easy">Fácil</option>
-                        <option value="medium">Regular</option>
-                        <option value="hard">Difícil</option>
+                    <label style="font-size:12px; color:#aaa;">Vehículo</label>
+                    <select id="vehicleType" class="search-input">
+                        <option value="pickup">Pickup</option>
+                        <option value="buseta">Buseta</option>
+                        <option value="camion">Camión</option>
                     </select>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Programar Mudanza (Opcional)</label>
-                <div style="display:flex; gap:10px;">
-                    <input type="date" id="reserveDate" class="search-input">
-                    <input type="time" id="reserveTime" class="search-input">
-                </div>
-            </div>
-
-            <button class="btn" id="searchTransportersBtn">Ver Ofertas Disponibles</button>
-            
+            <button class="btn" id="searchTransportersBtn">Ver Ofertas</button>
             <div id="transportistasList" style="margin-top:20px;"></div>
         </div>
 
@@ -180,10 +131,7 @@
             <div id="jobsTab" class="tab-content active"></div>
             <div id="activeTab" class="tab-content"></div>
             <div id="historyTab" class="tab-content">
-                <div style="background:#222; padding:10px; border-radius:8px; margin-bottom:10px; text-align:center;">
-                    <div style="font-size:11px; color:#aaa;">Ganancias Totales</div>
-                    <div id="totalEarnings" style="font-size:20px; font-weight:bold; color:#4ade80;">₡0</div>
-                </div>
+                <div id="totalEarnings" style="font-size:18px; color:#4ade80; text-align:center; margin-bottom:10px;">₡0</div>
                 <div id="historyList"></div>
             </div>
         </div>
@@ -195,65 +143,87 @@
             <div class="tabs">
                 <button class="tab-btn active" data-tab="moves">Mudanzas</button>
                 <button class="tab-btn" data-tab="partners">Socios</button>
-                <button class="tab-btn" data-tab="docs">Documentación</button>
+                <button class="tab-btn" data-tab="clients">Clientes</button>
+                <button class="tab-btn" data-tab="finances">Finanzas</button>
             </div>
+            
             <div id="movesTab" class="tab-content active">
                 <table class="admin-table">
-                    <thead><tr><th>ID</th><th>Cliente</th><th>Socio</th><th>Total</th><th>Estado</th></tr></thead>
+                    <thead><tr><th>ID</th><th>Cliente/Tel</th><th>Socio</th><th>Total</th><th>Empresa(20%)</th><th>Estado</th></tr></thead>
                     <tbody id="movesTableBody"></tbody>
                 </table>
             </div>
+
             <div id="partnersTab" class="tab-content">
-                <div style="margin-bottom:10px; font-weight:bold; color:#00d4ff;">Lista de Socios</div>
                 <div id="adminPartnersList"></div>
             </div>
-            <div id="docsTab" class="tab-content">
-                <div style="padding:20px; text-align:center; color:#666;">Módulo de Documentación en Tiempo Real</div>
+
+            <div id="clientsTab" class="tab-content">
+                <div id="adminClientsList"></div>
+            </div>
+
+            <div id="financesTab" class="tab-content">
+                <div class="finance-card">
+                    <label style="font-size:11px; color:#00d4ff;">Buscar por Fecha</label>
+                    <input type="date" id="financeDateSearch" class="search-input" style="margin-top:5px;">
+                    <div style="margin-top:15px; display:flex; justify-content:space-between;">
+                        <span>Ingreso Total:</span>
+                        <strong id="financeTotalDay" style="color:#4ade80;">₡0</strong>
+                    </div>
+                </div>
+                <div id="financeDayList"></div>
             </div>
         </div>
     </div>
     <div class="map-container"><div id="map"></div></div>
 </div>
 
-<!-- MODAL SOCIO DETALLE -->
-<div class="modal" id="partnerDetailModal">
-    <div class="modal-content">
-        <button class="modal-close" data-close="partnerDetailModal">×</button>
-        <div class="modal-header" id="partnerDetailName">Detalle del Socio</div>
-        <div class="detail-grid" id="partnerDetailContent"></div>
-    </div>
-</div>
-
-<!-- MODAL FACTURA -->
+<!-- MODAL FACTURA ELABORADA -->
 <div class="modal" id="facturaModal">
     <div class="modal-content">
         <button class="modal-close" data-close="facturaModal">×</button>
-        <div class="modal-header">Confirmación de Mudanza</div>
-        <div id="facturaDetails" style="font-size:13px; line-height:1.6; margin-bottom:15px;"></div>
-        <div style="background:#222; padding:15px; border-radius:8px; margin-bottom:15px;">
-            <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:18px; color:#4ade80;">
-                <span>Total a Pagar:</span>
-                <span id="facturaTotal">₡0</span>
-            </div>
-        </div>
-        <div class="alert-box alert-info"><i class="fas fa-info-circle"></i> Pago por SINPE: 7228-4602. Adjunta el comprobante.</div>
-        <div class="upload-area" id="uploadArea">
-            <input type="file" id="comprobanteFileInput" style="display:none">
-            <i class="fas fa-cloud-upload-alt upload-icon"></i>
-            <div class="upload-text" id="uploadText">Haz clic para adjuntar comprobante</div>
-        </div>
-        <button class="btn" id="confirmMoveBtn" disabled>Confirmar y Pagar</button>
+        <div class="modal-header">Factura de Servicio</div>
+        <div class="factura-box" id="facturaContent"></div>
+        <button class="btn" id="confirmMoveBtn" style="margin-top:15px;">Confirmar y Pagar (SINPE)</button>
     </div>
 </div>
 
-<!-- MODAL CÓDIGO -->
-<div class="modal" id="codeModal">
-    <div class="modal-content" style="text-align:center;">
-        <button class="modal-close" data-close="codeModal">×</button>
-        <div class="modal-header">Finalizar Servicio</div>
-        <p style="margin-bottom:20px; color:#aaa;">Pide el código de confirmación al cliente.</p>
-        <input type="text" id="confirmCodeInput" class="search-input" style="text-align:center; font-size:24px; letter-spacing:5px; margin-bottom:20px;" placeholder="0000">
-        <button class="btn" id="validateCodeBtn">Validar y Finalizar</button>
+<!-- MODAL SOCIO EDITABLE -->
+<div class="modal" id="partnerEditModal">
+    <div class="modal-content">
+        <button class="modal-close" data-close="partnerEditModal">×</button>
+        <div class="modal-header">Perfil del Socio</div>
+        <div style="text-align:center;">
+            <img src="https://i.pravatar.cc/150?u=partner" class="profile-img" id="partnerEditImg">
+            <input type="text" id="partnerEditName" class="search-input" style="margin-bottom:10px; text-align:center; font-weight:bold;">
+        </div>
+        <div class="detail-grid">
+            <div class="detail-item"><label class="detail-label">Teléfono</label><input type="text" id="partnerEditPhone" class="search-input"></div>
+            <div class="detail-item"><label class="detail-label">Placa</label><input type="text" id="partnerEditPlate" class="search-input"></div>
+            <div class="detail-item"><label class="detail-label">Licencia</label><input type="text" id="partnerEditLicense" class="search-input"></div>
+            <div class="detail-item"><label class="detail-label">Seguro</label><input type="text" id="partnerEditInsurance" class="search-input"></div>
+        </div>
+        <button class="btn" id="savePartnerBtn" style="margin-top:15px;">Guardar Cambios</button>
+    </div>
+</div>
+
+<!-- MODAL CLIENTE DETALLE -->
+<div class="modal" id="clientDetailModal">
+    <div class="modal-content">
+        <button class="modal-close" data-close="clientDetailModal">×</button>
+        <div class="modal-header">Historial del Cliente</div>
+        <div id="clientInfoBox" style="margin-bottom:15px; padding:10px; background:#222; border-radius:8px;"></div>
+        <div id="clientHistoryList"></div>
+    </div>
+</div>
+
+<!-- MODAL MAPA VIAJE -->
+<div class="modal" id="tripMapModal">
+    <div class="modal-content">
+        <button class="modal-close" data-close="tripMapModal">×</button>
+        <div class="modal-header">Detalle del Viaje</div>
+        <div id="tripDetailInfo" style="margin-bottom:10px; font-size:13px;"></div>
+        <div id="miniMap" style="width:100%; height:300px; border-radius:8px;"></div>
     </div>
 </div>
 
@@ -277,32 +247,18 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     document.getElementById('connStatus').innerText = "✅ Firebase Conectado";
-    document.getElementById('connStatus').style.color = "#4ade80";
 
-    // ESTADO GLOBAL
-    let map, selectedOrigin, selectedDestination, currentUser, selectedTransporter;
+    let map, miniMap, selectedOrigin, selectedDestination, currentUser, selectedTransporter, routingControl;
     let markers = {};
-    let selectedVehicle = 'pickup';
-    let selectedServiceType = 'acarreo';
-    let routingControl = null;
-    let activeNavMove = null;
-    let pendingMoveData = null;
-    let searchTimeout = null;
-
-    // CONFIGURACIÓN DE VEHÍCULOS (Consumo y Capacidad)
-    const vehicleConfig = {
-        pickup: { multiplier: 1.0, fuelCost: 1.0, capacity: 800, name: 'Pickup' },
-        buseta: { multiplier: 1.4, fuelCost: 1.3, capacity: 1500, name: 'Buseta' },
-        camion: { multiplier: 1.8, fuelCost: 1.7, capacity: 3500, name: 'Camión' }
-    };
+    let searchTimeout;
 
     const transporters = [
-        { id: 1, email: 'carlos@test.com', password: '1234', name: 'Carlos Rodríguez', phone: '8888-1111', plate: 'BC-123', vehicle: 'Toyota Hiace', rating: 4.8, model: '2022', license: 'B2', insurance: 'INS-992', emergency: '8888-0000' },
-        { id: 2, email: 'miguel@test.com', password: '1234', name: 'Miguel Vargas', phone: '8888-2222', plate: 'CL-456', vehicle: 'Hino 300', rating: 4.6, model: '2021', license: 'B3', insurance: 'INS-112', emergency: '8888-0001' },
-        { id: 3, email: 'ana@test.com', password: '1234', name: 'Ana Quesada', phone: '8888-3333', plate: 'PK-789', vehicle: 'Nissan Frontier', rating: 4.9, model: '2023', license: 'B1', insurance: 'INS-445', emergency: '8888-0002' }
+        { id: 1, name: 'Carlos Rodríguez', phone: '8888-1111', plate: 'BC-123', email: 'carlos@test.com', pass: '1234', license: 'B2', insurance: 'INS-992', img: 'https://i.pravatar.cc/150?u=1' },
+        { id: 2, name: 'Miguel Vargas', phone: '8888-2222', plate: 'CL-456', email: 'miguel@test.com', pass: '1234', license: 'B3', insurance: 'INS-112', img: 'https://i.pravatar.cc/150?u=2' },
+        { id: 3, name: 'Ana Quesada', phone: '8888-3333', plate: 'PK-789', email: 'ana@test.com', pass: '1234', license: 'B1', insurance: 'INS-445', img: 'https://i.pravatar.cc/150?u=3' }
     ];
 
-    // INICIALIZAR MAPA
+    // INICIALIZAR MAPA PRINCIPAL
     map = L.map('map').setView([9.9281, -84.0907], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
@@ -318,15 +274,13 @@
         if (role === 'admin' && email === 'admin@test.com' && pass === 'ADMIN') {
             currentUser = { email, role, name: 'Admin' };
         } else if (role === 'transporter') {
-            const t = transporters.find(x => x.email === email && x.password === pass);
+            const t = transporters.find(x => x.email === email && x.pass === pass);
             if (t) currentUser = { ...t, role };
-        } else if (role === 'client' && email === 'cliente@test.com' && pass === '1234') {
-            currentUser = { email, role, name: 'Laura Fernández' };
-        } else {
-            currentUser = { email, role, name: email.split('@')[0] };
+        } else if (role === 'client') {
+            currentUser = { email, role, name: email.split('@')[0], phone: '7000-0000' };
         }
         
-        if (!currentUser) return alert('Credenciales inválidas');
+        if (!currentUser) return alert('Error de acceso');
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.getElementById(role + 'Section').classList.add('active');
         if(role === 'client') document.getElementById('clientNameDisplay').innerText = currentUser.name;
@@ -339,19 +293,13 @@
     // BÚSQUEDA DE UBICACIONES
     const searchLocations = async (query, type) => {
         if (query.length < 3) return;
-        const suggestionsDiv = document.getElementById(type + 'Suggestions');
-        suggestionsDiv.innerHTML = '<div style="padding:10px;color:#aaa;">Buscando...</div>';
-        suggestionsDiv.classList.add('active');
         try {
-            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}, Costa Rica&limit=6&countrycodes=cr`);
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}, Costa Rica&limit=5`);
             const results = await response.json();
-            suggestionsDiv.innerHTML = results.map(r => `
-                <div class="suggestion-item" data-lat="${r.lat}" data-lon="${r.lon}" data-name="${r.display_name.replace(/"/g, '&quot;')}" data-type="${type}">
-                    <div><strong>${r.name || r.display_name.split(',')[0]}</strong></div>
-                    <div class="suggestion-address">${r.display_name.substring(0, 60)}...</div>
-                </div>
-            `).join('');
-        } catch (e) { suggestionsDiv.innerHTML = '<div style="padding:10px;color:#ff6b6b;">Error</div>'; }
+            const div = document.getElementById(type + 'Suggestions');
+            div.innerHTML = results.map(r => `<div class="suggestion-item" data-lat="${r.lat}" data-lon="${r.lon}" data-name="${r.display_name}" data-type="${type}">${r.display_name.split(',')[0]}</div>`).join('');
+            div.classList.add('active');
+        } catch (e) {}
     };
 
     document.getElementById('originSearch').addEventListener('input', (e) => {
@@ -367,310 +315,243 @@
         const item = e.target.closest('.suggestion-item');
         if (item) {
             const { lat, lon, name, type } = item.dataset;
-            selectLocation(parseFloat(lat), parseFloat(lon), name, type);
-        } else if (!e.target.closest('.search-container')) {
+            const loc = { lat: parseFloat(lat), lng: parseFloat(lon), name };
+            if (type === 'origin') {
+                selectedOrigin = loc;
+                document.getElementById('originSearch').value = name.split(',')[0];
+                if (markers.origin) map.removeLayer(markers.origin);
+                markers.origin = L.marker([loc.lat, loc.lng]).addTo(map).bindPopup('Origen');
+            } else {
+                selectedDestination = loc;
+                document.getElementById('destinationSearch').value = name.split(',')[0];
+                if (markers.destination) map.removeLayer(markers.destination);
+                markers.destination = L.marker([loc.lat, loc.lng]).addTo(map).bindPopup('Destino');
+            }
             document.querySelectorAll('.search-suggestions').forEach(s => s.classList.remove('active'));
+            if (selectedOrigin && selectedDestination) {
+                if (routingControl) map.removeControl(routingControl);
+                routingControl = L.Routing.control({
+                    waypoints: [L.latLng(selectedOrigin.lat, selectedOrigin.lng), L.latLng(selectedDestination.lat, selectedDestination.lng)],
+                    show: false, createMarker: () => null
+                }).addTo(map);
+            }
         }
     });
 
-    const selectLocation = (lat, lon, name, type) => {
-        const loc = { lat, lng: lon, name };
-        if (type === 'origin') {
-            selectedOrigin = loc;
-            document.getElementById('originSearch').value = name.split(',')[0];
-            if (markers.origin) map.removeLayer(markers.origin);
-            markers.origin = L.marker([lat, lon], { icon: L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] }) }).addTo(map).bindPopup('Origen');
-        } else {
-            selectedDestination = loc;
-            document.getElementById('destinationSearch').value = name.split(',')[0];
-            if (markers.destination) map.removeLayer(markers.destination);
-            markers.destination = L.marker([lat, lon], { icon: L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] }) }).addTo(map).bindPopup('Destino');
-        }
-        document.querySelectorAll('.search-suggestions').forEach(s => s.classList.remove('active'));
-        if (selectedOrigin && selectedDestination) drawRoute();
-        else map.setView([lat, lon], 14);
-    };
-
-    const drawRoute = () => {
-        if (routingControl) map.removeControl(routingControl);
-        routingControl = L.Routing.control({
-            waypoints: [L.latLng(selectedOrigin.lat, selectedOrigin.lng), L.latLng(selectedDestination.lat, selectedDestination.lng)],
-            show: false,
-            lineOptions: { styles: [{ color: '#00d4ff', opacity: 0.8, weight: 4 }] },
-            createMarker: () => null,
-            addWaypoints: false,
-            draggableWaypoints: false,
-            fitSelectedRoutes: true
-        }).addTo(map);
-        map.fitBounds(L.latLngBounds([selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]), { padding: [50, 50] });
-    };
-
-    // LÓGICA DE PRECIOS DINÁMICA
-    const calculatePrice = (dist, vehicle, weight, access, service) => {
-        const config = vehicleConfig[vehicle];
-        const basePrice = 12000; // Tarifa base
-        const distPrice = dist * 1100 * config.fuelCost; // Costo por km ajustado por combustible
-        const weightPrice = (weight / 100) * 1500; // Costo por peso
-        const accessMultipliers = { easy: 1, medium: 1.15, hard: 1.3 };
-        const servicePrice = service === 'acarreo' ? 8000 : 0;
-        
-        let total = (basePrice + distPrice + weightPrice) * config.multiplier * accessMultipliers[access] + servicePrice;
-        return Math.round(total);
-    };
-
+    // OFERTAS Y FACTURA
     document.getElementById('searchTransportersBtn').addEventListener('click', () => {
-        if (!selectedOrigin || !selectedDestination) return alert('Selecciona origen y destino');
-        const dist = calculateDist(selectedOrigin, selectedDestination);
-        const weight = parseFloat(document.getElementById('loadWeight').value) || 100;
-        const access = document.getElementById('accessType').value;
-        
-        // Generar 3 ofertas basadas en el promedio de los factores
-        const basePrice = calculatePrice(dist, selectedVehicle, weight, access, selectedServiceType);
-        
-        const offers = [
-            { ...transporters[0], price: Math.round(basePrice * 0.95) },
-            { ...transporters[1], price: basePrice },
-            { ...transporters[2], price: Math.round(basePrice * 1.05) }
-        ];
-
-        document.getElementById('transportistasList').innerHTML = offers.map(t => `
-            <div class="transportista-card" data-tid="${t.id}" data-price="${t.price}">
-                <div class="transportista-header">
-                    <div class="transportista-name">${t.name}</div>
-                    <div class="transportista-price">₡${t.price.toLocaleString()}</div>
+        if (!selectedOrigin || !selectedDestination) return alert('Selecciona rutas');
+        const dist = 15; // Simulado
+        const base = 15000 + (dist * 1000);
+        document.getElementById('transportistasList').innerHTML = transporters.map(t => `
+            <div class="transportista-card" onclick="prepareFactura(${t.id}, ${base})">
+                <div style="display:flex; justify-content:space-between;">
+                    <strong>${t.name}</strong>
+                    <span style="color:#4ade80;">₡${base.toLocaleString()}</span>
                 </div>
-                <div style="font-size:11px; color:#bbb; margin-bottom:5px;">
-                    <i class="fas fa-truck"></i> ${t.vehicle} | <i class="fas fa-id-card"></i> ${t.plate}
-                </div>
-                <div style="font-size:11px; color:#bbb;">
-                    <i class="fas fa-phone"></i> ${t.phone} | ⭐ ${t.rating}
-                </div>
+                <div style="font-size:11px; color:#aaa;">${t.plate} | ⭐ 4.9</div>
             </div>
         `).join('');
     });
 
-    document.getElementById('transportistasList').addEventListener('click', (e) => {
-        const card = e.target.closest('.transportista-card');
-        if (card) {
-            const tid = parseInt(card.dataset.tid);
-            const price = parseInt(card.dataset.price);
-            openFactura(tid, price);
-        }
-    });
-
-    const openFactura = (tid, price) => {
+    window.prepareFactura = (tid, price) => {
         selectedTransporter = transporters.find(t => t.id === tid);
-        pendingMoveData = {
-            client: currentUser.email,
-            clientName: currentUser.name,
-            transporter: selectedTransporter.id,
-            transporterName: selectedTransporter.name,
-            transporterPhone: selectedTransporter.phone,
-            transporterPlate: selectedTransporter.plate,
-            origin: selectedOrigin,
-            destination: selectedDestination,
-            price: price,
-            vehicle: selectedVehicle,
-            service: selectedServiceType,
-            weight: document.getElementById('loadWeight').value,
-            access: document.getElementById('accessType').value,
-            status: 'pending',
-            code: Math.floor(1000 + Math.random() * 9000),
-            timestamp: Date.now(),
-            date: new Date().toLocaleDateString()
-        };
-        document.getElementById('facturaDetails').innerHTML = `
-            <p><strong>Socio:</strong> ${selectedTransporter.name}</p>
-            <p><strong>Origen:</strong> ${selectedOrigin.name.split(',')[0]}</p>
-            <p><strong>Destino:</strong> ${selectedDestination.name.split(',')[0]}</p>
-            <p><strong>Vehículo:</strong> ${selectedVehicle.toUpperCase()} (${selectedTransporter.plate})</p>
+        const date = new Date();
+        const code = Math.floor(1000 + Math.random() * 9000);
+        const content = `
+            <div class="factura-header">
+                <h3>MUDANZASHUB CR</h3>
+                <p>Factura Proforma</p>
+            </div>
+            <div class="factura-row"><span>Fecha:</span><span>${date.toLocaleDateString()}</span></div>
+            <div class="factura-row"><span>Hora:</span><span>${date.toLocaleTimeString()}</span></div>
+            <div class="factura-row"><span>Cliente:</span><span>${currentUser.name}</span></div>
+            <div class="factura-row"><span>Socio:</span><span>${selectedTransporter.name}</span></div>
+            <div class="factura-row"><span>Vehículo:</span><span>${selectedTransporter.plate}</span></div>
+            <hr style="margin:10px 0; border:1px dashed #000;">
+            <div class="factura-row"><span>Servicio Mudanza:</span><span>₡${price.toLocaleString()}</span></div>
+            <div class="factura-row"><span>Peso Carga:</span><span>${document.getElementById('loadWeight').value}kg</span></div>
+            <div class="factura-total"><span>TOTAL:</span><span>₡${price.toLocaleString()}</span></div>
+            <p style="text-align:center; margin-top:15px; font-size:10px;">CÓDIGO DE SEGURIDAD: <strong>${code}</strong></p>
         `;
-        document.getElementById('facturaTotal').textContent = '₡' + price.toLocaleString();
+        document.getElementById('facturaContent').innerHTML = content;
+        window.pendingMove = {
+            client: currentUser.name, clientPhone: currentUser.phone, clientEmail: currentUser.email,
+            transporter: selectedTransporter.name, transporterId: selectedTransporter.id,
+            price: price, code: code, status: 'pending',
+            origin: selectedOrigin, destination: selectedDestination,
+            date: date.toLocaleDateString(), hour: date.toLocaleTimeString(),
+            timestamp: Date.now()
+        };
         openModal('facturaModal');
     };
 
-    document.getElementById('uploadArea').addEventListener('click', () => document.getElementById('comprobanteFileInput').click());
-    document.getElementById('comprobanteFileInput').addEventListener('change', (e) => {
-        if (e.target.files[0]) {
-            document.getElementById('uploadText').textContent = '✓ Comprobante adjunto';
-            document.getElementById('confirmMoveBtn').disabled = false;
-        }
-    });
-
     document.getElementById('confirmMoveBtn').addEventListener('click', () => {
-        push(ref(db, 'moves'), pendingMoveData).then(() => {
-            alert('¡Solicitud enviada! Código: ' + pendingMoveData.code);
+        push(ref(db, 'moves'), window.pendingMove).then(() => {
+            alert('Solicitud enviada con éxito');
             closeModal('facturaModal');
             location.reload();
         });
     });
 
-    // LÓGICA TRANSPORTISTA (3 VIAJES SIMULTÁNEOS EN RUTA)
+    // LÓGICA TRANSPORTISTA
     const listenToJobs = () => {
-        onValue(ref(db, 'moves'), (snapshot) => {
-            const data = snapshot.val();
+        onValue(ref(db, 'moves'), (snap) => {
+            const data = snap.val();
             const jobsTab = document.getElementById('jobsTab');
             const activeTab = document.getElementById('activeTab');
             const historyList = document.getElementById('historyList');
-            if (!jobsTab) return;
-            
             jobsTab.innerHTML = ''; activeTab.innerHTML = ''; historyList.innerHTML = '';
             let earnings = 0;
-            let activeCount = 0;
 
-            if(data) {
+            if (data) {
                 Object.keys(data).forEach(key => {
                     const m = data[key];
-                    if (m.transporter === currentUser.id) {
-                        if (m.status === 'in_progress') activeCount++;
-                        if (m.status === 'completed') {
+                    if (m.transporterId === currentUser.id) {
+                        const html = `
+                            <div class="uber-job-card">
+                                <div style="display:flex; justify-content:space-between;">
+                                    <strong>${m.client}</strong>
+                                    <span class="job-price">₡${m.price.toLocaleString()}</span>
+                                </div>
+                                <div style="font-size:11px; color:#aaa; margin:5px 0;">
+                                    <i class="fas fa-clock"></i> ${m.date} ${m.hour} | <i class="fas fa-phone"></i> ${m.clientPhone}
+                                </div>
+                                <div style="background:#000; padding:5px; border-radius:4px; text-align:center; margin-bottom:10px;">
+                                    CÓDIGO: <span style="color:#00d4ff; font-weight:bold;">${m.code}</span>
+                                </div>
+                                ${m.status === 'pending' ? `<button class="btn" onclick="updateStatus('${key}', 'in_progress')">Aceptar</button>` : ''}
+                                ${m.status === 'in_progress' ? `<button class="btn" style="background:#4ade80;" onclick="updateStatus('${key}', 'completed')">Finalizar</button>` : ''}
+                            </div>`;
+                        if (m.status === 'pending') jobsTab.innerHTML += html;
+                        else if (m.status === 'in_progress') activeTab.innerHTML += html;
+                        else if (m.status === 'completed') {
                             earnings += m.price;
-                            historyList.innerHTML += `
-                                <div style="background:#2a2a2a; padding:10px; border-radius:8px; margin-bottom:8px; font-size:12px;">
-                                    <div style="display:flex; justify-content:space-between;">
-                                        <strong>${m.clientName}</strong>
-                                        <span style="color:#4ade80;">₡${m.price.toLocaleString()}</span>
-                                    </div>
-                                    <div style="color:#888; font-size:10px;">${m.date} | ${m.origin.name.split(',')[0]}</div>
-                                </div>`;
+                            historyList.innerHTML += `<div style="padding:8px; background:#222; margin-bottom:5px; border-radius:4px; font-size:12px;">${m.date} - ${m.client} - ₡${m.price.toLocaleString()}</div>`;
                         }
                     }
-
-                    const html = `
-                        <div class="uber-job-card">
-                            <div class="job-header">
-                                <div style="font-weight:bold;">${m.origin.name.split(',')[0]} → ${m.destination.name.split(',')[0]}</div>
-                                <div class="job-price">₡${m.price.toLocaleString()}</div>
-                            </div>
-                            <p style="font-size:11px; color:#aaa;">Cliente: ${m.clientName} | Peso: ${m.weight}kg</p>
-                            ${m.status === 'pending' && m.transporter === currentUser.id ? `<button class="btn acceptJobBtn" data-id="${key}" ${activeCount >= 3 ? 'disabled' : ''}>${activeCount >= 3 ? 'Límite alcanzado (3)' : 'Aceptar Oferta'}</button>` : ''}
-                            ${m.status === 'in_progress' && m.transporter === currentUser.id ? `
-                                <div style="display:flex; gap:10px; margin-top:10px;">
-                                    <button class="btn btn-sm startNavBtn" data-id="${key}">Ver Ruta</button>
-                                    <button class="btn btn-sm openCodeBtn" style="background:#4ade80;" data-id="${key}">Finalizar</button>
-                                </div>` : ''}
-                        </div>`;
-
-                    if(m.status === 'pending' && m.transporter === currentUser.id) jobsTab.innerHTML += html;
-                    else if(m.status === 'in_progress' && m.transporter === currentUser.id) activeTab.innerHTML += html;
                 });
             }
-            document.getElementById('totalEarnings').textContent = '₡' + earnings.toLocaleString();
+            document.getElementById('totalEarnings').innerText = 'Total: ₡' + earnings.toLocaleString();
         });
     };
 
-    // LÓGICA ADMIN EXPANDIDA
+    window.updateStatus = (key, status) => update(ref(db, `moves/${key}`), { status });
+
+    // LÓGICA ADMIN
     const listenToAdmin = () => {
-        onValue(ref(db, 'moves'), (snapshot) => {
-            const data = snapshot.val();
+        onValue(ref(db, 'moves'), (snap) => {
+            const data = snap.val();
             const tbody = document.getElementById('movesTableBody');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-            if(data) {
+            const clientList = document.getElementById('adminClientsList');
+            tbody.innerHTML = ''; clientList.innerHTML = '';
+            const clients = {};
+
+            if (data) {
                 Object.keys(data).forEach(key => {
                     const m = data[key];
-                    tbody.innerHTML += `<tr>
-                        <td>#${key.slice(-4)}</td>
-                        <td>${m.clientName}</td>
-                        <td>${m.transporterName}</td>
-                        <td>₡${m.price.toLocaleString()}</td>
-                        <td><span class="status-badge status-${m.status}">${m.status}</span></td>
-                    </tr>`;
+                    const comm = m.price * 0.2;
+                    tbody.innerHTML += `
+                        <tr class="clickable-row" onclick="showTripMap('${key}')">
+                            <td>#${key.slice(-4)}</td>
+                            <td>${m.client}<br><small>${m.clientPhone}</small></td>
+                            <td>${m.transporter}</td>
+                            <td>₡${m.price.toLocaleString()}</td>
+                            <td style="color:#4ade80;">₡${comm.toLocaleString()}</td>
+                            <td><span class="status-badge status-${m.status}">${m.status}</span></td>
+                        </tr>`;
+                    
+                    if (!clients[m.clientEmail]) clients[m.clientEmail] = { name: m.client, phone: m.clientPhone, trips: [] };
+                    clients[m.clientEmail].trips.push(m);
                 });
+
+                Object.keys(clients).forEach(email => {
+                    const c = clients[email];
+                    clientList.innerHTML += `<div class="partner-item" onclick="showClientDetail('${email}')">${c.name} (${c.trips.length} viajes)</div>`;
+                });
+                window.allClients = clients;
+                window.allMoves = data;
             }
         });
 
-        const partnersList = document.getElementById('adminPartnersList');
-        partnersList.innerHTML = transporters.map(t => `
-            <div class="partner-item" data-tid="${t.id}">
-                <i class="fas fa-user-tie"></i> ${t.name} <span style="font-size:10px; color:#666;">(${t.plate})</span>
+        document.getElementById('adminPartnersList').innerHTML = transporters.map(t => `
+            <div class="partner-item" onclick="editPartner(${t.id})">
+                <img src="${t.img}" style="width:30px; height:30px; border-radius:50%; vertical-align:middle; margin-right:10px;">
+                ${t.name} - ${t.plate}
             </div>
         `).join('');
     };
 
-    document.addEventListener('click', (e) => {
-        const partnerItem = e.target.closest('.partner-item');
-        if (partnerItem) {
-            const t = transporters.find(x => x.id === parseInt(partnerItem.dataset.tid));
-            document.getElementById('partnerDetailName').innerText = t.name;
-            document.getElementById('partnerDetailContent').innerHTML = `
-                <div class="detail-item"><div class="detail-label">Teléfono</div>${t.phone}</div>
-                <div class="detail-item"><div class="detail-label">Placa</div>${t.plate}</div>
-                <div class="detail-item"><div class="detail-label">Modelo</div>${t.vehicle} (${t.model})</div>
-                <div class="detail-item"><div class="detail-label">Licencia</div>${t.license}</div>
-                <div class="detail-item"><div class="detail-label">Seguro/Póliza</div>${t.insurance}</div>
-                <div class="detail-item"><div class="detail-label">Contacto Emergencia</div>${t.emergency}</div>
-            `;
-            openModal('partnerDetailModal');
-        }
-
-        if (e.target.classList.contains('acceptJobBtn')) update(ref(db, `moves/${e.target.dataset.id}`), { status: 'in_progress' });
-        if (e.target.classList.contains('startNavBtn')) {
-            onValue(ref(db, `moves/${e.target.dataset.id}`), (snap) => {
-                const m = snap.val();
-                selectLocation(m.origin.lat, m.origin.lng, m.origin.name, 'origin');
-                selectLocation(m.destination.lat, m.destination.lng, m.destination.name, 'destination');
-                document.getElementById('navOverlay').style.display = 'flex';
-                document.getElementById('navDistance').textContent = calculateDist(m.origin, m.destination).toFixed(1) + ' km';
-            }, { onlyOnce: true });
-        }
-        if (e.target.classList.contains('openCodeBtn')) {
-            onValue(ref(db, `moves/${e.target.dataset.id}`), (snap) => {
-                activeNavMove = { ...snap.val(), key: e.target.dataset.id };
-                openModal('codeModal');
-            }, { onlyOnce: true });
-        }
-        
-        const tabBtn = e.target.closest('.tab-btn');
-        if (tabBtn) {
-            const section = tabBtn.closest('.section');
-            section.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            section.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            tabBtn.classList.add('active');
-            section.querySelector(`#${tabBtn.dataset.tab}Tab`).classList.add('active');
-        }
-        if (e.target.dataset.close) closeModal(e.target.dataset.close);
-    });
-
-    document.getElementById('validateCodeBtn').addEventListener('click', () => {
-        if (parseInt(document.getElementById('confirmCodeInput').value) === activeNavMove.code) {
-            update(ref(db, `moves/${activeNavMove.key}`), { status: 'completed' });
-            alert('¡Servicio concluido!');
-            closeModal('codeModal');
-            document.getElementById('navOverlay').style.display = 'none';
-            if (routingControl) map.removeControl(routingControl);
-        } else { alert('Código incorrecto'); }
-    });
-
-    document.getElementById('finishNavBtn').addEventListener('click', () => {
-        document.getElementById('navOverlay').style.display = 'none';
-        if (routingControl) map.removeControl(routingControl);
-    });
-
-    const calculateDist = (p1, p2) => {
-        const R = 6371;
-        const dLat = (p2.lat-p1.lat) * Math.PI / 180;
-        const dLon = (p2.lng-p1.lng) * Math.PI / 180;
-        const a = Math.sin(dLat/2)**2 + Math.cos(p1.lat*Math.PI/180)*Math.cos(p2.lat*Math.PI/180)*Math.sin(dLon/2)**2;
-        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    window.showTripMap = (key) => {
+        const m = window.allMoves[key];
+        document.getElementById('tripDetailInfo').innerHTML = `
+            <strong>Cliente:</strong> ${m.client} | <strong>Monto:</strong> ₡${m.price.toLocaleString()}<br>
+            <strong>Fecha:</strong> ${m.date} | <strong>Estado:</strong> ${m.status.toUpperCase()}
+        `;
+        openModal('tripMapModal');
+        setTimeout(() => {
+            if (miniMap) miniMap.remove();
+            miniMap = L.map('miniMap').setView([m.origin.lat, m.origin.lng], 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(miniMap);
+            L.marker([m.origin.lat, m.origin.lng]).addTo(miniMap).bindPopup('Origen');
+            L.marker([m.destination.lat, m.destination.lng]).addTo(miniMap).bindPopup('Destino');
+            L.polyline([[m.origin.lat, m.origin.lng], [m.destination.lat, m.destination.lng]], {color: 'blue'}).addTo(miniMap);
+        }, 200);
     };
 
-    // SELECTORES
-    document.getElementById('vehicleSelector').addEventListener('click', (e) => {
-        const opt = e.target.closest('.vehicle-option');
-        if (opt) {
-            selectedVehicle = opt.dataset.vehicle;
-            document.querySelectorAll('#vehicleSelector .vehicle-option').forEach(o => o.classList.remove('active'));
-            opt.classList.add('active');
+    window.showClientDetail = (email) => {
+        const c = window.allClients[email];
+        document.getElementById('clientInfoBox').innerHTML = `<strong>${c.name}</strong><br>Email: ${email}<br>Tel: ${c.phone}`;
+        document.getElementById('clientHistoryList').innerHTML = c.trips.map(t => `
+            <div style="font-size:11px; padding:8px; border-bottom:1px solid #333;">
+                ${t.date} - ${t.origin.name.split(',')[0]} → ${t.destination.name.split(',')[0]} - ₡${t.price.toLocaleString()} (${t.status})
+            </div>
+        `).join('');
+        openModal('clientDetailModal');
+    };
+
+    window.editPartner = (id) => {
+        const t = transporters.find(x => x.id === id);
+        document.getElementById('partnerEditImg').src = t.img;
+        document.getElementById('partnerEditName').value = t.name;
+        document.getElementById('partnerEditPhone').value = t.phone;
+        document.getElementById('partnerEditPlate').value = t.plate;
+        document.getElementById('partnerEditLicense').value = t.license;
+        document.getElementById('partnerEditInsurance').value = t.insurance;
+        openModal('partnerEditModal');
+    };
+
+    // FINANZAS POR CALENDARIO
+    document.getElementById('financeDateSearch').addEventListener('change', (e) => {
+        const selectedDate = new Date(e.target.value + 'T00:00:00').toLocaleDateString();
+        let total = 0;
+        const list = document.getElementById('financeDayList');
+        list.innerHTML = '';
+        
+        if (window.allMoves) {
+            Object.values(window.allMoves).forEach(m => {
+                if (m.date === selectedDate) {
+                    total += m.price;
+                    list.innerHTML += `<div style="font-size:11px; padding:8px; border-bottom:1px solid #333;">${m.hour} - ${m.client} - ₡${m.price.toLocaleString()}</div>`;
+                }
+            });
         }
+        document.getElementById('financeTotalDay').innerText = '₡' + total.toLocaleString();
     });
-    document.getElementById('serviceSelector').addEventListener('click', (e) => {
-        const opt = e.target.closest('.vehicle-option');
-        if (opt) {
-            selectedServiceType = opt.dataset.service;
-            document.querySelectorAll('#serviceSelector .vehicle-option').forEach(o => o.classList.remove('active'));
-            opt.classList.add('active');
-        }
+
+    // TABS
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const section = btn.closest('.section');
+            section.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            section.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            section.querySelector(`#${btn.dataset.tab}Tab`).classList.add('active');
+        });
+    });
+
+    document.querySelectorAll('.modal-close').forEach(btn => {
+        btn.addEventListener('click', () => closeModal(btn.dataset.close));
     });
 </script>
 </body>
