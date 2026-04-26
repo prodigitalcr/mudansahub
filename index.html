@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <style>
-        /* ESTILOS ORIGINALES Y NUEVOS */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f0f0f; color: #fff; overflow: hidden; }
         .container { display: flex; height: 100vh; }
@@ -22,7 +21,7 @@
         .search-container { position: relative; margin-bottom: 18px; }
         .search-input { width: 100%; padding: 11px 12px; background: #2a2a2a; border: 1px solid #444; border-radius: 8px; color: #fff; font-size: 14px; }
         .search-input:focus { outline: none; border-color: #00d4ff; box-shadow: 0 0 10px rgba(0,212,255,0.3); }
-        .search-suggestions { position: absolute; top: 100%; left: 0; right: 0; background: #2a2a2a; border: 1px solid #444; border-top: none; border-radius: 0 0 8px 8px; max-height: 300px; overflow-y: auto; z-index: 100; display: none; }
+        .search-suggestions { position: absolute; top: 100%; left: 0; right: 0; background: #2a2a2a; border: 1px solid #444; border-top: none; border-radius: 0 0 8px 8px; max-height: 250px; overflow-y: auto; z-index: 100; display: none; }
         .search-suggestions.active { display: block; }
         .suggestion-item { padding: 11px 12px; border-bottom: 1px solid #333; cursor: pointer; transition: all 0.2s ease; font-size: 13px; }
         .suggestion-item:hover { background: #3a3a3a; color: #00d4ff; }
@@ -65,8 +64,8 @@
         .nav-overlay { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(26, 26, 26, 0.9); padding: 15px 25px; border-radius: 50px; border: 1px solid #00d4ff; z-index: 1000; display: none; align-items: center; gap: 15px; }
         .alert-box { padding: 12px 15px; border-radius: 8px; font-size: 12px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
         .alert-info { background: #00d4ff11; color: #00d4ff; border: 1px solid #00d4ff33; }
-        .upload-area { border: 2px dashed #444; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; margin-bottom: 15px; transition: all 0.3s ease; }
-        .upload-area:hover { border-color: #00d4ff; background: #1a3a3a; }
+        .upload-area { border: 2px dashed #00d4ff; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; margin-bottom: 15px; transition: all 0.3s ease; background: #1a3a3a; }
+        .upload-area:hover { border-color: #4ade80; background: #2a4a4a; }
         .upload-icon { font-size: 30px; color: #555; margin-bottom: 10px; }
         .upload-text { font-size: 12px; color: #888; }
         .partner-item { padding: 10px; border-bottom: 1px solid #333; cursor: pointer; transition: background 0.2s; }
@@ -74,13 +73,10 @@
         .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 13px; }
         .detail-item { background: #222; padding: 10px; border-radius: 6px; border: 1px solid #333; }
         .detail-label { color: #888; font-size: 11px; margin-bottom: 4px; }
-        
-        /* NUEVOS ESTILOS PARA COMPROBANTE Y VERIFICACIÓN */
-        .sinpe-upload-area { border: 2px dashed #00d4ff; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; margin-bottom: 15px; transition: all 0.3s ease; background: #1a3a3a; }
-        .sinpe-upload-area:hover { border-color: #4ade80; background: #2a4a4a; }
-        .sinpe-preview { width: 100%; max-width: 150px; border-radius: 6px; margin-top: 10px; border: 1px solid #00d4ff; }
         .verification-code-input { width: 100%; padding: 12px; background: #2a2a2a; border: 2px solid #00d4ff; border-radius: 8px; color: #fff; font-size: 16px; text-align: center; letter-spacing: 2px; font-weight: bold; margin-bottom: 10px; }
         .verification-code-input:focus { outline: none; border-color: #4ade80; box-shadow: 0 0 15px rgba(74,222,128,0.3); }
+        .loading-spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #00d4ff; border-top: 2px solid transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -119,12 +115,12 @@
             
             <div class="search-container">
                 <label style="font-size:12px; color:#aaa; margin-bottom:5px; display:block;">Origen</label>
-                <input type="text" id="originSearch" class="search-input" placeholder="¿De dónde salen las cosas?">
+                <input type="text" id="originSearch" class="search-input" placeholder="¿De dónde salen las cosas?" autocomplete="off">
                 <div id="originSuggestions" class="search-suggestions"></div>
             </div>
             <div class="search-container">
                 <label style="font-size:12px; color:#aaa; margin-bottom:5px; display:block;">Destino</label>
-                <input type="text" id="destinationSearch" class="search-input" placeholder="¿A dónde las llevamos?">
+                <input type="text" id="destinationSearch" class="search-input" placeholder="¿A dónde las llevamos?" autocomplete="off">
                 <div id="destinationSuggestions" class="search-suggestions"></div>
             </div>
 
@@ -244,17 +240,15 @@
             </div>
         </div>
         
-        <!-- SECCIÓN COMPROBANTE SINPE -->
         <div style="border-top:1px solid #444; padding-top:15px; margin-bottom:15px;">
             <div class="alert-box alert-info"><i class="fas fa-info-circle"></i> Pago por SINPE: 7228-4602. Adjunta el comprobante.</div>
-            <div class="sinpe-upload-area" id="uploadArea">
+            <div class="upload-area" id="uploadArea">
                 <input type="file" id="comprobanteFileInput" style="display:none">
                 <i class="fas fa-cloud-upload-alt upload-icon"></i>
                 <div class="upload-text" id="uploadText">Haz clic para adjuntar comprobante</div>
             </div>
         </div>
         
-        <!-- SECCIÓN CÓDIGO DE VERIFICACIÓN -->
         <div style="border-top:1px solid #444; padding-top:15px; margin-bottom:15px;">
             <label style="font-size:12px; color:#aaa; margin-bottom:8px; display:block;">Código de Verificación</label>
             <input type="text" id="verificationCodeInput" class="verification-code-input" placeholder="Ingresa código" maxlength="6">
@@ -309,7 +303,7 @@
     let searchTimeout = null;
     let sinpePhotoUploaded = false;
 
-    // CONFIGURACIÓN DE VEHÍCULOS (Consumo y Capacidad)
+    // CONFIGURACIÓN DE VEHÍCULOS
     const vehicleConfig = {
         pickup: { multiplier: 1.0, fuelCost: 1.0, capacity: 800, name: 'Pickup' },
         buseta: { multiplier: 1.4, fuelCost: 1.3, capacity: 1500, name: 'Buseta' },
@@ -324,7 +318,10 @@
 
     // INICIALIZAR MAPA
     map = L.map('map').setView([9.9281, -84.0907], 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19
+    }).addTo(map);
 
     const openModal = (id) => document.getElementById(id).classList.add('active');
     const closeModal = (id) => document.getElementById(id).classList.remove('active');
@@ -356,28 +353,20 @@
 
     document.querySelectorAll('.logoutBtn').forEach(btn => btn.addEventListener('click', () => location.reload()));
 
-    // BÚSQUEDA DE UBICACIONES
+    // BÚSQUEDA MEJORADA CON NOMINATIM
     const searchLocations = async (query, type) => {
         if (!query || query.trim().length < 2) return;
+        
         const suggestionsDiv = document.getElementById(type + 'Suggestions');
         if (!suggestionsDiv) return;
         
-        suggestionsDiv.innerHTML = '<div style="padding:10px;color:#aaa;">Buscando...</div>';
+        suggestionsDiv.innerHTML = '<div style="padding:10px;color:#aaa;"><span class="loading-spinner"></span> Buscando...</div>';
         suggestionsDiv.classList.add('active');
         
         try {
-            const searchQuery = query.trim() + ', Costa Rica';
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=8`;
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=cr&limit=10&addressdetails=1`;
             
-            const response = await fetch(url, {
-                headers: { 'Accept': 'application/json' }
-            });
-            
-            if (!response.ok) {
-                suggestionsDiv.innerHTML = '<div style="padding:10px;color:#ff6b6b;">Error de conexión</div>';
-                return;
-            }
-            
+            const response = await fetch(url);
             const results = await response.json();
             
             if (!results || results.length === 0) {
@@ -385,59 +374,51 @@
                 return;
             }
             
-            suggestionsDiv.innerHTML = results.map((r, idx) => {
-                const displayName = r.display_name || r.name || 'Ubicación';
-                const shortName = displayName.split(',')[0];
-                return `<div class="suggestion-item" data-idx="${idx}" data-lat="${r.lat}" data-lon="${r.lon}" data-name="${displayName}" data-type="${type}" style="cursor:pointer;">
-                    <div><strong>${shortName}</strong></div>
-                    <div class="suggestion-address">${displayName.substring(0, 50)}...</div>
+            suggestionsDiv.innerHTML = results.map((r) => {
+                const name = r.name || r.display_name.split(',')[0];
+                return `<div class="suggestion-item" data-lat="${r.lat}" data-lon="${r.lon}" data-name="${r.display_name}" data-type="${type}">
+                    <div><strong>${name}</strong></div>
+                    <div class="suggestion-address">${r.display_name.substring(0, 50)}...</div>
                 </div>`;
             }).join('');
         } catch (e) { 
-            console.error('Error en búsqueda:', e);
-            suggestionsDiv.innerHTML = '<div style="padding:10px;color:#ff6b6b;">Error: ' + e.message + '</div>'; 
+            console.error('Error:', e);
+            suggestionsDiv.innerHTML = '<div style="padding:10px;color:#ff6b6b;">Error en búsqueda</div>'; 
         }
     };
 
-    const originSearchInput = document.getElementById('originSearch');
-    const destinationSearchInput = document.getElementById('destinationSearch');
-    
-    if (originSearchInput) {
-        originSearchInput.addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            const val = e.target.value.trim();
-            if (val.length >= 2) {
-                searchTimeout = setTimeout(() => searchLocations(val, 'origin'), 600);
-            } else {
-                const sug = document.getElementById('originSuggestions');
-                if (sug) sug.classList.remove('active');
-            }
-        });
-    }
-    
-    if (destinationSearchInput) {
-        destinationSearchInput.addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            const val = e.target.value.trim();
-            if (val.length >= 2) {
-                searchTimeout = setTimeout(() => searchLocations(val, 'destination'), 600);
-            } else {
-                const sug = document.getElementById('destinationSuggestions');
-                if (sug) sug.classList.remove('active');
-            }
-        });
-    }
+    // EVENT LISTENERS PARA BÚSQUEDA
+    document.getElementById('originSearch').addEventListener('input', (e) => {
+        clearTimeout(searchTimeout);
+        const val = e.target.value.trim();
+        if (val.length >= 2) {
+            searchTimeout = setTimeout(() => searchLocations(val, 'origin'), 500);
+        } else {
+            document.getElementById('originSuggestions').classList.remove('active');
+        }
+    });
 
+    document.getElementById('destinationSearch').addEventListener('input', (e) => {
+        clearTimeout(searchTimeout);
+        const val = e.target.value.trim();
+        if (val.length >= 2) {
+            searchTimeout = setTimeout(() => searchLocations(val, 'destination'), 500);
+        } else {
+            document.getElementById('destinationSuggestions').classList.remove('active');
+        }
+    });
+
+    // SELECCIONAR UBICACIÓN
     document.addEventListener('click', (e) => {
         const item = e.target.closest('.suggestion-item');
         if (item) {
-            const lat = item.dataset.lat;
-            const lon = item.dataset.lon;
+            const lat = parseFloat(item.dataset.lat);
+            const lon = parseFloat(item.dataset.lon);
             const name = item.dataset.name;
             const type = item.dataset.type;
             
-            if (lat && lon && name && type) {
-                selectLocation(parseFloat(lat), parseFloat(lon), name, type);
+            if (!isNaN(lat) && !isNaN(lon) && name && type) {
+                selectLocation(lat, lon, name, type);
             }
         } else if (!e.target.closest('.search-container')) {
             document.querySelectorAll('.search-suggestions').forEach(s => s.classList.remove('active'));
@@ -445,64 +426,43 @@
     });
 
     const selectLocation = (lat, lon, name, type) => {
-        try {
-            const latNum = parseFloat(lat);
-            const lonNum = parseFloat(lon);
-            
-            if (isNaN(latNum) || isNaN(lonNum)) {
-                console.error('Coordenadas inválidas:', lat, lon);
-                return;
-            }
-            
-            const loc = { lat: latNum, lng: lonNum, name };
-            const shortName = name.split(',')[0];
-            
-            if (type === 'origin') {
-                selectedOrigin = loc;
-                const originInput = document.getElementById('originSearch');
-                if (originInput) originInput.value = shortName;
-                if (markers.origin) map.removeLayer(markers.origin);
-                markers.origin = L.marker([latNum, lonNum], { 
-                    icon: L.icon({ 
-                        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', 
-                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', 
-                        iconSize: [25, 41], 
-                        iconAnchor: [12, 41], 
-                        popupAnchor: [1, -34], 
-                        shadowSize: [41, 41] 
-                    }) 
-                }).addTo(map).bindPopup('📍 Origen: ' + shortName).openPopup();
-            } else if (type === 'destination') {
-                selectedDestination = loc;
-                const destInput = document.getElementById('destinationSearch');
-                if (destInput) destInput.value = shortName;
-                if (markers.destination) map.removeLayer(markers.destination);
-                markers.destination = L.marker([latNum, lonNum], { 
-                    icon: L.icon({ 
-                        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', 
-                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', 
-                        iconSize: [25, 41], 
-                        iconAnchor: [12, 41], 
-                        popupAnchor: [1, -34], 
-                        shadowSize: [41, 41] 
-                    }) 
-                }).addTo(map).bindPopup('📍 Destino: ' + shortName).openPopup();
-            }
-            
-            document.querySelectorAll('.search-suggestions').forEach(s => s.classList.remove('active'));
-            
-            if (selectedOrigin && selectedDestination) {
-                drawRoute();
-                map.fitBounds(L.latLngBounds([selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]), { padding: [50, 50] });
-            } else {
-                map.setView([latNum, lonNum], 13);
-            }
-        } catch (e) {
-            console.error('Error en selectLocation:', e);
+        const loc = { lat, lng: lon, name };
+        const shortName = name.split(',')[0];
+        
+        if (type === 'origin') {
+            selectedOrigin = loc;
+            document.getElementById('originSearch').value = shortName;
+            if (markers.origin) map.removeLayer(markers.origin);
+            markers.origin = L.marker([lat, lon], { 
+                icon: L.icon({ 
+                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', 
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', 
+                    iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] 
+                }) 
+            }).addTo(map).bindPopup('📍 Origen: ' + shortName).openPopup();
+        } else if (type === 'destination') {
+            selectedDestination = loc;
+            document.getElementById('destinationSearch').value = shortName;
+            if (markers.destination) map.removeLayer(markers.destination);
+            markers.destination = L.marker([lat, lon], { 
+                icon: L.icon({ 
+                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', 
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', 
+                    iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] 
+                }) 
+            }).addTo(map).bindPopup('📍 Destino: ' + shortName).openPopup();
+        }
+        
+        document.querySelectorAll('.search-suggestions').forEach(s => s.classList.remove('active'));
+        
+        if (selectedOrigin && selectedDestination) {
+            drawRoute();
+        } else {
+            map.setView([lat, lon], 14);
         }
     };
 
-    // DIBUJAR RUTA POR CARRETERAS PRINCIPALES (LEAFLET ROUTING MACHINE)
+    // DIBUJAR RUTA POR CARRETERAS
     const drawRoute = () => {
         if (!selectedOrigin || !selectedDestination) return;
         
@@ -517,24 +477,25 @@
                     L.latLng(selectedDestination.lat, selectedDestination.lng)
                 ],
                 show: false,
-                lineOptions: { styles: [{ color: '#00d4ff', opacity: 0.8, weight: 4 }] },
+                lineOptions: { styles: [{ color: '#00d4ff', opacity: 0.9, weight: 5 }] },
                 createMarker: () => null,
                 addWaypoints: false,
                 draggableWaypoints: false,
                 fitSelectedRoutes: true,
                 router: L.Routing.osrmv1({ serviceUrl: 'https://router.project-osrm.org/route/v1' })
             }).addTo(map);
+            
+            map.fitBounds(L.latLngBounds([selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]), { padding: [100, 100] });
         } catch (e) {
-            console.error('Error en Leaflet Routing:', e);
-            // Si falla, dibujar línea simple
-            L.polyline(
-                [[selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]], 
-                { color: '#00d4ff', weight: 4, opacity: 0.8, dashArray: '5, 5' }
-            ).addTo(map);
+            console.error('Error en routing:', e);
+            L.polyline([[selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]], { 
+                color: '#00d4ff', weight: 5, opacity: 0.9, dashArray: '5, 5' 
+            }).addTo(map);
+            map.fitBounds(L.latLngBounds([selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]), { padding: [100, 100] });
         }
     };
 
-    // LÓGICA DE PRECIOS DINÁMICA
+    // LÓGICA DE PRECIOS
     const calculatePrice = (dist, vehicle, weight, access, service) => {
         const config = vehicleConfig[vehicle];
         const basePrice = 12000;
@@ -626,7 +587,7 @@
         openModal('facturaModal');
     };
 
-    // MANEJO DE COMPROBANTE SINPE
+    // COMPROBANTE SINPE
     document.getElementById('uploadArea').addEventListener('click', () => document.getElementById('comprobanteFileInput').click());
     document.getElementById('comprobanteFileInput').addEventListener('change', (e) => {
         if (e.target.files[0]) {
@@ -636,7 +597,6 @@
         }
     });
 
-    // VALIDAR FORMULARIO COMPLETO
     const validateFormCompletion = () => {
         const verificationCode = document.getElementById('verificationCodeInput').value;
         if (sinpePhotoUploaded && verificationCode.length >= 4) {
