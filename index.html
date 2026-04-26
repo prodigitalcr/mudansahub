@@ -3,653 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MudanzasHub Costa Rica - Ultimate</title>
+    <title>MudanzasHub Costa Rica - Conectado</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <style>
+        /* DISEÑO ORIGINAL OFICIAL3 */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0f0f0f;
-            color: #fff;
-            overflow: hidden;
-        }
-
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f0f0f; color: #fff; overflow: hidden; }
         .container { display: flex; height: 100vh; }
-
-        .sidebar {
-            width: 440px;
-            background: #1a1a1a;
-            border-right: 1px solid #333;
-            overflow-y: auto;
-            padding: 20px;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.5);
-        }
-
+        .sidebar { width: 440px; background: #1a1a1a; border-right: 1px solid #333; overflow-y: auto; padding: 20px; box-shadow: 2px 0 10px rgba(0,0,0,0.5); }
         .map-container { flex: 1; position: relative; }
         #map { width: 100%; height: 100%; }
-
-        .logo {
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: #00d4ff;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .user-greeting {
-            background: linear-gradient(135deg, #1a3a3a, #2a2a2a);
-            border: 1px solid #00d4ff44;
-            border-radius: 8px;
-            padding: 10px 14px;
-            margin-bottom: 16px;
-            font-size: 13px;
-            color: #00d4ff;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
+        .logo { font-size: 22px; font-weight: bold; margin-bottom: 20px; color: #00d4ff; display: flex; align-items: center; gap: 10px; }
+        .user-greeting { background: linear-gradient(135deg, #1a3a3a, #2a2a2a); border: 1px solid #00d4ff44; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 13px; color: #00d4ff; display: flex; align-items: center; gap: 8px; }
         .form-group { margin-bottom: 18px; }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 7px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #aaa;
-        }
-
-        .search-container { position: relative; margin-bottom: 18px; }
-
-        .search-input {
-            width: 100%;
-            padding: 11px 12px;
-            background: #2a2a2a;
-            border: 1px solid #444;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 14px;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: #00d4ff;
-            box-shadow: 0 0 10px rgba(0,212,255,0.3);
-        }
-
-        .search-suggestions {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: #2a2a2a;
-            border: 1px solid #444;
-            border-top: none;
-            border-radius: 0 0 8px 8px;
-            max-height: 300px;
-            overflow-y: auto;
-            z-index: 100;
-            display: none;
-        }
-
-        .search-suggestions.active { display: block; }
-
-        .suggestion-item {
-            padding: 11px 12px;
-            border-bottom: 1px solid #333;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 13px;
-        }
-
-        .suggestion-item:hover { background: #3a3a3a; color: #00d4ff; }
-
-        .suggestion-address { color: #aaa; font-size: 12px; margin-top: 3px; }
-
-        .btn {
-            width: 100%;
-            padding: 13px;
-            background: #00d4ff;
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .btn:hover {
-            background: #00b8d4;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,212,255,0.4);
-        }
-
-        .btn:disabled { background: #555; color: #888; cursor: not-allowed; transform: none; box-shadow: none; }
-
+        .form-group label { display: block; margin-bottom: 7px; font-size: 13px; font-weight: 600; color: #aaa; }
+        .search-input { width: 100%; padding: 11px 12px; background: #2a2a2a; border: 1px solid #444; border-radius: 8px; color: #fff; font-size: 14px; }
+        .search-input:focus { outline: none; border-color: #00d4ff; box-shadow: 0 0 10px rgba(0,212,255,0.3); }
+        .btn { width: 100%; padding: 13px; background: #00d4ff; color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.3s ease; }
+        .btn:hover { background: #00b8d4; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,212,255,0.4); }
         .btn-secondary { background: #333; color: #fff; margin-bottom: 10px; }
-        .btn-secondary:hover { background: #444; }
-
-        .btn-accept { background: #4ade80; color: #000; width: 48%; display: inline-block; }
-        .btn-accept:hover { background: #22c55e; }
-
-        .btn-reject { background: #ef4444; color: #fff; width: 48%; display: inline-block; margin-left: 4%; }
-        .btn-reject:hover { background: #dc2626; }
-
-        .btn-sm {
-            width: auto;
-            padding: 7px 14px;
-            font-size: 12px;
-            display: inline-block;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
         .modal.active { display: flex; }
-
-        .modal-content {
-            background: #1a1a1a;
-            border: 1px solid #444;
-            border-radius: 12px;
-            padding: 28px;
-            width: 92%;
-            max-width: 620px;
-            max-height: 92vh;
-            overflow-y: auto;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.9);
-            position: relative;
-        }
-
-        .modal-header {
-            font-size: 19px;
-            font-weight: bold;
-            margin-bottom: 18px;
-            color: #00d4ff;
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 14px; right: 14px;
-            background: none;
-            border: none;
-            color: #aaa;
-            font-size: 24px;
-            cursor: pointer;
-            width: auto;
-            padding: 0;
-        }
-
-        .modal-close:hover { color: #fff; transform: none; box-shadow: none; }
-
+        .modal-content { background: #1a1a1a; border: 1px solid #444; border-radius: 12px; padding: 28px; width: 92%; max-width: 620px; max-height: 92vh; overflow-y: auto; position: relative; }
         .section { display: none; }
         .section.active { display: block; }
-
-        .register-type-selector {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .register-type-btn {
-            padding: 20px;
-            background: #2a2a2a;
-            border: 2px solid #444;
-            border-radius: 8px;
-            color: #fff;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-            font-weight: 600;
-            width: 100%;
-        }
-
-        .register-type-btn:hover { border-color: #00d4ff; background: #2a3a3a; transform: none; box-shadow: none; }
-        .register-type-btn.active { border-color: #00d4ff; background: #1a3a3a; }
-
-        /* ===== TRANSPORTISTA CARDS (selección de cliente) ===== */
-        .transportista-card {
-            background: #2a2a2a;
-            border: 1px solid #444;
-            border-radius: 10px;
-            padding: 16px;
-            margin-bottom: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .transportista-card:hover {
-            border-color: #00d4ff;
-            box-shadow: 0 0 14px rgba(0,212,255,0.25);
-            background: #2a3535;
-        }
-
-        .transportista-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 10px;
-        }
-
-        .transportista-name { font-weight: 700; font-size: 15px; color: #fff; }
-        .transportista-price { font-size: 20px; font-weight: bold; color: #4ade80; }
-
-        .transportista-badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .badge-active { background: #00d4ff22; color: #00d4ff; border: 1px solid #00d4ff44; }
-        .badge-vehicle { background: #4ade8022; color: #4ade80; border: 1px solid #4ade8044; }
-
-        .transportista-info { font-size: 12px; color: #bbb; margin-bottom: 4px; }
-        .transportista-offer-label {
-            font-size: 11px;
-            color: #aaa;
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px solid #3a3a3a;
-        }
-
-        .transportista-stars { color: #fbbf24; font-size: 12px; }
-
-        /* ===== JOB CARDS (transportista) ===== */
-        .uber-job-card {
-            background: linear-gradient(135deg, #2a2a2a 0%, #303030 100%);
-            border: 2px solid #00d4ff;
-            border-radius: 12px;
-            padding: 18px;
-            margin-bottom: 14px;
-            box-shadow: 0 4px 15px rgba(0,212,255,0.15);
-        }
-
-        .job-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 14px;
-        }
-
-        .job-price { font-size: 22px; font-weight: bold; color: #4ade80; }
-        .job-distance { font-size: 13px; color: #aaa; }
-
-        .job-details {
-            margin-bottom: 14px;
-            padding-bottom: 14px;
-            border-bottom: 1px solid #3a3a3a;
-        }
-
-        .job-detail-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 7px;
-            font-size: 13px;
-        }
-
-        .job-detail-label { color: #aaa; }
-        .job-detail-value { color: #fff; font-weight: 600; }
-
-        .job-actions { display: flex; gap: 10px; }
-
-        /* ===== STATS ===== */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 18px;
-        }
-
-        .stat-card {
-            background: #2a2a2a;
-            border: 1px solid #444;
-            border-radius: 8px;
-            padding: 14px;
-            text-align: center;
-        }
-
-        .stat-value { font-size: 22px; font-weight: bold; color: #00d4ff; }
-        .stat-label { font-size: 11px; color: #aaa; margin-top: 4px; }
-
-        .stat-card.green .stat-value { color: #4ade80; }
-        .stat-card.yellow .stat-value { color: #fbbf24; }
-        .stat-card.red .stat-value { color: #f87171; }
-
-        /* ===== TABS ===== */
-        .tabs {
-            display: flex;
-            background: #222;
-            border-radius: 8px;
-            padding: 4px;
-            margin-bottom: 18px;
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 10px;
-            background: none;
-            border: none;
-            color: #888;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            border-radius: 6px;
-            transition: all 0.2s;
-        }
-
+        .tabs { display: flex; background: #222; border-radius: 8px; padding: 4px; margin-bottom: 18px; }
+        .tab-btn { flex: 1; padding: 10px; background: none; border: none; color: #888; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 6px; }
         .tab-btn.active { background: #333; color: #00d4ff; }
-
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-
-        /* ===== TABLES ===== */
-        .admin-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-            margin-top: 10px;
-        }
-
-        .admin-table th {
-            text-align: left;
-            padding: 10px;
-            background: #222;
-            color: #aaa;
-            border-bottom: 1px solid #333;
-        }
-
-        .admin-table td {
-            padding: 10px;
-            border-bottom: 1px solid #222;
-            color: #eee;
-        }
-
-        .status-badge {
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 700;
-        }
-
-        .status-confirmed { background: #3b82f622; color: #3b82f6; border: 1px solid #3b82f644; }
-        .status-progress { background: #fbbf2422; color: #fbbf24; border: 1px solid #fbbf2444; }
-        .status-completed { background: #4ade8022; color: #4ade80; border: 1px solid #4ade8044; }
-
-        /* ===== FACTURA MODAL ===== */
-        .factura-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #333;
-        }
-
-        .factura-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .factura-section-title {
-            font-size: 12px;
-            text-transform: uppercase;
-            color: #888;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-
-        .factura-item { margin-bottom: 8px; font-size: 13px; }
-        .factura-label { color: #aaa; margin-right: 5px; }
-        .factura-value { font-weight: 600; }
-
-        .factura-total-box {
-            background: #2a2a2a;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: right;
-            margin-top: 10px;
-        }
-
-        .factura-total-amount { font-size: 24px; font-weight: bold; color: #4ade80; }
-
-        /* ===== UPLOAD AREA ===== */
-        .upload-area {
-            border: 2px dashed #444;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-bottom: 15px;
-        }
-
-        .upload-area:hover { border-color: #00d4ff; background: #1a2a2a; }
-        .upload-area.has-file { border-color: #4ade80; background: #1a2a1a; }
-
-        .upload-icon { font-size: 30px; color: #666; margin-bottom: 10px; }
-        .upload-text { font-size: 13px; color: #aaa; }
-
-        .comprobante-preview {
-            margin-top: 15px;
-            text-align: center;
-            display: none;
-        }
-
-        .comprobante-preview img {
-            max-width: 100%;
-            max-height: 180px;
-            border-radius: 6px;
-            border: 1px solid #444;
-        }
-
-        .divider { border: none; border-top: 1px solid #333; margin: 16px 0; }
-
-        .alert-box {
-            padding: 12px 14px;
-            border-radius: 8px;
-            font-size: 13px;
-            margin-bottom: 14px;
-        }
-
-        .alert-info { background: #1a3a4a; border: 1px solid #00d4ff44; color: #7dd3fc; }
-
-        /* ===== HISTORIAL ITEMS ===== */
-        .historial-item {
-            background: #222;
-            border: 1px solid #333;
-            border-radius: 10px;
-            padding: 16px;
-            margin-bottom: 12px;
-        }
-
-        .historial-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-weight: 700;
-            font-size: 14px;
-        }
-
-        .historial-info {
-            font-size: 12px;
-            color: #aaa;
-            line-height: 1.6;
-        }
-
-        .historial-status {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 700;
-        }
-
-        /* ===== ADMIN CARDS ===== */
-        .transporter-admin-card {
-            background: #222;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 14px;
-            margin-bottom: 12px;
-        }
-
-        .transporter-admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .transporter-admin-name { font-weight: 700; font-size: 14px; }
-
-        .transporter-admin-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .transporter-mini-stat {
-            background: #2a2a2a;
-            border-radius: 6px;
-            padding: 8px;
-            text-align: center;
-        }
-
-        .transporter-mini-stat .val { font-size: 14px; font-weight: bold; color: #00d4ff; }
-        .transporter-mini-stat .lbl { font-size: 10px; color: #888; margin-top: 2px; }
-
-        .client-admin-card {
-            background: #222;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 10px;
-            font-size: 13px;
-        }
-
-        .client-admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .client-admin-name { font-weight: 700; font-size: 14px; }
-
-        /* NUEVOS ESTILOS ULTIMATE */
-        .vehicle-selector {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 18px;
-        }
-        .vehicle-option {
-            background: #2a2a2a;
-            border: 2px solid #444;
-            border-radius: 8px;
-            padding: 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .vehicle-option.active {
-            border-color: #00d4ff;
-            background: #1a3a3a;
-        }
-        .vehicle-option i { font-size: 20px; display: block; margin-bottom: 5px; }
-        .vehicle-option span { font-size: 11px; font-weight: 600; }
-
-        .service-type-selector {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 18px;
-        }
-        .service-type-option {
-            flex: 1;
-            background: #2a2a2a;
-            border: 2px solid #444;
-            border-radius: 8px;
-            padding: 10px;
-            text-align: center;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .service-type-option.active {
-            border-color: #00d4ff;
-            background: #1a3a3a;
-        }
-
-        .nav-overlay {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(26, 26, 26, 0.9);
-            padding: 15px 25px;
-            border-radius: 50px;
-            border: 1px solid #00d4ff;
-            z-index: 1000;
-            display: none;
-            align-items: center;
-            gap: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-        }
-
-        @media (max-width: 768px) {
-            .container { flex-direction: column; }
-            .sidebar { width: 100%; height: 55%; border-right: none; border-bottom: 1px solid #333; }
-            .map-container { height: 45%; }
-        }
+        .admin-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
+        .admin-table th { text-align: left; padding: 10px; background: #222; color: #aaa; }
+        .admin-table td { padding: 10px; border-bottom: 1px solid #222; }
+        .status-badge { padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; }
+        .status-pending { background: #f59e0b22; color: #f59e0b; }
+        .status-in_progress { background: #3b82f622; color: #3b82f6; }
+        .status-completed { background: #10b98122; color: #10b981; }
+        .vehicle-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
+        .vehicle-option { background: #2a2a2a; border: 2px solid #444; border-radius: 8px; padding: 10px; text-align: center; cursor: pointer; }
+        .vehicle-option.active { border-color: #00d4ff; background: #1a3a3a; }
+        .search-suggestions { position: absolute; top: 100%; left: 0; right: 0; background: #2a2a2a; border: 1px solid #444; z-index: 100; display: none; }
+        .search-suggestions.active { display: block; }
+        .suggestion-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #333; font-size: 12px; }
+        .suggestion-item:hover { background: #333; }
     </style>
 </head>
 <body>
 
-<div class="nav-overlay" id="navOverlay">
-    <i class="fas fa-navigation" style="color:#00d4ff;"></i>
-    <span id="navStatus">En ruta al destino...</span>
-    <span id="navDistance" style="font-weight:bold; color:#4ade80;">0.0 km</span>
-    <button class="btn btn-sm" style="margin-left:10px;" onclick="finishNavigation()">Finalizar</button>
-</div>
-
 <div class="container">
     <div class="sidebar">
-        <!-- ==================== SECCIÓN: AUTH ==================== -->
+        <!-- AUTH SECTION -->
         <div class="section active" id="authSection">
             <div class="logo"><i class="fas fa-truck"></i> MudanzasHub</div>
-            <h2 style="margin-bottom: 14px; color: #00d4ff; font-size: 18px;">Bienvenido</h2>
-            <p style="color: #aaa; margin-bottom: 18px; font-size: 13px;">Inicia sesión para continuar</p>
-
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" id="authEmail" class="search-input" placeholder="tu@email.com">
-            </div>
-            <div class="form-group">
-                <label>Contraseña</label>
-                <input type="password" id="authPassword" class="search-input" placeholder="contraseña">
-            </div>
+            <h2 style="margin-bottom: 10px; color: #00d4ff;">Bienvenido</h2>
+            <div class="form-group"><label>Email</label><input type="email" id="authEmail" class="search-input" placeholder="admin@test.com"></div>
+            <div class="form-group"><label>Contraseña</label><input type="password" id="authPassword" class="search-input" placeholder="ADMIN"></div>
             <div class="form-group">
                 <label>Rol</label>
                 <select id="authRole" class="search-input">
@@ -658,605 +68,269 @@
                     <option value="admin">Administrador</option>
                 </select>
             </div>
-
-            <button class="btn" onclick="login()" style="margin-bottom: 14px;">Iniciar Sesión</button>
-            <button class="btn btn-secondary" onclick="openModal('registerTypeModal')">¿No tienes cuenta? Regístrate</button>
+            <button class="btn" onclick="login()">Entrar</button>
+            <p style="font-size:11px; color:#666; margin-top:15px; text-align:center;">Conectado a Firebase: mudanzascanaan</p>
         </div>
 
-        <!-- ==================== SECCIÓN: CLIENTE ==================== -->
+        <!-- CLIENT SECTION -->
         <div class="section" id="clientSection">
             <div class="logo"><i class="fas fa-truck"></i> MudanzasHub</div>
-            <div class="user-greeting">
-                <i class="fas fa-user-circle"></i>
-                <span id="clientGreetingText">Hola, Usuario</span>
-            </div>
-            <button class="btn btn-secondary" onclick="logout()" style="margin-bottom: 14px;">
-                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-            </button>
-
-            <div class="search-container">
-                <label class="form-group label">Punto de Origen</label>
-                <input type="text" id="originSearch" class="search-input" placeholder="Busca el origen...">
+            <div class="user-greeting"><i class="fas fa-user"></i> <span id="clientName">Cliente</span></div>
+            <button class="btn btn-secondary" onclick="logout()">Cerrar Sesión</button>
+            
+            <div class="form-group" style="position:relative;">
+                <label>Origen</label>
+                <input type="text" id="originSearch" class="search-input" placeholder="Busca origen..." oninput="searchLoc(this.value, 'origin')">
                 <div id="originSuggestions" class="search-suggestions"></div>
             </div>
-
-            <div class="search-container">
-                <label class="form-group label">Punto de Destino</label>
-                <input type="text" id="destinationSearch" class="search-input" placeholder="Busca el destino...">
+            <div class="form-group" style="position:relative;">
+                <label>Destino</label>
+                <input type="text" id="destinationSearch" class="search-input" placeholder="Busca destino..." oninput="searchLoc(this.value, 'destination')">
                 <div id="destinationSuggestions" class="search-suggestions"></div>
             </div>
 
             <div class="form-group">
-                <label>Tipo de Vehículo</label>
+                <label>Vehículo</label>
                 <div class="vehicle-selector">
-                    <div class="vehicle-option active" onclick="selectVehicle('pickup', this)">
-                        <i class="fas fa-truck-pickup"></i>
-                        <span>Pickup</span>
-                    </div>
-                    <div class="vehicle-option" onclick="selectVehicle('camion', this)">
-                        <i class="fas fa-truck"></i>
-                        <span>Camión</span>
-                    </div>
-                    <div class="vehicle-option" onclick="selectVehicle('buseta', this)">
-                        <i class="fas fa-bus"></i>
-                        <span>Buseta</span>
-                    </div>
+                    <div class="vehicle-option active" onclick="setVehicle('pickup', this)">Pickup</div>
+                    <div class="vehicle-option" onclick="setVehicle('camion', this)">Camión</div>
+                    <div class="vehicle-option" onclick="setVehicle('buseta', this)">Buseta</div>
                 </div>
             </div>
 
             <div class="form-group">
-                <label>Tipo de Servicio</label>
-                <div class="service-type-selector">
-                    <div class="service-type-option active" onclick="selectServiceType('acarreo', this)">Con Acarreo</div>
-                    <div class="service-type-option" onclick="selectServiceType('afuera', this)">Puesta Afuera</div>
+                <label>Programación (Opcional)</label>
+                <div style="display:flex; gap:5px;">
+                    <input type="date" id="resDate" class="search-input">
+                    <input type="time" id="resTime" class="search-input">
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>¿Cómo está el acceso a la ruta de destino?</label>
-                <input type="text" id="routeAccess" class="search-input" placeholder="Ej: Calle estrecha, pavimentada...">
-            </div>
-
-            <div class="form-group">
-                <label>Programación</label>
-                <div style="display:flex; gap:10px;">
-                    <input type="date" id="reserveDate" class="search-input" style="flex:2;">
-                    <input type="time" id="reserveTime" class="search-input" style="flex:1;">
-                </div>
-                <p style="font-size:10px; color:#888; margin-top:5px;">Deja en blanco para solicitud en tiempo real.</p>
-            </div>
-
-            <div class="form-group">
-                <label>Descripción de la Carga</label>
-                <textarea id="description" class="search-input" style="height: 60px; resize: none;" placeholder="Ej: Muebles de sala..."></textarea>
-            </div>
-
-            <button class="btn" onclick="searchTransporters()">
-                <i class="fas fa-search"></i> Buscar Transportistas
-            </button>
-
-            <div id="transportistasList" style="margin-top: 20px;"></div>
+            <button class="btn" onclick="requestMove()">Solicitar Mudanza</button>
         </div>
 
-        <!-- ==================== SECCIÓN: TRANSPORTISTA ==================== -->
+        <!-- TRANSPORTER SECTION -->
         <div class="section" id="transporterSection">
             <div class="logo"><i class="fas fa-truck"></i> MudanzasHub</div>
-            <div class="user-greeting">
-                <i class="fas fa-id-badge"></i>
-                <span id="transporterGreetingText">Hola, Transportista</span>
-            </div>
-            <button class="btn btn-secondary" onclick="logout()" style="margin-bottom: 14px;">
-                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-            </button>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="completedTrips">0</div>
-                    <div class="stat-label">Completados</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="totalEarnings">₡0</div>
-                    <div class="stat-label">Ganancia (80%)</div>
-                </div>
-            </div>
-
+            <div class="user-greeting"><i class="fas fa-id-card"></i> <span id="transName">Transportista</span></div>
+            <button class="btn btn-secondary" onclick="logout()">Cerrar Sesión</button>
+            
             <div class="tabs">
-                <button class="tab-btn active" onclick="switchTransporterTab('available', event)">Ofertas en Vivo</button>
-                <button class="tab-btn" onclick="switchTransporterTab('active', event)">En Curso (Max 3)</button>
-                <button class="tab-btn" onclick="switchTransporterTab('history', event)">Historial</button>
+                <button class="tab-btn active" onclick="switchTab('jobs', this)">Ofertas</button>
+                <button class="tab-btn" onclick="switchTab('my-jobs', this)">Mis Viajes</button>
             </div>
-
-            <div id="availableTab" class="tab-content active">
-                <div id="availableJobs"></div>
-            </div>
-
-            <div id="activeTab" class="tab-content">
-                <div id="activeJobs"></div>
-            </div>
-
-            <div id="historyTab" class="tab-content">
-                <div id="historyJobs"></div>
-            </div>
+            <div id="jobsTab" class="tab-content active"></div>
+            <div id="my-jobsTab" class="tab-content"></div>
         </div>
 
-        <!-- ==================== SECCIÓN: ADMINISTRADOR ==================== -->
+        <!-- ADMIN SECTION -->
         <div class="section" id="adminSection">
-            <div class="logo"><i class="fas fa-truck"></i> MudanzasHub</div>
-            <div class="user-greeting">
-                <i class="fas fa-shield-alt"></i>
-                <span>Panel de Administrador</span>
-            </div>
-            <button class="btn btn-secondary" onclick="logout()" style="margin-bottom: 14px;">
-                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-            </button>
-
+            <div class="logo"><i class="fas fa-shield-alt"></i> Admin Panel</div>
+            <button class="btn btn-secondary" onclick="logout()">Cerrar Sesión</button>
             <div class="tabs">
-                <button class="tab-btn active" onclick="switchAdminTab('moves', event)">Mudanzas</button>
-                <button class="tab-btn" onclick="switchAdminTab('transporters', event)">Transportistas</button>
-                <button class="tab-btn" onclick="switchAdminTab('clients', event)">Clientes</button>
-                <button class="tab-btn" onclick="switchAdminTab('reservations', event)">Reservas</button>
+                <button class="tab-btn active" onclick="switchAdminTab('moves', this)">Mudanzas</button>
+                <button class="tab-btn" onclick="switchAdminTab('users', this)">Usuarios</button>
             </div>
-
-            <div id="movesTab" class="tab-content active">
-                <div style="overflow-x:auto;">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Cliente</th>
-                                <th>Transp.</th>
-                                <th>Total</th>
-                                <th>Com. (20%)</th>
-                                <th>Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody id="movesTableBody"></tbody>
-                    </table>
-                </div>
+            <div id="adminMovesTab" class="tab-content active">
+                <table class="admin-table">
+                    <thead><tr><th>ID</th><th>Cliente</th><th>Estado</th><th>Total</th></tr></thead>
+                    <tbody id="adminMovesList"></tbody>
+                </table>
             </div>
-
-            <div id="transportersTab" class="tab-content">
-                <div id="adminTransportersList"></div>
-            </div>
-
-            <div id="clientsTab" class="tab-content">
-                <div id="adminClientsList"></div>
-            </div>
-
-            <div id="reservationsTab" class="tab-content">
-                <div id="adminReservationsList"></div>
+            <div id="adminUsersTab" class="tab-content">
+                <div id="adminUsersList"></div>
             </div>
         </div>
-
-    </div><!-- /sidebar -->
-
-    <div class="map-container">
-        <div id="map"></div>
     </div>
+    <div class="map-container"><div id="map"></div></div>
 </div>
 
-<!-- ==================== MODALES ==================== -->
+<!-- FIREBASE SDK -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, set, push, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-<!-- Modal: Selector de Registro -->
-<div class="modal" id="registerTypeModal">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('registerTypeModal')">×</button>
-        <div class="modal-header">¿Cómo deseas unirte?</div>
-        <div class="register-type-selector">
-            <button class="register-type-btn" onclick="selectRegisterType('client')">
-                <i class="fas fa-user" style="font-size:24px;display:block;margin-bottom:10px;color:#00d4ff;"></i>
-                Soy Cliente
-            </button>
-            <button class="register-type-btn" onclick="selectRegisterType('transporter')">
-                <i class="fas fa-truck" style="font-size:24px;display:block;margin-bottom:10px;color:#00d4ff;"></i>
-                Soy Transportista
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal: Registro Cliente -->
-<div class="modal" id="registerClientModal">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('registerClientModal')">×</button>
-        <div class="modal-header"><i class="fas fa-user-plus"></i> Registro de Cliente</div>
-        <div class="form-group"><label>Email</label><input type="email" id="clientRegEmail" class="search-input"></div>
-        <div class="form-group"><label>Contraseña</label><input type="password" id="clientRegPassword" class="search-input"></div>
-        <div class="form-group"><label>Nombre Completo</label><input type="text" id="clientRegName" class="search-input"></div>
-        <div class="form-group"><label>Teléfono</label><input type="tel" id="clientRegPhone" class="search-input"></div>
-        <button class="btn" onclick="registerClient()">Registrarse</button>
-    </div>
-</div>
-
-<!-- Modal: Registro Transportista -->
-<div class="modal" id="registerTransporterModal">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('registerTransporterModal')">×</button>
-        <div class="modal-header"><i class="fas fa-truck"></i> Registro de Transportista</div>
-        <div class="form-group"><label>Email</label><input type="email" id="transRegEmail" class="search-input"></div>
-        <div class="form-group"><label>Contraseña</label><input type="password" id="transRegPassword" class="search-input"></div>
-        <div class="form-group"><label>Nombre Completo</label><input type="text" id="transRegName" class="search-input"></div>
-        <div class="form-group"><label>Placa</label><input type="text" id="transRegPlate" class="search-input"></div>
-        <div class="form-group"><label>Vehículo</label><input type="text" id="transRegVehicle" class="search-input"></div>
-        <button class="btn" onclick="registerTransporter()">Registrarse</button>
-    </div>
-</div>
-
-<!-- Modal: Factura y Pago -->
-<div class="modal" id="facturaModal">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('facturaModal')">×</button>
-        <div class="modal-header">Confirmación de Mudanza</div>
-        <div id="facturaDetails" style="font-size:13px; line-height:1.6; margin-bottom:15px;"></div>
-        
-        <div style="background:#222; padding:15px; border-radius:8px; margin-bottom:15px;">
-            <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:18px; color:#4ade80;">
-                <span>Total a Pagar:</span>
-                <span id="facturaTotal">₡0</span>
-            </div>
-            <div style="font-size:12px; color:#aaa; border-top:1px solid #333; padding-top:10px; margin-top:10px;">
-                SINPE Móvil: <strong style="color:#00d4ff;">7228-4602</strong>
-            </div>
-        </div>
-
-        <div class="alert-box alert-info">
-            <i class="fas fa-info-circle"></i> Pago por adelantado requerido. Adjunta el comprobante para activar el servicio.
-        </div>
-
-        <div class="upload-area" onclick="document.getElementById('comprobanteFileInput').click()">
-            <input type="file" id="comprobanteFileInput" style="display:none" onchange="handleUpload(event)">
-            <i class="fas fa-cloud-upload-alt upload-icon"></i>
-            <div class="upload-text" id="uploadText">Haz clic para adjuntar comprobante</div>
-        </div>
-
-        <button class="btn" id="confirmMoveBtn" onclick="confirmMove()" disabled>Confirmar y Pagar</button>
-    </div>
-</div>
-
-<!-- Modal: Código de Confirmación -->
-<div class="modal" id="codeModal">
-    <div class="modal-content" style="text-align:center;">
-        <button class="modal-close" onclick="closeModal('codeModal')">×</button>
-        <div class="modal-header">Finalizar Servicio</div>
-        <p style="margin-bottom:20px; color:#aaa;">Pide el código de confirmación al cliente para concluir.</p>
-        <input type="text" id="confirmCodeInput" class="search-input" style="text-align:center; font-size:24px; letter-spacing:5px; margin-bottom:20px;" placeholder="0000">
-        <button class="btn" onclick="validateCode()">Validar y Finalizar</button>
-    </div>
-</div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
-
-<script>
-    // ESTADO GLOBAL
-    let map, selectedOrigin, selectedDestination, currentUser, selectedTransporter;
-    let markers = {};
-    let moves = [];
-    let selectedVehicle = 'pickup';
-    let selectedServiceType = 'acarreo';
-    let routingControl = null;
-    let activeNavMove = null;
-
-    const vehicleMultipliers = { pickup: 1, camion: 1.8, buseta: 1.4 };
-
-    let transporters = [
-        { id: 1, email: 'carlos@test.com', password: '1234', name: 'Carlos Rodríguez', phone: '8765-1234', plate: 'ABC-123', vehicle: 'Toyota Hiace', rating: 4.8, status: 'active' },
-        { id: 2, email: 'miguel@test.com', password: '1234', name: 'Miguel Vargas', phone: '8765-5678', plate: 'XYZ-789', vehicle: 'Hino 300', rating: 4.6, status: 'active' }
-    ];
-
-    let registeredClients = [
-        { email: 'cliente@test.com', password: '1234', name: 'Laura Fernández', phone: '8801-2345' }
-    ];
-
-    window.onload = function() {
-        initMap();
-        moves = JSON.parse(localStorage.getItem('mh_moves_ultimate') || '[]');
-        
-        document.getElementById('originSearch').addEventListener('input', (e) => searchLoc(e.target.value, 'origin'));
-        document.getElementById('destinationSearch').addEventListener('input', (e) => searchLoc(e.target.value, 'destination'));
-        
-        // Sincronización entre pestañas
-        window.addEventListener('storage', () => {
-            moves = JSON.parse(localStorage.getItem('mh_moves_ultimate') || '[]');
-            if (currentUser && currentUser.role === 'transporter') loadTransporterData();
-            if (currentUser && currentUser.role === 'admin') loadAdminData();
-        });
+    // CONFIGURACIÓN DEL USUARIO
+    const firebaseConfig = {
+        apiKey: "AIzaSyCppQ2yPzQxTMSs8GfBCSyKzoQoUUzaWJo",
+        authDomain: "mudanzascanaan.firebaseapp.com",
+        databaseURL: "https://mudanzascanaan-default-rtdb.firebaseio.com",
+        projectId: "mudanzascanaan",
+        storageBucket: "mudanzascanaan.firebasestorage.app",
+        messagingSenderId: "198057203593",
+        appId: "1:198057203593:web:d8a5d2f575bcc565b73358",
+        measurementId: "G-F2ZN37X78C"
     };
 
-    function initMap() {
-        map = L.map('map').setView([9.9281, -84.0907], 12);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    }
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-    async function searchLoc(q, type) {
-        if (q.length < 3) return;
-        const div = document.getElementById(type + 'Suggestions');
-        div.innerHTML = '<div style="padding:10px;">Buscando...</div>';
-        div.classList.add('active');
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${q}, Costa Rica&limit=5`);
+    // VARIABLES GLOBALES
+    let currentUser = null;
+    let selectedOrigin = null;
+    let selectedDestination = null;
+    let currentVehicle = 'pickup';
+    let map, routingControl;
+
+    // INICIALIZAR MAPA
+    map = L.map('map').setView([9.9281, -84.0907], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    // FUNCIONES DE AUTH
+    window.login = function() {
+        const email = document.getElementById('authEmail').value;
+        const pass = document.getElementById('authPassword').value;
+        const role = document.getElementById('authRole').value;
+        
+        // Demo Login
+        currentUser = { email, role, name: email.split('@')[0] };
+        document.getElementById('authSection').classList.remove('active');
+        document.getElementById(role + 'Section').classList.add('active');
+        
+        if(role === 'client') document.getElementById('clientName').innerText = currentUser.name;
+        if(role === 'transporter') {
+            document.getElementById('transName').innerText = currentUser.name;
+            listenToJobs();
+        }
+        if(role === 'admin') listenToAdmin();
+    };
+
+    window.logout = function() {
+        location.reload();
+    };
+
+    // CLIENT LOGIC
+    window.searchLoc = async function(q, type) {
+        if(q.length < 3) return;
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${q}, Costa Rica`);
         const data = await res.json();
-        div.innerHTML = data.map(r => `<div class="suggestion-item" onclick="selectLoc(${r.lat}, ${r.lon}, '${r.display_name.replace(/'/g,"")}', '${type}')">${r.display_name}</div>`).join('');
-    }
+        const div = document.getElementById(type + 'Suggestions');
+        div.innerHTML = data.map(item => `<div class="suggestion-item" onclick="selectLoc(${item.lat}, ${item.lon}, '${item.display_name.replace(/'/g,"")}', '${type}')">${item.display_name}</div>`).join('');
+        div.classList.add('active');
+    };
 
-    function selectLoc(lat, lon, name, type) {
-        const loc = { lat, lng: lon, name };
-        if (type === 'origin') {
+    window.selectLoc = function(lat, lon, name, type) {
+        const loc = { lat, lon, name };
+        if(type === 'origin') {
             selectedOrigin = loc;
             document.getElementById('originSearch').value = name.split(',')[0];
-            if (markers.origin) map.removeLayer(markers.origin);
-            markers.origin = L.marker([lat, lon]).addTo(map).bindPopup('Origen');
         } else {
             selectedDestination = loc;
             document.getElementById('destinationSearch').value = name.split(',')[0];
-            if (markers.destination) map.removeLayer(markers.destination);
-            markers.destination = L.marker([lat, lon]).addTo(map).bindPopup('Destino');
         }
-        document.querySelectorAll('.search-suggestions').forEach(s => s.classList.remove('active'));
-        if (selectedOrigin && selectedDestination) drawRoute();
-    }
+        document.getElementById(type + 'Suggestions').classList.remove('active');
+        if(selectedOrigin && selectedDestination) drawRoute();
+    };
 
     function drawRoute() {
-        if (routingControl) map.removeControl(routingControl);
+        if(routingControl) map.removeControl(routingControl);
         routingControl = L.Routing.control({
-            waypoints: [L.latLng(selectedOrigin.lat, selectedOrigin.lng), L.latLng(selectedDestination.lat, selectedDestination.lng)],
-            show: false,
-            lineOptions: { styles: [{ color: '#00d4ff', weight: 5 }] }
+            waypoints: [L.latLng(selectedOrigin.lat, selectedOrigin.lon), L.latLng(selectedDestination.lat, selectedDestination.lon)],
+            show: false
         }).addTo(map);
     }
 
-    function selectVehicle(v, el) {
-        selectedVehicle = v;
-        document.querySelectorAll('.vehicle-option').forEach(o => o.classList.remove('active'));
+    window.setVehicle = function(v, el) {
+        currentVehicle = v;
+        document.querySelectorAll('.vehicle-option').forEach(opt => opt.classList.remove('active'));
         el.classList.add('active');
-    }
+    };
 
-    function selectServiceType(t, el) {
-        selectedServiceType = t;
-        document.querySelectorAll('.service-type-option').forEach(o => o.classList.remove('active'));
-        el.classList.add('active');
-    }
-
-    function searchTransporters() {
-        if (!selectedOrigin || !selectedDestination) return alert('Selecciona origen y destino');
-        const dist = calculateDist(selectedOrigin, selectedDestination);
-        const base = 15000 + (dist * 1200);
-        const multiplier = vehicleMultipliers[selectedVehicle];
-        const serviceAdd = selectedServiceType === 'acarreo' ? 5000 : 0;
-        const finalPrice = Math.round((base * multiplier) + serviceAdd);
-
-        document.getElementById('transportistasList').innerHTML = transporters.map(t => `
-            <div class="transportista-card" onclick="openFactura(${t.id}, ${finalPrice})">
-                <div class="transportista-header">
-                    <div class="transportista-name">${t.name}</div>
-                    <div class="transportista-price">₡${finalPrice.toLocaleString()}</div>
-                </div>
-                <div class="transportista-info"><i class="fas fa-truck"></i> ${t.vehicle} (${selectedVehicle.toUpperCase()})</div>
-                <div style="font-size:11px; color:#aaa; margin-top:5px;">Servicio: ${selectedServiceType === 'acarreo' ? 'Con Acarreo' : 'Puesta Afuera'}</div>
-            </div>
-        `).join('');
-    }
-
-    function openFactura(tid, price) {
-        selectedTransporter = transporters.find(t => t.id === tid);
-        selectedTransporter.price = price;
-        const isReserve = document.getElementById('reserveDate').value !== '';
+    window.requestMove = function() {
+        if(!selectedOrigin || !selectedDestination) return alert('Selecciona origen y destino');
         
-        let html = `
-            <p><strong>Origen:</strong> ${selectedOrigin.name}</p>
-            <p><strong>Destino:</strong> ${selectedDestination.name}</p>
-            <p><strong>Vehículo:</strong> ${selectedVehicle.toUpperCase()}</p>
-            <p><strong>Servicio:</strong> ${selectedServiceType === 'acarreo' ? 'Con Acarreo' : 'Puesta Afuera'}</p>
-            <p><strong>Acceso Ruta:</strong> ${document.getElementById('routeAccess').value || 'No especificado'}</p>
-            <p><strong>Modo:</strong> ${isReserve ? 'RESERVA (' + document.getElementById('reserveDate').value + ' ' + document.getElementById('reserveTime').value + ')' : 'TIEMPO REAL'}</p>
-        `;
-        document.getElementById('facturaDetails').innerHTML = html;
-        document.getElementById('facturaTotal').textContent = '₡' + price.toLocaleString();
-        openModal('facturaModal');
-    }
-
-    function handleUpload(e) {
-        if (e.target.files[0]) {
-            document.getElementById('uploadText').textContent = '✓ Comprobante adjunto: ' + e.target.files[0].name;
-            document.getElementById('confirmMoveBtn').disabled = false;
-        }
-    }
-
-    function confirmMove() {
-        const isReserve = document.getElementById('reserveDate').value !== '';
-        const move = {
-            id: Date.now(),
+        const moveData = {
             client: currentUser.email,
-            clientName: currentUser.name,
-            transporter: selectedTransporter.id,
-            transporterName: selectedTransporter.name,
             origin: selectedOrigin,
             destination: selectedDestination,
-            price: selectedTransporter.price,
-            vehicle: selectedVehicle,
-            service: selectedServiceType,
-            access: document.getElementById('routeAccess').value,
-            mode: isReserve ? 'reserva' : 'realtime',
-            reserveDate: document.getElementById('reserveDate').value,
-            reserveTime: document.getElementById('reserveTime').value,
+            vehicle: currentVehicle,
+            date: document.getElementById('resDate').value || 'Hoy',
+            time: document.getElementById('resTime').value || 'Ahora',
             status: 'pending',
-            code: Math.floor(1000 + Math.random() * 9000),
-            date: new Date().toISOString()
+            price: Math.floor(Math.random() * 50000) + 15000,
+            timestamp: Date.now()
         };
-        moves.push(move);
-        saveMoves();
-        alert('¡Pago recibido! Tu solicitud ha sido enviada. Recibirás un correo con el código de confirmación.');
-        closeModal('facturaModal');
-        logout(); // Simular fin de flujo cliente
+
+        const movesRef = ref(db, 'moves');
+        push(movesRef, moveData).then(() => {
+            alert('¡Mudanza solicitada! Los transportistas la verán en tiempo real.');
+        });
+    };
+
+    // TRANSPORTER LOGIC
+    function listenToJobs() {
+        const movesRef = ref(db, 'moves');
+        onValue(movesRef, (snapshot) => {
+            const data = snapshot.val();
+            const jobsDiv = document.getElementById('jobsTab');
+            const myJobsDiv = document.getElementById('my-jobsTab');
+            jobsDiv.innerHTML = '';
+            myJobsDiv.innerHTML = '';
+
+            if(data) {
+                Object.keys(data).forEach(key => {
+                    const move = data[key];
+                    const html = `
+                        <div style="background:#222; padding:15px; border-radius:8px; margin-bottom:10px; border-left:4px solid #00d4ff;">
+                            <p><strong>De:</strong> ${move.origin.name.split(',')[0]}</p>
+                            <p><strong>A:</strong> ${move.destination.name.split(',')[0]}</p>
+                            <p><strong>Precio:</strong> ₡${move.price.toLocaleString()}</p>
+                            ${move.status === 'pending' ? `<button class="btn btn-sm" onclick="acceptJob('${key}')" style="margin-top:10px;">Aceptar</button>` : `<span class="status-badge status-${move.status}">${move.status}</span>`}
+                        </div>
+                    `;
+                    if(move.status === 'pending') jobsDiv.innerHTML += html;
+                    if(move.transporter === currentUser.email) myJobsDiv.innerHTML += html;
+                });
+            }
+        });
     }
 
-    // TRANSPORTISTA LOGIC
-    function loadTransporterData() {
-        const myMoves = moves.filter(m => m.transporter === currentUser.id);
-        const available = moves.filter(m => m.status === 'pending' && m.transporter === currentUser.id);
-        const active = myMoves.filter(m => m.status === 'in_progress');
-        const history = myMoves.filter(m => m.status === 'completed');
-
-        document.getElementById('completedTrips').textContent = history.length;
-        document.getElementById('totalEarnings').textContent = '₡' + Math.round(history.reduce((a,b)=>a+(b.price*0.8),0)).toLocaleString();
-
-        document.getElementById('availableJobs').innerHTML = available.map(m => `
-            <div class="uber-job-card">
-                <div class="job-header">
-                    <div style="font-weight:bold;">${m.origin.name.split(',')[0]} → ${m.destination.name.split(',')[0]}</div>
-                    <div class="job-price">₡${Math.round(m.price*0.8).toLocaleString()}</div>
-                </div>
-                <div style="font-size:11px; color:#aaa; margin-bottom:10px;">Modo: ${m.mode.toUpperCase()} | Vehículo: ${m.vehicle.toUpperCase()}</div>
-                <button class="btn" onclick="acceptJob(${m.id})" ${active.length >= 3 ? 'disabled' : ''}>Aceptar Oferta</button>
-            </div>
-        `).join('') || '<p style="text-align:center;color:#555;">No hay ofertas nuevas</p>';
-
-        document.getElementById('activeJobs').innerHTML = active.map(m => `
-            <div class="uber-job-card" style="border-color:#4ade80;">
-                <div style="font-weight:bold; margin-bottom:10px;">Cliente: ${m.clientName}</div>
-                <div style="display:flex; gap:10px;">
-                    <button class="btn btn-sm" onclick="startNav(${m.id})">Ver Ruta</button>
-                    <button class="btn btn-sm" style="background:#4ade80;" onclick="openCodeModal(${m.id})">Finalizar</button>
-                </div>
-            </div>
-        `).join('') || '<p style="text-align:center;color:#555;">Sin viajes en curso</p>';
-
-        document.getElementById('historyJobs').innerHTML = history.map(m => `
-            <div class="historial-item">
-                <div class="historial-header"><span>${m.origin.name.split(',')[0]}</span><span>₡${Math.round(m.price*0.8).toLocaleString()}</span></div>
-                <div class="historial-info">${new Date(m.date).toLocaleDateString()}</div>
-            </div>
-        `).join('');
-    }
-
-    function acceptJob(id) {
-        const move = moves.find(m => m.id === id);
-        move.status = 'in_progress';
-        saveMoves();
-        loadTransporterData();
-        alert('Viaje aceptado. Se ha enviado una notificación al cliente: "Su mudanza se ha puesto en marcha. Link de seguimiento: https://mudanzashub.cr/track/' + id + '"');
-    }
-
-    function startNav(id) {
-        const move = moves.find(m => m.id === id);
-        activeNavMove = move;
-        selectedOrigin = move.origin;
-        selectedDestination = move.destination;
-        drawRoute();
-        document.getElementById('navOverlay').style.display = 'flex';
-        document.getElementById('navDistance').textContent = calculateDist(move.origin, move.destination).toFixed(1) + ' km';
-    }
-
-    function finishNavigation() {
-        document.getElementById('navOverlay').style.display = 'none';
-        if (routingControl) map.removeControl(routingControl);
-    }
-
-    function openCodeModal(id) {
-        activeNavMove = moves.find(m => m.id === id);
-        openModal('codeModal');
-    }
-
-    function validateCode() {
-        const input = document.getElementById('confirmCodeInput').value;
-        if (parseInt(input) === activeNavMove.code) {
-            activeNavMove.status = 'completed';
-            saveMoves();
-            alert('¡Servicio concluido con éxito!');
-            closeModal('codeModal');
-            loadTransporterData();
-            finishNavigation();
-        } else {
-            alert('Código incorrecto. Pídelo al cliente.');
-        }
-    }
+    window.acceptJob = function(id) {
+        const moveRef = ref(db, `moves/${id}`);
+        update(moveRef, {
+            status: 'in_progress',
+            transporter: currentUser.email
+        });
+    };
 
     // ADMIN LOGIC
-    function loadAdminData() {
-        document.getElementById('movesTableBody').innerHTML = moves.map(m => `
-            <tr>
-                <td>#${String(m.id).slice(-4)}</td>
-                <td>${m.clientName}</td>
-                <td>${m.transporterName}</td>
-                <td>₡${m.price.toLocaleString()}</td>
-                <td style="color:#818cf8;">₡${Math.round(m.price*0.2).toLocaleString()}</td>
-                <td><span class="status-badge status-${m.status}">${m.status}</span></td>
-            </tr>
-        `).join('');
-
-        document.getElementById('adminTransportersList').innerHTML = transporters.map(t => `
-            <div class="transporter-admin-card">
-                <div class="transporter-admin-name">${t.name}</div>
-                <div style="font-size:11px; color:#888;">Email: ${t.email} | Placa: ${t.plate}</div>
-            </div>
-        `).join('');
-
-        document.getElementById('adminClientsList').innerHTML = registeredClients.map(c => `
-            <div class="client-admin-card">
-                <div class="client-admin-name">${c.name}</div>
-                <div style="font-size:11px; color:#888;">Email: ${c.email} | Tel: ${c.phone}</div>
-            </div>
-        `).join('');
-
-        document.getElementById('adminReservationsList').innerHTML = moves.filter(m => m.mode === 'reserva').map(m => `
-            <div class="historial-item">
-                <div style="font-weight:bold; color:#00d4ff;">${m.reserveDate} @ ${m.reserveTime}</div>
-                <div style="font-size:12px;">Cliente: ${m.clientName} | Transp: ${m.transporterName}</div>
-                <div class="historial-status status-${m.status}">${m.status.toUpperCase()}</div>
-            </div>
-        `).join('') || '<p style="text-align:center;color:#555;">No hay reservas programadas</p>';
+    function listenToAdmin() {
+        const movesRef = ref(db, 'moves');
+        onValue(movesRef, (snapshot) => {
+            const data = snapshot.val();
+            const list = document.getElementById('adminMovesList');
+            list.innerHTML = '';
+            if(data) {
+                Object.keys(data).forEach(key => {
+                    const move = data[key];
+                    list.innerHTML += `
+                        <tr>
+                            <td>#${key.slice(-4)}</td>
+                            <td>${move.client}</td>
+                            <td><span class="status-badge status-${move.status}">${move.status}</span></td>
+                            <td>₡${move.price.toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+            }
+        });
     }
 
-    // AUTH & UTILS
-    function login() {
-        const email = document.getElementById('authEmail').value.trim().toLowerCase();
-        const pass = document.getElementById('authPassword').value;
-        const role = document.getElementById('authRole').value;
-
-        if (role === 'admin' && email === 'admin@test.com' && pass === 'ADMIN') {
-            currentUser = { email, role, name: 'Admin' };
-        } else if (role === 'transporter') {
-            const t = transporters.find(x => x.email === email && x.password === pass);
-            if (t) currentUser = { ...t, role };
-        } else {
-            const c = registeredClients.find(x => x.email === email && x.password === pass);
-            if (c) currentUser = { ...c, role };
-        }
-
-        if (!currentUser) return alert('Credenciales inválidas');
-
-        document.getElementById('authSection').classList.remove('active');
-        if (role === 'client') document.getElementById('clientSection').classList.add('active');
-        else if (role === 'transporter') { document.getElementById('transporterSection').classList.add('active'); loadTransporterData(); }
-        else { document.getElementById('adminSection').classList.add('active'); loadAdminData(); }
-    }
-
-    function logout() {
-        currentUser = null;
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.getElementById('authSection').classList.add('active');
-    }
-
-    function calculateDist(p1, p2) {
-        const R = 6371;
-        const dLat = (p2.lat-p1.lat) * Math.PI / 180;
-        const dLon = (p2.lng-p1.lng) * Math.PI / 180;
-        const a = Math.sin(dLat/2)**2 + Math.cos(p1.lat*Math.PI/180)*Math.cos(p2.lat*Math.PI/180)*Math.sin(dLon/2)**2;
-        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    }
-
-    function saveMoves() { localStorage.setItem('mh_moves_ultimate', JSON.stringify(moves)); window.dispatchEvent(new Event('storage')); }
-    function openModal(id) { document.getElementById(id).classList.add('active'); }
-    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-    function switchTransporterTab(tab, e) {
+    // TABS LOGIC
+    window.switchTab = function(tab, el) {
         document.querySelectorAll('#transporterSection .tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('#transporterSection .tab-content').forEach(c => c.classList.remove('active'));
-        e.target.classList.add('active'); document.getElementById(tab + 'Tab').classList.add('active');
-    }
-    function switchAdminTab(tab, e) {
+        el.classList.add('active');
+        document.getElementById(tab + 'Tab').classList.add('active');
+    };
+
+    window.switchAdminTab = function(tab, el) {
         document.querySelectorAll('#adminSection .tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('#adminSection .tab-content').forEach(c => c.classList.remove('active'));
-        e.target.classList.add('active'); document.getElementById(tab + 'Tab').classList.add('active');
-    }
+        el.classList.add('active');
+        document.getElementById('admin' + tab.charAt(0).toUpperCase() + tab.slice(1) + 'Tab').classList.add('active');
+    };
+
 </script>
 </body>
 </html>
