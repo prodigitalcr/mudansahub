@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MudanzasHub Costa Rica - Ultimate Firebase</title>
+    <title>MudanzasHub Costa Rica - Ultimate Final Fixed</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
@@ -84,8 +84,8 @@
         <!-- SECCIÓN AUTENTICACIÓN -->
         <div class="section active" id="authSection">
             <div class="logo"><i class="fas fa-truck"></i> MudanzasHub</div>
-            <div class="form-group"><label>Email</label><input type="email" id="authEmail" class="search-input" placeholder="admin@test.com"></div>
-            <div class="form-group"><label>Contraseña</label><input type="password" id="authPassword" class="search-input" placeholder="ADMIN"></div>
+            <div class="form-group"><label>Email</label><input type="email" id="authEmail" class="search-input" placeholder="Ingresa tu email"></div>
+            <div class="form-group"><label>Contraseña</label><input type="password" id="authPassword" class="search-input" placeholder="Ingresa tu contraseña"></div>
             <div class="form-group">
                 <label>Rol</label>
                 <select id="authRole" class="search-input">
@@ -273,14 +273,19 @@
         const email = document.getElementById('authEmail').value.trim().toLowerCase();
         const pass = document.getElementById('authPassword').value;
         const role = document.getElementById('authRole').value;
+        
+        // Credenciales de prueba
         if (role === 'admin' && email === 'admin@test.com' && pass === 'ADMIN') {
             currentUser = { email, role, name: 'Admin' };
         } else if (role === 'transporter') {
             const t = transporters.find(x => x.email === email && x.password === pass);
             if (t) currentUser = { ...t, role };
+        } else if (role === 'client' && email === 'cliente@test.com' && pass === '1234') {
+            currentUser = { email, role, name: 'Laura Fernández' };
         } else {
             currentUser = { email, role, name: email.split('@')[0] };
         }
+        
         if (!currentUser) return alert('Credenciales inválidas');
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.getElementById(role + 'Section').classList.add('active');
@@ -296,9 +301,22 @@
         const div = document.getElementById(type + 'Suggestions');
         div.innerHTML = '<div style="padding:10px;">Buscando...</div>';
         div.classList.add('active');
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${q}, Costa Rica&limit=5`);
-        const data = await res.json();
-        div.innerHTML = data.map(r => `<div class="suggestion-item" onclick="window.selectLoc(${r.lat}, ${r.lon}, '${r.display_name.replace(/'/g,"")}', '${type}')">${r.display_name}</div>`).join('');
+        
+        try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}, Costa Rica&limit=5`);
+            const data = await res.json();
+            if (data.length === 0) {
+                div.innerHTML = '<div style="padding:10px; font-size:12px; color:#888;">No se encontraron resultados</div>';
+            } else {
+                div.innerHTML = data.map(r => `
+                    <div class="suggestion-item" onclick="window.selectLoc(${r.lat}, ${r.lon}, '${r.display_name.replace(/'/g,"")}', '${type}')">
+                        ${r.display_name}
+                    </div>
+                `).join('');
+            }
+        } catch (e) {
+            div.innerHTML = '<div style="padding:10px; color:red;">Error en la búsqueda</div>';
+        }
     };
 
     window.selectLoc = function(lat, lon, name, type) {
@@ -315,7 +333,13 @@
             markers.destination = L.marker([lat, lon]).addTo(map).bindPopup('Destino');
         }
         document.querySelectorAll('.search-suggestions').forEach(s => s.classList.remove('active'));
-        if (selectedOrigin && selectedDestination) drawRoute();
+        if (selectedOrigin && selectedDestination) {
+            drawRoute();
+            map.fitBounds([
+                [selectedOrigin.lat, selectedOrigin.lng],
+                [selectedDestination.lat, selectedDestination.lng]
+            ], { padding: [50, 50] });
+        }
     };
 
     function drawRoute() {
@@ -323,7 +347,8 @@
         routingControl = L.Routing.control({
             waypoints: [L.latLng(selectedOrigin.lat, selectedOrigin.lng), L.latLng(selectedDestination.lat, selectedDestination.lng)],
             show: false,
-            lineOptions: { styles: [{ color: '#00d4ff', weight: 5 }] }
+            lineOptions: { styles: [{ color: '#00d4ff', weight: 5 }] },
+            createMarker: function() { return null; }
         }).addTo(map);
     }
 
