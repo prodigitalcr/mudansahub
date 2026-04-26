@@ -358,52 +358,86 @@
 
     // BÚSQUEDA DE UBICACIONES
     const searchLocations = async (query, type) => {
-        if (query.length < 3) return;
+        if (!query || query.trim().length < 2) return;
         const suggestionsDiv = document.getElementById(type + 'Suggestions');
+        if (!suggestionsDiv) return;
+        
         suggestionsDiv.innerHTML = '<div style="padding:10px;color:#aaa;">Buscando...</div>';
         suggestionsDiv.classList.add('active');
+        
         try {
-            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=cr&limit=6`);
-            const results = await response.json();
-            if (results.length === 0) {
-                suggestionsDiv.innerHTML = '<div style="padding:10px;color:#aaa;">No se encontraron resultados</div>';
+            const searchQuery = query.trim() + ', Costa Rica';
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=8`;
+            
+            const response = await fetch(url, {
+                headers: { 'Accept': 'application/json' }
+            });
+            
+            if (!response.ok) {
+                suggestionsDiv.innerHTML = '<div style="padding:10px;color:#ff6b6b;">Error de conexión</div>';
                 return;
             }
-            suggestionsDiv.innerHTML = results.map(r => `
-                <div class="suggestion-item" data-lat="${r.lat}" data-lon="${r.lon}" data-name="${(r.display_name || '').replace(/"/g, '&quot;')}" data-type="${type}">
-                    <div><strong>${r.name || r.display_name.split(',')[0]}</strong></div>
-                    <div class="suggestion-address">${(r.display_name || '').substring(0, 60)}...</div>
-                </div>
-            `).join('');
+            
+            const results = await response.json();
+            
+            if (!results || results.length === 0) {
+                suggestionsDiv.innerHTML = '<div style="padding:10px;color:#aaa;">Sin resultados</div>';
+                return;
+            }
+            
+            suggestionsDiv.innerHTML = results.map((r, idx) => {
+                const displayName = r.display_name || r.name || 'Ubicación';
+                const shortName = displayName.split(',')[0];
+                return `<div class="suggestion-item" data-idx="${idx}" data-lat="${r.lat}" data-lon="${r.lon}" data-name="${displayName}" data-type="${type}" style="cursor:pointer;">
+                    <div><strong>${shortName}</strong></div>
+                    <div class="suggestion-address">${displayName.substring(0, 50)}...</div>
+                </div>`;
+            }).join('');
         } catch (e) { 
             console.error('Error en búsqueda:', e);
-            suggestionsDiv.innerHTML = '<div style="padding:10px;color:#ff6b6b;">Error en la búsqueda</div>'; 
+            suggestionsDiv.innerHTML = '<div style="padding:10px;color:#ff6b6b;">Error: ' + e.message + '</div>'; 
         }
     };
 
-    document.getElementById('originSearch').addEventListener('input', (e) => {
-        clearTimeout(searchTimeout);
-        if (e.target.value.length >= 3) {
-            searchTimeout = setTimeout(() => searchLocations(e.target.value, 'origin'), 500);
-        } else {
-            document.getElementById('originSuggestions').classList.remove('active');
-        }
-    });
-    document.getElementById('destinationSearch').addEventListener('input', (e) => {
-        clearTimeout(searchTimeout);
-        if (e.target.value.length >= 3) {
-            searchTimeout = setTimeout(() => searchLocations(e.target.value, 'destination'), 500);
-        } else {
-            document.getElementById('destinationSuggestions').classList.remove('active');
-        }
-    });
+    const originSearchInput = document.getElementById('originSearch');
+    const destinationSearchInput = document.getElementById('destinationSearch');
+    
+    if (originSearchInput) {
+        originSearchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            const val = e.target.value.trim();
+            if (val.length >= 2) {
+                searchTimeout = setTimeout(() => searchLocations(val, 'origin'), 600);
+            } else {
+                const sug = document.getElementById('originSuggestions');
+                if (sug) sug.classList.remove('active');
+            }
+        });
+    }
+    
+    if (destinationSearchInput) {
+        destinationSearchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            const val = e.target.value.trim();
+            if (val.length >= 2) {
+                searchTimeout = setTimeout(() => searchLocations(val, 'destination'), 600);
+            } else {
+                const sug = document.getElementById('destinationSuggestions');
+                if (sug) sug.classList.remove('active');
+            }
+        });
+    }
 
     document.addEventListener('click', (e) => {
         const item = e.target.closest('.suggestion-item');
         if (item) {
-            const { lat, lon, name, type } = item.dataset;
-            if (lat && lon && name) {
-                selectLocation(lat, lon, name, type);
+            const lat = item.dataset.lat;
+            const lon = item.dataset.lon;
+            const name = item.dataset.name;
+            const type = item.dataset.type;
+            
+            if (lat && lon && name && type) {
+                selectLocation(parseFloat(lat), parseFloat(lon), name, type);
             }
         } else if (!e.target.closest('.search-container')) {
             document.querySelectorAll('.search-suggestions').forEach(s => s.classList.remove('active'));
@@ -411,36 +445,77 @@
     });
 
     const selectLocation = (lat, lon, name, type) => {
-        const latNum = parseFloat(lat);
-        const lonNum = parseFloat(lon);
-        const loc = { lat: latNum, lng: lonNum, name };
-        
-        if (type === 'origin') {
-            selectedOrigin = loc;
-            document.getElementById('originSearch').value = name.split(',')[0];
-            if (markers.origin) map.removeLayer(markers.origin);
-            markers.origin = L.marker([latNum, lonNum], { icon: L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] }) }).addTo(map).bindPopup('📍 Origen: ' + name.split(',')[0]).openPopup();
-        } else {
-            selectedDestination = loc;
-            document.getElementById('destinationSearch').value = name.split(',')[0];
-            if (markers.destination) map.removeLayer(markers.destination);
-            markers.destination = L.marker([latNum, lonNum], { icon: L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] }) }).addTo(map).bindPopup('📍 Destino: ' + name.split(',')[0]).openPopup();
-        }
-        document.querySelectorAll('.search-suggestions').forEach(s => s.classList.remove('active'));
-        if (selectedOrigin && selectedDestination) {
-            drawRoute();
-            map.fitBounds(L.latLngBounds([selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]), { padding: [50, 50] });
-        } else {
-            map.setView([latNum, lonNum], 14);
+        try {
+            const latNum = parseFloat(lat);
+            const lonNum = parseFloat(lon);
+            
+            if (isNaN(latNum) || isNaN(lonNum)) {
+                console.error('Coordenadas inválidas:', lat, lon);
+                return;
+            }
+            
+            const loc = { lat: latNum, lng: lonNum, name };
+            const shortName = name.split(',')[0];
+            
+            if (type === 'origin') {
+                selectedOrigin = loc;
+                const originInput = document.getElementById('originSearch');
+                if (originInput) originInput.value = shortName;
+                if (markers.origin) map.removeLayer(markers.origin);
+                markers.origin = L.marker([latNum, lonNum], { 
+                    icon: L.icon({ 
+                        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', 
+                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', 
+                        iconSize: [25, 41], 
+                        iconAnchor: [12, 41], 
+                        popupAnchor: [1, -34], 
+                        shadowSize: [41, 41] 
+                    }) 
+                }).addTo(map).bindPopup('📍 Origen: ' + shortName).openPopup();
+            } else if (type === 'destination') {
+                selectedDestination = loc;
+                const destInput = document.getElementById('destinationSearch');
+                if (destInput) destInput.value = shortName;
+                if (markers.destination) map.removeLayer(markers.destination);
+                markers.destination = L.marker([latNum, lonNum], { 
+                    icon: L.icon({ 
+                        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', 
+                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', 
+                        iconSize: [25, 41], 
+                        iconAnchor: [12, 41], 
+                        popupAnchor: [1, -34], 
+                        shadowSize: [41, 41] 
+                    }) 
+                }).addTo(map).bindPopup('📍 Destino: ' + shortName).openPopup();
+            }
+            
+            document.querySelectorAll('.search-suggestions').forEach(s => s.classList.remove('active'));
+            
+            if (selectedOrigin && selectedDestination) {
+                drawRoute();
+                map.fitBounds(L.latLngBounds([selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]), { padding: [50, 50] });
+            } else {
+                map.setView([latNum, lonNum], 13);
+            }
+        } catch (e) {
+            console.error('Error en selectLocation:', e);
         }
     };
 
     // DIBUJAR RUTA POR CARRETERAS PRINCIPALES (LEAFLET ROUTING MACHINE)
     const drawRoute = () => {
-        if (routingControl) map.removeControl(routingControl);
+        if (!selectedOrigin || !selectedDestination) return;
+        
+        if (routingControl) {
+            try { map.removeControl(routingControl); } catch (e) {}
+        }
+        
         try {
             routingControl = L.Routing.control({
-                waypoints: [L.latLng(parseFloat(selectedOrigin.lat), parseFloat(selectedOrigin.lng)), L.latLng(parseFloat(selectedDestination.lat), parseFloat(selectedDestination.lng))],
+                waypoints: [
+                    L.latLng(selectedOrigin.lat, selectedOrigin.lng), 
+                    L.latLng(selectedDestination.lat, selectedDestination.lng)
+                ],
                 show: false,
                 lineOptions: { styles: [{ color: '#00d4ff', opacity: 0.8, weight: 4 }] },
                 createMarker: () => null,
@@ -449,11 +524,13 @@
                 fitSelectedRoutes: true,
                 router: L.Routing.osrmv1({ serviceUrl: 'https://router.project-osrm.org/route/v1' })
             }).addTo(map);
-            map.fitBounds(L.latLngBounds([selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]), { padding: [50, 50] });
         } catch (e) {
-            console.error('Error en ruta:', e);
-            // Si falla el routing, dibujar línea simple
-            L.polyline([[selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]], { color: '#00d4ff', weight: 4, opacity: 0.8 }).addTo(map);
+            console.error('Error en Leaflet Routing:', e);
+            // Si falla, dibujar línea simple
+            L.polyline(
+                [[selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]], 
+                { color: '#00d4ff', weight: 4, opacity: 0.8, dashArray: '5, 5' }
+            ).addTo(map);
         }
     };
 
@@ -734,10 +811,13 @@
     });
 
     const calculateDist = (p1, p2) => {
+        if (!p1 || !p2 || !p1.lat || !p1.lng || !p2.lat || !p2.lng) return 0;
         const R = 6371;
-        const dLat = (p2.lat-p1.lat) * Math.PI / 180;
-        const dLon = (p2.lng-p1.lng) * Math.PI / 180;
-        const a = Math.sin(dLat/2)**2 + Math.cos(p1.lat*Math.PI/180)*Math.cos(p2.lat*Math.PI/180)*Math.sin(dLon/2)**2;
+        const dLat = (p2.lat - p1.lat) * Math.PI / 180;
+        const dLon = (p2.lng - p1.lng) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
+                  Math.cos(p1.lat*Math.PI/180) * Math.cos(p2.lat*Math.PI/180) * 
+                  Math.sin(dLon/2) * Math.sin(dLon/2);
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     };
 
