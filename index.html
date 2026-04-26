@@ -44,9 +44,9 @@
         .tab-btn.active { background: #333; color: #00d4ff; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .admin-table { width: 100%; border-collapse: collapse; font-size: 9px; margin-top: 10px; }
-        .admin-table th { text-align: left; padding: 6px; background: #222; color: #aaa; border: 1px solid #333; }
-        .admin-table td { padding: 6px; border: 1px solid #222; }
+        .admin-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
+        .admin-table th { text-align: left; padding: 12px 8px; background: #222; color: #aaa; border: 1px solid #333; }
+        .admin-table td { padding: 12px 8px; border: 1px solid #222; }
         .admin-footer { background: #1a3a3a; padding: 10px; border-radius: 0 0 8px 8px; border: 1px solid #333; border-top: none; display: flex; justify-content: flex-end; gap: 20px; font-size: 12px; font-weight: bold; }
         
         /* MÓVIL OPTIMIZADO PARA TRANSPORTISTAS */
@@ -1020,11 +1020,16 @@
                         const m = data[key];
                         if (m.client === c.email) {
                             count++;
+                            const dist = calculateDist(m.origin, m.destination);
+                            const estDuration = Math.round((dist / 40) * 60);
                             hList.innerHTML += `
-                                <div class="history-item">
-                                    <strong>${m.date} | ${m.vehicle.toUpperCase()}</strong><br>
-                                    ${m.origin.name.split(',')[0]} → ${m.destination.name.split(',')[0]}<br>
-                                    <span style="color:#aaa;">Carga: ${m.weight}kg | ${m.service}</span>
+                                <div class="history-item" style="padding:12px; border-left:3px solid #00d4ff; display:flex; justify-content:space-between; align-items:center;">
+                                    <div style="flex:1;">
+                                        <strong style="color:#00d4ff;">${m.date} | ${m.time || '--:--'}</strong><br>
+                                        ${m.origin.name.split(',')[0]} → ${m.destination.name.split(',')[0]}<br>
+                                        <span style="color:#aaa; font-size:11px;">Carga: ${m.weight}kg | ${m.service} | ~${estDuration}min</span>
+                                    </div>
+                                    <button class="btn btn-sm viewMapBtn" data-mid="${key}" style="background:#00d4ff; color:#000; font-weight:bold; padding:8px 12px; white-space:nowrap; margin-left:10px;">Ver Mapa</button>
                                 </div>`;
                         }
                     });
