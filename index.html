@@ -394,6 +394,7 @@
         <div id="adminHistoryMap" style="height:200px; margin-top:15px; border-radius:8px; display:none;"></div>
         <div style="display:flex; gap:10px; margin-top:20px;">
             <button class="btn" id="saveClientBtn">Guardar Cambios</button>
+            <button class="btn btn-whatsapp" id="msgClientBtn">WhatsApp</button>
             <button class="btn btn-reject" id="deleteClientBtn">Eliminar Cliente</button>
         </div>
     </div>
@@ -511,12 +512,26 @@
     // Sincronización de usuarios con Firebase
     onValue(ref(db, 'users/transporters'), (snap) => {
         const data = snap.val();
-        transporters = data ? Object.values(data) : [];
+        if (data) {
+            transporters = Object.values(data);
+        } else {
+            transporters = [
+                { id: 1, email: 'carlos@test.com', password: '1234', name: 'Carlos Rodríguez', phone: '88881111', plate: 'BC-123', vehicle: 'Toyota Hiace', rating: 4.8, model: '2022', license: 'B2', insurance: 'INS-992', emergency: '88880000', role: 'transporter' },
+                { id: 2, email: 'miguel@test.com', password: '1234', name: 'Miguel Vargas', phone: '88882222', plate: 'CL-456', vehicle: 'Hino 300', rating: 4.6, model: '2021', license: 'B3', insurance: 'INS-112', emergency: '88880001', role: 'transporter' },
+                { id: 3, email: 'ana@test.com', password: '1234', name: 'Ana Quesada', phone: '88883333', plate: 'PK-789', vehicle: 'Nissan Frontier', rating: 4.9, model: '2023', license: 'B1', insurance: 'INS-445', emergency: '88880002', role: 'transporter' }
+            ];
+        }
         if(currentUser && currentUser.role === 'admin') listenToAdmin();
     });
     onValue(ref(db, 'users/clients'), (snap) => {
         const data = snap.val();
-        registeredClients = data ? Object.values(data) : [];
+        if (data) {
+            registeredClients = Object.values(data);
+        } else {
+            registeredClients = [
+                { email: 'cliente@test.com', password: '1234', name: 'Laura Fernández', phone: '88880000', idNum: '1-1111-1111', location: 'San José', role: 'client' }
+            ];
+        }
         if(currentUser && currentUser.role === 'admin') listenToAdmin();
     });
 
@@ -999,12 +1014,26 @@
         doc.text(`Fecha de reporte: ${new Date().toLocaleString()}`, 14, 30);
         
         const table = document.getElementById('adminMovesTable');
+        const rows = [];
+        const headers = [['ID', 'Cliente', 'Socio', 'Fecha', 'Hora', 'Total', 'Comisión (20%)', 'Estado']];
+        
+        document.querySelectorAll('#movesTableBody tr').forEach(tr => {
+            const row = [];
+            tr.querySelectorAll('td').forEach(td => row.push(td.innerText));
+            rows.push(row);
+        });
+
         doc.autoTable({
-            html: '#adminMovesTable',
+            head: headers,
+            body: rows,
             startY: 40,
             theme: 'grid',
-            headStyles: { fillColor: [0, 212, 255], textColor: [0, 0, 0] },
-            styles: { fontSize: 8 }
+            headStyles: { fillColor: [0, 212, 255], textColor: [0, 0, 0], fontStyle: 'bold' },
+            styles: { fontSize: 8, cellPadding: 3 },
+            columnStyles: {
+                5: { halign: 'right', fontStyle: 'bold' },
+                6: { halign: 'right', textColor: [0, 150, 0] }
+            }
         });
         
         doc.save(`Reporte_Mudanzas_${new Date().toISOString().split('T')[0]}.pdf`);
@@ -1079,6 +1108,7 @@
         if (partnerItem && partnerItem.classList.contains('client-item')) {
             const c = registeredClients.find(x => x.email === partnerItem.dataset.email);
             if (!c) return;
+            document.getElementById('msgClientBtn').dataset.email = c.email;
             document.getElementById('clientDetailContent').innerHTML = `
                 <div class="detail-grid">
                     <div class="detail-item"><div class="detail-label">Nombre</div><input type="text" class="edit-input" id="editCName" value="${c.name}"></div>
@@ -1182,17 +1212,22 @@
             }
         }
 
-        if (e.target.id === 'msgPartnerBtn' || e.target.classList.contains('btn-whatsapp')) {
+        if (e.target.id === 'msgPartnerBtn') {
+            const tid = e.target.dataset.tid;
+            const t = transporters.find(x => x.id == tid);
+            if(t && t.phone) {
+                const phone = t.phone.replace(/[^0-9]/g, '');
+                window.open(`https://wa.me/506${phone}`, '_blank');
+            } else { alert('No hay teléfono registrado'); }
+        }
+        
+        if (e.target.id === 'msgClientBtn') {
             const email = e.target.dataset.email;
-            document.getElementById('messageTargetInfo').innerText = `Para: ${email}`;
-            document.getElementById('sendAdminMessageBtn').onclick = () => {
-                const msg = document.getElementById('adminMessageText').value;
-                if(!msg) return alert('Escribe un mensaje');
-                console.log(`[MENSAJE ADMIN] Para ${email}: ${msg}`);
-                alert('Mensaje enviado correctamente');
-                closeModal('messageModal');
-            };
-            openModal('messageModal');
+            const c = registeredClients.find(x => x.email === email);
+            if(c && c.phone) {
+                const phone = c.phone.replace(/[^0-9]/g, '');
+                window.open(`https://wa.me/506${phone}`, '_blank');
+            } else { alert('No hay teléfono registrado'); }
         }
 
         if (e.target.classList.contains('acceptJobBtn')) update(ref(db, `moves/${e.target.dataset.id}`), { status: 'in_progress' });
