@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MudanzasHub Costa Rica - GITHUB READY</title>
+    <title>MudanzasHub Costa Rica - Ultimate Firebase</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <style>
-        /* ESTILOS ORIGINALES DE OFICIAL3_ULTIMATE */
+        /* ESTILOS ORIGINALES DE OFICIAL3_ULTIMATE - 100% FIDELIDAD */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f0f0f; color: #fff; overflow: hidden; }
         .container { display: flex; height: 100vh; }
@@ -19,16 +19,25 @@
         .user-greeting { background: linear-gradient(135deg, #1a3a3a, #2a2a2a); border: 1px solid #00d4ff44; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 13px; color: #00d4ff; display: flex; align-items: center; gap: 8px; }
         .form-group { margin-bottom: 18px; }
         .form-group label { display: block; margin-bottom: 7px; font-size: 13px; font-weight: 600; color: #aaa; }
+        .search-container { position: relative; margin-bottom: 18px; }
         .search-input { width: 100%; padding: 11px 12px; background: #2a2a2a; border: 1px solid #444; border-radius: 8px; color: #fff; font-size: 14px; }
         .search-input:focus { outline: none; border-color: #00d4ff; box-shadow: 0 0 10px rgba(0,212,255,0.3); }
+        .search-suggestions { position: absolute; top: 100%; left: 0; right: 0; background: #2a2a2a; border: 1px solid #444; border-top: none; border-radius: 0 0 8px 8px; max-height: 300px; overflow-y: auto; z-index: 100; display: none; }
+        .search-suggestions.active { display: block; }
+        .suggestion-item { padding: 11px 12px; border-bottom: 1px solid #333; cursor: pointer; transition: all 0.2s ease; font-size: 13px; }
+        .suggestion-item:hover { background: #3a3a3a; color: #00d4ff; }
         .btn { width: 100%; padding: 13px; background: #00d4ff; color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.3s ease; }
         .btn:hover { background: #00b8d4; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,212,255,0.4); }
+        .btn:disabled { background: #555; color: #888; cursor: not-allowed; transform: none; box-shadow: none; }
         .btn-secondary { background: #333; color: #fff; margin-bottom: 10px; }
+        .btn-sm { width: auto; padding: 7px 14px; font-size: 12px; display: inline-block; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
         .modal.active { display: flex; }
-        .modal-content { background: #1a1a1a; border: 1px solid #444; border-radius: 12px; padding: 28px; width: 92%; max-width: 620px; max-height: 92vh; overflow-y: auto; position: relative; }
+        .modal-content { background: #1a1a1a; border: 1px solid #444; border-radius: 12px; padding: 28px; width: 92%; max-width: 620px; max-height: 92vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.9); position: relative; }
+        .modal-header { font-size: 19px; font-weight: bold; margin-bottom: 18px; color: #00d4ff; }
+        .modal-close { position: absolute; top: 14px; right: 14px; background: none; border: none; color: #aaa; font-size: 24px; cursor: pointer; width: auto; padding: 0; }
         .section { display: none; }
-        .section.active { display: block !important; }
+        .section.active { display: block; }
         .tabs { display: flex; background: #222; border-radius: 8px; padding: 4px; margin-bottom: 18px; }
         .tab-btn { flex: 1; padding: 10px; background: none; border: none; color: #888; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 6px; }
         .tab-btn.active { background: #333; color: #00d4ff; }
@@ -44,28 +53,37 @@
         .vehicle-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
         .vehicle-option { background: #2a2a2a; border: 2px solid #444; border-radius: 8px; padding: 10px; text-align: center; cursor: pointer; }
         .vehicle-option.active { border-color: #00d4ff; background: #1a3a3a; }
-        .search-suggestions { position: absolute; top: 100%; left: 0; right: 0; background: #2a2a2a; border: 1px solid #444; z-index: 100; display: none; }
-        .search-suggestions.active { display: block; }
-        .suggestion-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #333; font-size: 12px; }
-        .suggestion-item:hover { background: #333; }
+        .transportista-card { background: #2a2a2a; border: 1px solid #444; border-radius: 10px; padding: 16px; margin-bottom: 14px; cursor: pointer; transition: all 0.3s ease; }
+        .transportista-card:hover { border-color: #00d4ff; background: #2a3535; }
+        .transportista-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .transportista-name { font-weight: 700; font-size: 15px; color: #fff; }
+        .transportista-price { font-size: 20px; font-weight: bold; color: #4ade80; }
+        .uber-job-card { background: linear-gradient(135deg, #2a2a2a 0%, #303030 100%); border: 2px solid #00d4ff; border-radius: 12px; padding: 18px; margin-bottom: 14px; box-shadow: 0 4px 15px rgba(0,212,255,0.15); }
+        .job-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .job-price { font-size: 22px; font-weight: bold; color: #4ade80; }
         .nav-overlay { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(26, 26, 26, 0.9); padding: 15px 25px; border-radius: 50px; border: 1px solid #00d4ff; z-index: 1000; display: none; align-items: center; gap: 15px; }
+        .alert-box { padding: 12px 15px; border-radius: 8px; font-size: 12px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .alert-info { background: #00d4ff11; color: #00d4ff; border: 1px solid #00d4ff33; }
+        .upload-area { border: 2px dashed #444; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; margin-bottom: 15px; transition: all 0.3s ease; }
+        .upload-area:hover { border-color: #00d4ff; background: #1a3a3a; }
+        .upload-icon { font-size: 30px; color: #555; margin-bottom: 10px; }
+        .upload-text { font-size: 12px; color: #888; }
     </style>
 </head>
 <body>
 
 <div class="nav-overlay" id="navOverlay">
     <i class="fas fa-navigation" style="color:#00d4ff;"></i>
-    <span id="navStatus">En ruta...</span>
+    <span id="navStatusText">En ruta...</span>
     <span id="navDistance" style="font-weight:bold; color:#4ade80;">0.0 km</span>
-    <button class="btn" style="width:auto; padding:5px 15px; font-size:12px;" onclick="window.finishNavigation()">Finalizar</button>
+    <button class="btn btn-sm" onclick="window.finishNavigation()">Finalizar</button>
 </div>
 
 <div class="container">
     <div class="sidebar">
-        <!-- AUTH SECTION -->
+        <!-- SECCIÓN AUTENTICACIÓN -->
         <div class="section active" id="authSection">
             <div class="logo"><i class="fas fa-truck"></i> MudanzasHub</div>
-            <h2 style="margin-bottom: 10px; color: #00d4ff;">Bienvenido</h2>
             <div class="form-group"><label>Email</label><input type="email" id="authEmail" class="search-input" placeholder="admin@test.com"></div>
             <div class="form-group"><label>Contraseña</label><input type="password" id="authPassword" class="search-input" placeholder="ADMIN"></div>
             <div class="form-group">
@@ -80,73 +98,93 @@
             <p id="connStatus" style="font-size:11px; color:#666; margin-top:15px; text-align:center;">Cargando Firebase...</p>
         </div>
 
-        <!-- CLIENT SECTION -->
+        <!-- SECCIÓN CLIENTE -->
         <div class="section" id="clientSection">
             <div class="logo"><i class="fas fa-truck"></i> MudanzasHub</div>
             <div class="user-greeting"><i class="fas fa-user"></i> <span id="clientNameDisplay">Cliente</span></div>
             <button class="btn btn-secondary" onclick="window.logout()">Cerrar Sesión</button>
             
-            <div class="form-group" style="position:relative;">
-                <label>Origen</label>
-                <input type="text" id="originSearch" class="search-input" placeholder="Busca origen..." oninput="window.searchLoc(this.value, 'origin')">
+            <div class="search-container">
+                <label style="font-size:12px; color:#aaa; margin-bottom:5px; display:block;">Origen</label>
+                <input type="text" id="originSearch" class="search-input" placeholder="¿De dónde salen las cosas?" oninput="window.searchLoc(this.value, 'origin')">
                 <div id="originSuggestions" class="search-suggestions"></div>
             </div>
-            <div class="form-group" style="position:relative;">
-                <label>Destino</label>
-                <input type="text" id="destinationSearch" class="search-input" placeholder="Busca destino..." oninput="window.searchLoc(this.value, 'destination')">
+            <div class="search-container">
+                <label style="font-size:12px; color:#aaa; margin-bottom:5px; display:block;">Destino</label>
+                <input type="text" id="destinationSearch" class="search-input" placeholder="¿A dónde las llevamos?" oninput="window.searchLoc(this.value, 'destination')">
                 <div id="destinationSuggestions" class="search-suggestions"></div>
             </div>
 
             <div class="form-group">
-                <label>Vehículo</label>
+                <label>Tipo de Vehículo</label>
                 <div class="vehicle-selector">
-                    <div class="vehicle-option active" onclick="window.setVehicle('pickup', this)">Pickup</div>
-                    <div class="vehicle-option" onclick="window.setVehicle('camion', this)">Camión</div>
-                    <div class="vehicle-option" onclick="window.setVehicle('buseta', this)">Buseta</div>
+                    <div class="vehicle-option active" onclick="window.selectVehicle('pickup', this)">Pickup</div>
+                    <div class="vehicle-option" onclick="window.selectVehicle('camion', this)">Camión</div>
+                    <div class="vehicle-option" onclick="window.selectVehicle('buseta', this)">Buseta</div>
                 </div>
             </div>
 
             <div class="form-group">
-                <label>Programación (Opcional)</label>
-                <div style="display:flex; gap:5px;">
-                    <input type="date" id="resDate" class="search-input">
-                    <input type="time" id="resTime" class="search-input">
+                <label>Servicio</label>
+                <div class="vehicle-selector">
+                    <div class="vehicle-option active" onclick="window.selectServiceType('acarreo', this)">Con Acarreo</div>
+                    <div class="vehicle-option" onclick="window.selectServiceType('afuera', this)">Puesta Afuera</div>
                 </div>
             </div>
 
-            <button class="btn" onclick="window.requestMove()">Solicitar Mudanza</button>
+            <div class="form-group">
+                <label>Programar Mudanza (Opcional)</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="date" id="reserveDate" class="search-input">
+                    <input type="time" id="reserveTime" class="search-input">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Estado de acceso en destino</label>
+                <input type="text" id="routeAccess" class="search-input" placeholder="Ej: Calle estrecha, portón pequeño...">
+            </div>
+
+            <button class="btn" onclick="window.searchTransporters()">Ver Ofertas Disponibles</button>
+            <div id="transportistasList" style="margin-top:20px;"></div>
         </div>
 
-        <!-- TRANSPORTER SECTION -->
+        <!-- SECCIÓN TRANSPORTISTA -->
         <div class="section" id="transporterSection">
             <div class="logo"><i class="fas fa-truck"></i> MudanzasHub</div>
             <div class="user-greeting"><i class="fas fa-id-card"></i> <span id="transNameDisplay">Transportista</span></div>
             <button class="btn btn-secondary" onclick="window.logout()">Cerrar Sesión</button>
             
             <div class="tabs">
-                <button class="tab-btn active" onclick="window.switchTab('jobs', this)">Ofertas</button>
-                <button class="tab-btn" onclick="window.switchTab('my-jobs', this)">Mis Viajes</button>
+                <button class="tab-btn active" onclick="window.switchTransporterTab('jobs', event)">Ofertas</button>
+                <button class="tab-btn" onclick="window.switchTransporterTab('active', event)">En Curso</button>
+                <button class="tab-btn" onclick="window.switchTransporterTab('history', event)">Historial</button>
             </div>
             <div id="jobsTab" class="tab-content active"></div>
-            <div id="my-jobsTab" class="tab-content"></div>
+            <div id="activeTab" class="tab-content"></div>
+            <div id="historyTab" class="tab-content"></div>
         </div>
 
-        <!-- ADMIN SECTION -->
+        <!-- SECCIÓN ADMINISTRADOR -->
         <div class="section" id="adminSection">
             <div class="logo"><i class="fas fa-shield-alt"></i> Admin Panel</div>
             <button class="btn btn-secondary" onclick="window.logout()">Cerrar Sesión</button>
             <div class="tabs">
-                <button class="tab-btn active" onclick="window.switchAdminTab('moves', this)">Mudanzas</button>
-                <button class="tab-btn" onclick="window.switchAdminTab('users', this)">Usuarios</button>
+                <button class="tab-btn active" onclick="window.switchAdminTab('moves', event)">Mudanzas</button>
+                <button class="tab-btn" onclick="window.switchAdminTab('users', event)">Usuarios</button>
+                <button class="tab-btn" onclick="window.switchAdminTab('reservations', event)">Reservas</button>
             </div>
-            <div id="adminMovesTab" class="tab-content active">
+            <div id="movesTab" class="tab-content active">
                 <table class="admin-table">
-                    <thead><tr><th>ID</th><th>Cliente</th><th>Estado</th><th>Total</th></tr></thead>
-                    <tbody id="adminMovesList"></tbody>
+                    <thead><tr><th>ID</th><th>Cliente</th><th>Total</th><th>Com.</th><th>Estado</th></tr></thead>
+                    <tbody id="movesTableBody"></tbody>
                 </table>
             </div>
-            <div id="adminUsersTab" class="tab-content">
+            <div id="usersTab" class="tab-content">
                 <div id="adminUsersList"></div>
+            </div>
+            <div id="reservationsTab" class="tab-content">
+                <div id="adminReservationsList"></div>
             </div>
         </div>
     </div>
@@ -156,14 +194,36 @@
 <!-- MODAL FACTURA -->
 <div class="modal" id="facturaModal">
     <div class="modal-content">
-        <div class="logo">Factura de Servicio</div>
-        <div id="facturaDetails" style="font-size:13px; margin-bottom:20px;"></div>
+        <button class="modal-close" onclick="window.closeModal('facturaModal')">×</button>
+        <div class="modal-header">Confirmación de Mudanza</div>
+        <div id="facturaDetails" style="font-size:13px; line-height:1.6; margin-bottom:15px;"></div>
         <div style="background:#222; padding:15px; border-radius:8px; margin-bottom:15px;">
-            <p style="font-size:18px; color:#4ade80; font-weight:bold;">Total: <span id="facturaTotal">₡0</span></p>
-            <p style="font-size:12px; color:#aaa; margin-top:5px;">SINPE Móvil: <strong style="color:#00d4ff;">7228-4602</strong></p>
+            <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:18px; color:#4ade80;">
+                <span>Total a Pagar:</span>
+                <span id="facturaTotal">₡0</span>
+            </div>
+            <div style="font-size:12px; color:#aaa; border-top:1px solid #333; padding-top:10px; margin-top:10px;">
+                SINPE Móvil: <strong style="color:#00d4ff;">7228-4602</strong>
+            </div>
         </div>
-        <button class="btn" onclick="window.confirmMove()">Confirmar y Pagar</button>
-        <button class="btn btn-secondary" onclick="window.closeModal('facturaModal')" style="margin-top:10px;">Cancelar</button>
+        <div class="alert-box alert-info"><i class="fas fa-info-circle"></i> Pago por adelantado requerido. Adjunta el comprobante.</div>
+        <div class="upload-area" onclick="document.getElementById('comprobanteFileInput').click()">
+            <input type="file" id="comprobanteFileInput" style="display:none" onchange="window.handleUpload(event)">
+            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+            <div class="upload-text" id="uploadText">Haz clic para adjuntar comprobante</div>
+        </div>
+        <button class="btn" id="confirmMoveBtn" onclick="window.confirmMove()" disabled>Confirmar y Pagar</button>
+    </div>
+</div>
+
+<!-- MODAL CÓDIGO -->
+<div class="modal" id="codeModal">
+    <div class="modal-content" style="text-align:center;">
+        <button class="modal-close" onclick="window.closeModal('codeModal')">×</button>
+        <div class="modal-header">Finalizar Servicio</div>
+        <p style="margin-bottom:20px; color:#aaa;">Pide el código de confirmación al cliente.</p>
+        <input type="text" id="confirmCodeInput" class="search-input" style="text-align:center; font-size:24px; letter-spacing:5px; margin-bottom:20px;" placeholder="0000">
+        <button class="btn" onclick="window.validateCode()">Validar y Finalizar</button>
     </div>
 </div>
 
@@ -189,23 +249,39 @@
     document.getElementById('connStatus').innerText = "✅ Firebase Conectado";
     document.getElementById('connStatus').style.color = "#4ade80";
 
-    let currentUser = null;
-    let selectedOrigin = null;
-    let selectedDestination = null;
-    let currentVehicle = 'pickup';
-    let map, routingControl;
+    // ESTADO GLOBAL
+    let map, selectedOrigin, selectedDestination, currentUser, selectedTransporter;
+    let markers = {};
+    let selectedVehicle = 'pickup';
+    let selectedServiceType = 'acarreo';
+    let routingControl = null;
+    let activeNavMove = null;
     let pendingMoveData = null;
 
+    const vehicleMultipliers = { pickup: 1, camion: 1.8, buseta: 1.4 };
+    const transporters = [
+        { id: 1, email: 'carlos@test.com', password: '1234', name: 'Carlos Rodríguez', vehicle: 'Toyota Hiace', rating: 4.8 },
+        { id: 2, email: 'miguel@test.com', password: '1234', name: 'Miguel Vargas', vehicle: 'Hino 300', rating: 4.6 }
+    ];
+
+    // INICIALIZAR MAPA
     map = L.map('map').setView([9.9281, -84.0907], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    // EXPOSICIÓN GLOBAL
+    // EXPOSICIÓN GLOBAL DE FUNCIONES
     window.login = function() {
-        const email = document.getElementById('authEmail').value.trim();
-        const pass = document.getElementById('authPassword').value.trim();
+        const email = document.getElementById('authEmail').value.trim().toLowerCase();
+        const pass = document.getElementById('authPassword').value;
         const role = document.getElementById('authRole').value;
-        if (!email || !pass) return alert('Ingresa credenciales');
-        currentUser = { email, role, name: email.split('@')[0] };
+        if (role === 'admin' && email === 'admin@test.com' && pass === 'ADMIN') {
+            currentUser = { email, role, name: 'Admin' };
+        } else if (role === 'transporter') {
+            const t = transporters.find(x => x.email === email && x.password === pass);
+            if (t) currentUser = { ...t, role };
+        } else {
+            currentUser = { email, role, name: email.split('@')[0] };
+        }
+        if (!currentUser) return alert('Credenciales inválidas');
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.getElementById(role + 'Section').classList.add('active');
         if(role === 'client') document.getElementById('clientNameDisplay').innerText = currentUser.name;
@@ -216,137 +292,223 @@
     window.logout = function() { location.reload(); };
 
     window.searchLoc = async function(q, type) {
-        if(q.length < 3) return;
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${q}, Costa Rica`);
-        const data = await res.json();
+        if (q.length < 3) return;
         const div = document.getElementById(type + 'Suggestions');
-        div.innerHTML = data.map(item => `<div class="suggestion-item" onclick="window.selectLoc(${item.lat}, ${item.lon}, '${item.display_name.replace(/'/g,"")}', '${type}')">${item.display_name}</div>`).join('');
+        div.innerHTML = '<div style="padding:10px;">Buscando...</div>';
         div.classList.add('active');
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${q}, Costa Rica&limit=5`);
+        const data = await res.json();
+        div.innerHTML = data.map(r => `<div class="suggestion-item" onclick="window.selectLoc(${r.lat}, ${r.lon}, '${r.display_name.replace(/'/g,"")}', '${type}')">${r.display_name}</div>`).join('');
     };
 
     window.selectLoc = function(lat, lon, name, type) {
-        const loc = { lat, lon, name };
-        if(type === 'origin') { selectedOrigin = loc; document.getElementById('originSearch').value = name.split(',')[0]; }
-        else { selectedDestination = loc; document.getElementById('destinationSearch').value = name.split(',')[0]; }
-        document.getElementById(type + 'Suggestions').classList.remove('active');
-        if(selectedOrigin && selectedDestination) drawRoute();
+        const loc = { lat, lng: lon, name };
+        if (type === 'origin') {
+            selectedOrigin = loc;
+            document.getElementById('originSearch').value = name.split(',')[0];
+            if (markers.origin) map.removeLayer(markers.origin);
+            markers.origin = L.marker([lat, lon]).addTo(map).bindPopup('Origen');
+        } else {
+            selectedDestination = loc;
+            document.getElementById('destinationSearch').value = name.split(',')[0];
+            if (markers.destination) map.removeLayer(markers.destination);
+            markers.destination = L.marker([lat, lon]).addTo(map).bindPopup('Destino');
+        }
+        document.querySelectorAll('.search-suggestions').forEach(s => s.classList.remove('active'));
+        if (selectedOrigin && selectedDestination) drawRoute();
     };
 
     function drawRoute() {
-        if(routingControl) map.removeControl(routingControl);
+        if (routingControl) map.removeControl(routingControl);
         routingControl = L.Routing.control({
-            waypoints: [L.latLng(selectedOrigin.lat, selectedOrigin.lon), L.latLng(selectedDestination.lat, selectedDestination.lon)],
-            show: false
+            waypoints: [L.latLng(selectedOrigin.lat, selectedOrigin.lng), L.latLng(selectedDestination.lat, selectedDestination.lng)],
+            show: false,
+            lineOptions: { styles: [{ color: '#00d4ff', weight: 5 }] }
         }).addTo(map);
     }
 
-    window.setVehicle = function(v, el) {
-        currentVehicle = v;
-        document.querySelectorAll('.vehicle-option').forEach(opt => opt.classList.remove('active'));
+    window.selectVehicle = function(v, el) {
+        selectedVehicle = v;
+        document.querySelectorAll('#clientSection .vehicle-option').forEach(o => o.classList.remove('active'));
         el.classList.add('active');
     };
 
-    window.requestMove = function() {
-        if(!selectedOrigin || !selectedDestination) return alert('Selecciona origen y destino');
-        const price = Math.floor(Math.random() * 50000) + 15000;
+    window.selectServiceType = function(t, el) {
+        selectedServiceType = t;
+        document.querySelectorAll('#clientSection .vehicle-option').forEach(o => o.classList.remove('active'));
+        el.classList.add('active');
+    };
+
+    window.searchTransporters = function() {
+        if (!selectedOrigin || !selectedDestination) return alert('Selecciona origen y destino');
+        const dist = calculateDist(selectedOrigin, selectedDestination);
+        const base = 15000 + (dist * 1200);
+        const finalPrice = Math.round(base * vehicleMultipliers[selectedVehicle] + (selectedServiceType === 'acarreo' ? 5000 : 0));
+        document.getElementById('transportistasList').innerHTML = transporters.map(t => `
+            <div class="transportista-card" onclick="window.openFactura(${t.id}, ${finalPrice})">
+                <div class="transportista-header">
+                    <div class="transportista-name">${t.name}</div>
+                    <div class="transportista-price">₡${finalPrice.toLocaleString()}</div>
+                </div>
+                <div style="font-size:12px; color:#bbb;"><i class="fas fa-truck"></i> ${t.vehicle} | ⭐ ${t.rating}</div>
+            </div>
+        `).join('');
+    };
+
+    window.openFactura = function(tid, price) {
+        selectedTransporter = transporters.find(t => t.id === tid);
+        const isReserve = document.getElementById('reserveDate').value !== '';
         pendingMoveData = {
             client: currentUser.email,
+            clientName: currentUser.name,
+            transporter: selectedTransporter.id,
+            transporterName: selectedTransporter.name,
             origin: selectedOrigin,
             destination: selectedDestination,
-            vehicle: currentVehicle,
-            status: 'pending',
             price: price,
-            date: document.getElementById('resDate').value || 'Hoy',
-            time: document.getElementById('resTime').value || 'Ahora',
+            vehicle: selectedVehicle,
+            service: selectedServiceType,
+            access: document.getElementById('routeAccess').value,
+            mode: isReserve ? 'reserva' : 'realtime',
+            reserveDate: document.getElementById('reserveDate').value,
+            reserveTime: document.getElementById('reserveTime').value,
+            status: 'pending',
+            code: Math.floor(1000 + Math.random() * 9000),
             timestamp: Date.now()
         };
         document.getElementById('facturaDetails').innerHTML = `
-            <p><strong>Origen:</strong> ${selectedOrigin.name.split(',')[0]}</p>
-            <p><strong>Destino:</strong> ${selectedDestination.name.split(',')[0]}</p>
-            <p><strong>Vehículo:</strong> ${currentVehicle.toUpperCase()}</p>
-            <p><strong>Programación:</strong> ${pendingMoveData.date} ${pendingMoveData.time}</p>
+            <p><strong>Origen:</strong> ${selectedOrigin.name}</p>
+            <p><strong>Destino:</strong> ${selectedDestination.name}</p>
+            <p><strong>Vehículo:</strong> ${selectedVehicle.toUpperCase()}</p>
+            <p><strong>Modo:</strong> ${isReserve ? 'RESERVA (' + pendingMoveData.reserveDate + ')' : 'TIEMPO REAL'}</p>
         `;
-        document.getElementById('facturaTotal').innerText = `₡${price.toLocaleString()}`;
+        document.getElementById('facturaTotal').textContent = '₡' + price.toLocaleString();
         window.openModal('facturaModal');
+    };
+
+    window.handleUpload = function(e) {
+        if (e.target.files[0]) {
+            document.getElementById('uploadText').textContent = '✓ Comprobante adjunto';
+            document.getElementById('confirmMoveBtn').disabled = false;
+        }
     };
 
     window.confirmMove = function() {
         push(ref(db, 'moves'), pendingMoveData).then(() => {
-            alert('¡Mudanza solicitada y pagada! Los transportistas la verán ahora.');
+            alert('¡Pago recibido! Tu solicitud ha sido enviada. Código: ' + pendingMoveData.code);
             window.closeModal('facturaModal');
+            window.logout();
         });
     };
 
     function listenToJobs() {
         onValue(ref(db, 'moves'), (snapshot) => {
             const data = snapshot.val();
-            const jobsDiv = document.getElementById('jobsTab');
-            const myJobsDiv = document.getElementById('my-jobsTab');
-            if (!jobsDiv || !myJobsDiv) return;
-            jobsDiv.innerHTML = ''; myJobsDiv.innerHTML = '';
+            const jobsTab = document.getElementById('jobsTab');
+            const activeTab = document.getElementById('activeTab');
+            const historyTab = document.getElementById('historyTab');
+            if (!jobsTab) return;
+            jobsTab.innerHTML = ''; activeTab.innerHTML = ''; historyTab.innerHTML = '';
             if(data) {
                 Object.keys(data).forEach(key => {
-                    const move = data[key];
-                    const html = `<div style="background:#222; padding:15px; border-radius:8px; margin-bottom:10px; border-left:4px solid #00d4ff;">
-                        <p><strong>De:</strong> ${move.origin.name.split(',')[0]}</p>
-                        <p><strong>A:</strong> ${move.destination.name.split(',')[0]}</p>
-                        <p><strong>Precio (80%):</strong> ₡${Math.round(move.price*0.8).toLocaleString()}</p>
-                        ${move.status === 'pending' ? `<button class="btn" onclick="window.acceptJob('${key}')" style="margin-top:10px; width:auto; padding:5px 15px;">Aceptar</button>` : `<span class="status-badge status-${move.status}">${move.status}</span>`}
-                        ${move.status === 'in_progress' && move.transporter === currentUser.email ? `<button class="btn" onclick="window.startNav('${key}')" style="margin-top:10px; width:auto; padding:5px 15px; background:#4ade80;">Ver Ruta</button>` : ''}
+                    const m = data[key];
+                    const html = `<div class="uber-job-card">
+                        <div class="job-header">
+                            <div style="font-weight:bold;">${m.origin.name.split(',')[0]} → ${m.destination.name.split(',')[0]}</div>
+                            <div class="job-price">₡${Math.round(m.price*0.8).toLocaleString()}</div>
+                        </div>
+                        <p style="font-size:11px; color:#aaa;">Cliente: ${m.clientName} | Modo: ${m.mode.toUpperCase()}</p>
+                        ${m.status === 'pending' ? `<button class="btn" onclick="window.acceptJob('${key}')">Aceptar</button>` : ''}
+                        ${m.status === 'in_progress' && m.transporter === currentUser.id ? `
+                            <div style="display:flex; gap:10px; margin-top:10px;">
+                                <button class="btn btn-sm" onclick="window.startNav('${key}')">Ver Ruta</button>
+                                <button class="btn btn-sm" style="background:#4ade80;" onclick="window.openCodeModal('${key}')">Finalizar</button>
+                            </div>` : ''}
                     </div>`;
-                    if(move.status === 'pending') jobsDiv.innerHTML += html;
-                    if(move.transporter === currentUser.email) myJobsDiv.innerHTML += html;
+                    if(m.status === 'pending') jobsTab.innerHTML += html;
+                    else if(m.status === 'in_progress' && m.transporter === currentUser.id) activeTab.innerHTML += html;
+                    else if(m.status === 'completed' && m.transporter === currentUser.id) historyTab.innerHTML += html;
                 });
             }
         });
     }
 
     window.acceptJob = function(id) {
-        update(ref(db, `moves/${id}`), { status: 'in_progress', transporter: currentUser.email });
+        update(ref(db, `moves/${id}`), { status: 'in_progress', transporter: currentUser.id });
     };
 
     window.startNav = function(id) {
         onValue(ref(db, `moves/${id}`), (snap) => {
-            const move = snap.val();
-            selectedOrigin = move.origin;
-            selectedDestination = move.destination;
+            const m = snap.val();
+            selectedOrigin = m.origin; selectedDestination = m.destination;
             drawRoute();
             document.getElementById('navOverlay').style.display = 'flex';
-            document.getElementById('navDistance').innerText = "Calculando...";
+            document.getElementById('navDistance').textContent = calculateDist(m.origin, m.destination).toFixed(1) + ' km';
         }, { onlyOnce: true });
     };
 
     window.finishNavigation = function() {
         document.getElementById('navOverlay').style.display = 'none';
-        if(routingControl) map.removeControl(routingControl);
+        if (routingControl) map.removeControl(routingControl);
+    };
+
+    window.openCodeModal = function(id) {
+        onValue(ref(db, `moves/${id}`), (snap) => {
+            activeNavMove = { ...snap.val(), key: id };
+            window.openModal('codeModal');
+        }, { onlyOnce: true });
+    };
+
+    window.validateCode = function() {
+        const input = document.getElementById('confirmCodeInput').value;
+        if (parseInt(input) === activeNavMove.code) {
+            update(ref(db, `moves/${activeNavMove.key}`), { status: 'completed' });
+            alert('¡Servicio concluido!');
+            window.closeModal('codeModal');
+            window.finishNavigation();
+        } else { alert('Código incorrecto'); }
     };
 
     function listenToAdmin() {
         onValue(ref(db, 'moves'), (snapshot) => {
             const data = snapshot.val();
-            const list = document.getElementById('adminMovesList');
-            if (!list) return;
-            list.innerHTML = '';
+            const tbody = document.getElementById('movesTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
             if(data) {
                 Object.keys(data).forEach(key => {
-                    const move = data[key];
-                    list.innerHTML += `<tr><td>#${key.slice(-4)}</td><td>${move.client}</td><td><span class="status-badge status-${move.status}">${move.status}</span></td><td>₡${move.price.toLocaleString()}</td></tr>`;
+                    const m = data[key];
+                    tbody.innerHTML += `<tr>
+                        <td>#${key.slice(-4)}</td>
+                        <td>${m.clientName}</td>
+                        <td>₡${m.price.toLocaleString()}</td>
+                        <td style="color:#818cf8;">₡${Math.round(m.price*0.2).toLocaleString()}</td>
+                        <td><span class="status-badge status-${m.status}">${m.status}</span></td>
+                    </tr>`;
                 });
             }
         });
     }
 
+    function calculateDist(p1, p2) {
+        const R = 6371;
+        const dLat = (p2.lat-p1.lat) * Math.PI / 180;
+        const dLon = (p2.lng-p1.lng) * Math.PI / 180;
+        const a = Math.sin(dLat/2)**2 + Math.cos(p1.lat*Math.PI/180)*Math.cos(p2.lat*Math.PI/180)*Math.sin(dLon/2)**2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
     window.openModal = function(id) { document.getElementById(id).classList.add('active'); };
     window.closeModal = function(id) { document.getElementById(id).classList.remove('active'); };
-    window.switchTab = function(tab, el) {
+    window.switchTransporterTab = function(tab, e) {
         document.querySelectorAll('#transporterSection .tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('#transporterSection .tab-content').forEach(c => c.classList.remove('active'));
-        el.classList.add('active'); document.getElementById(tab + 'Tab').classList.add('active');
+        e.target.classList.add('active'); document.getElementById(tab + 'Tab').classList.add('active');
     };
-    window.switchAdminTab = function(tab, el) {
+    window.switchAdminTab = function(tab, e) {
         document.querySelectorAll('#adminSection .tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('#adminSection .tab-content').forEach(c => c.classList.remove('active'));
-        el.classList.add('active'); document.getElementById('admin' + tab.charAt(0).toUpperCase() + tab.slice(1) + 'Tab').classList.add('active');
+        e.target.classList.add('active'); document.getElementById(tab + 'Tab').classList.add('active');
     };
 </script>
 </body>
