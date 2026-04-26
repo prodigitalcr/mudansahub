@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MudanzasHub Costa Rica - Solución Total V2</title>
+    <title>MudanzasHub Costa Rica - Solución Total</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
@@ -75,8 +75,6 @@
         .detail-label { color: #888; font-size: 11px; margin-bottom: 4px; }
         .verification-code-input { width: 100%; padding: 12px; background: #2a2a2a; border: 2px solid #00d4ff; border-radius: 8px; color: #fff; font-size: 16px; text-align: center; letter-spacing: 2px; font-weight: bold; margin-bottom: 10px; }
         .verification-code-input:focus { outline: none; border-color: #4ade80; box-shadow: 0 0 15px rgba(74,222,128,0.3); }
-        .loading-spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #00d4ff; border-top: 2px solid transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -227,7 +225,7 @@
     </div>
 </div>
 
-<!-- MODAL FACTURA MEJORADO -->
+<!-- MODAL FACTURA -->
 <div class="modal" id="facturaModal">
     <div class="modal-content">
         <button class="modal-close" data-close="facturaModal">×</button>
@@ -300,7 +298,6 @@
     let routingControl = null;
     let activeNavMove = null;
     let pendingMoveData = null;
-    let searchTimeout = null;
     let sinpePhotoUploaded = false;
 
     // CONFIGURACIÓN DE VEHÍCULOS
@@ -316,10 +313,33 @@
         { id: 3, email: 'ana@test.com', password: '1234', name: 'Ana Quesada', phone: '8888-3333', plate: 'PK-789', vehicle: 'Nissan Frontier', rating: 4.9, model: '2023', license: 'B1', insurance: 'INS-445', emergency: '8888-0002' }
     ];
 
+    // UBICACIONES COSTA RICA
+    const locations = [
+        { name: 'San José', lat: 9.9281, lng: -84.0907 },
+        { name: 'Alajuela', lat: 10.0163, lng: -84.2317 },
+        { name: 'Cartago', lat: 9.8558, lng: -83.9111 },
+        { name: 'Heredia', lat: 10.0067, lng: -84.1239 },
+        { name: 'Limón', lat: 10.0024, lng: -83.0342 },
+        { name: 'Puntarenas', lat: 9.9789, lng: -84.8320 },
+        { name: 'Liberia', lat: 10.6355, lng: -85.4383 },
+        { name: 'La Fortuna', lat: 10.4667, lng: -84.6431 },
+        { name: 'Monteverde', lat: 10.3069, lng: -84.8084 },
+        { name: 'Manuel Antonio', lat: 9.3869, lng: -84.4144 },
+        { name: 'Jacó', lat: 9.6271, lng: -84.6240 },
+        { name: 'Puerto Viejo', lat: 9.6589, lng: -82.7580 },
+        { name: 'Uvita', lat: 9.1647, lng: -83.7383 },
+        { name: 'Arenal', lat: 10.8622, lng: -84.3045 },
+        { name: 'Escazú', lat: 9.9325, lng: -84.1304 },
+        { name: 'San Isidro', lat: 9.3667, lng: -83.7667 },
+        { name: 'Quepos', lat: 9.4333, lng: -84.1667 },
+        { name: 'Grecia', lat: 10.0667, lng: -84.3167 },
+        { name: 'Naranjo', lat: 10.0833, lng: -84.4167 }
+    ];
+
     // INICIALIZAR MAPA
     map = L.map('map').setView([9.9281, -84.0907], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
+        attribution: '© OpenStreetMap',
         maxZoom: 19
     }).addTo(map);
 
@@ -353,77 +373,33 @@
 
     document.querySelectorAll('.logoutBtn').forEach(btn => btn.addEventListener('click', () => location.reload()));
 
-    // BASE DE DATOS LOCAL DE UBICACIONES COSTA RICA
-    const costaRicaLocations = [
-        { name: 'San José', lat: 9.9281, lng: -84.0907, display_name: 'San José, Costa Rica' },
-        { name: 'Alajuela', lat: 10.0163, lng: -84.2317, display_name: 'Alajuela, Costa Rica' },
-        { name: 'Cartago', lat: 9.8558, lng: -83.9111, display_name: 'Cartago, Costa Rica' },
-        { name: 'Heredia', lat: 10.0067, lng: -84.1239, display_name: 'Heredia, Costa Rica' },
-        { name: 'Limón', lat: 10.0024, lng: -83.0342, display_name: 'Limón, Costa Rica' },
-        { name: 'Puntarenas', lat: 9.9789, lng: -84.8320, display_name: 'Puntarenas, Costa Rica' },
-        { name: 'Guanacaste', lat: 10.4519, lng: -85.4404, display_name: 'Guanacaste, Costa Rica' },
-        { name: 'Liberia', lat: 10.6355, lng: -85.4383, display_name: 'Liberia, Guanacaste, Costa Rica' },
-        { name: 'La Fortuna', lat: 10.4667, lng: -84.6431, display_name: 'La Fortuna, Alajuela, Costa Rica' },
-        { name: 'Monteverde', lat: 10.3069, lng: -84.8084, display_name: 'Monteverde, Puntarenas, Costa Rica' },
-        { name: 'Manuel Antonio', lat: 9.3869, lng: -84.4144, display_name: 'Manuel Antonio, Puntarenas, Costa Rica' },
-        { name: 'Jacó', lat: 9.6271, lng: -84.6240, display_name: 'Jacó, Puntarenas, Costa Rica' },
-        { name: 'Puerto Viejo', lat: 9.6589, lng: -82.7580, display_name: 'Puerto Viejo, Limón, Costa Rica' },
-        { name: 'Uvita', lat: 9.1647, lng: -83.7383, display_name: 'Uvita, Puntarenas, Costa Rica' },
-        { name: 'Arenal', lat: 10.8622, lng: -84.3045, display_name: 'Arenal, Alajuela, Costa Rica' },
-        { name: 'Escazú', lat: 9.9325, lng: -84.1304, display_name: 'Escazú, San José, Costa Rica' },
-        { name: 'San Isidro', lat: 9.3667, lng: -83.7667, display_name: 'San Isidro de El General, Pérez Zeledón, Costa Rica' },
-        { name: 'Quepos', lat: 9.4333, lng: -84.1667, display_name: 'Quepos, Puntarenas, Costa Rica' },
-        { name: 'Grecia', lat: 10.0667, lng: -84.3167, display_name: 'Grecia, Alajuela, Costa Rica' },
-        { name: 'Naranjo', lat: 10.0833, lng: -84.4167, display_name: 'Naranjo, Alajuela, Costa Rica' }
-    ];
-
-    // BÚSQUEDA LOCAL SIN CORS
-    const searchLocations = (query, type) => {
-        if (!query || query.trim().length < 2) return;
-        
+    // BÚSQUEDA LOCAL SIMPLE Y ROBUSTA
+    function searchLocations(query, type) {
         const suggestionsDiv = document.getElementById(type + 'Suggestions');
-        if (!suggestionsDiv) return;
+        if (!suggestionsDiv || !query || query.trim().length < 2) return;
         
-        const searchTerm = query.trim().toLowerCase();
-        const results = costaRicaLocations.filter(loc => 
-            loc.name.toLowerCase().includes(searchTerm) || 
-            loc.display_name.toLowerCase().includes(searchTerm)
-        );
+        const term = query.trim().toLowerCase();
+        const results = locations.filter(loc => loc.name.toLowerCase().includes(term));
         
         if (results.length === 0) {
             suggestionsDiv.innerHTML = '<div style="padding:10px;color:#aaa;">Sin resultados</div>';
-            suggestionsDiv.classList.add('active');
-            return;
-        }
-        
-        suggestionsDiv.innerHTML = results.map((r) => `
-            <div class="suggestion-item" data-lat="${r.lat}" data-lon="${r.lng}" data-name="${r.display_name}" data-type="${type}">
-                <div><strong>${r.name}</strong></div>
-                <div class="suggestion-address">${r.display_name}</div>
-            </div>
-        `).join('');
-        suggestionsDiv.classList.add('active');
-    };
-
-    // EVENT LISTENERS PARA BÚSQUEDA
-    document.getElementById('originSearch').addEventListener('input', (e) => {
-        clearTimeout(searchTimeout);
-        const val = e.target.value.trim();
-        if (val.length >= 2) {
-            searchTimeout = setTimeout(() => searchLocations(val, 'origin'), 300);
         } else {
-            document.getElementById('originSuggestions').classList.remove('active');
+            suggestionsDiv.innerHTML = results.map(r => 
+                `<div class="suggestion-item" data-lat="${r.lat}" data-lon="${r.lng}" data-name="${r.name}" data-type="${type}">
+                    <strong>${r.name}</strong>
+                </div>`
+            ).join('');
         }
+        suggestionsDiv.classList.add('active');
+    }
+
+    // EVENT LISTENERS BÚSQUEDA
+    document.getElementById('originSearch').addEventListener('input', (e) => {
+        searchLocations(e.target.value, 'origin');
     });
 
     document.getElementById('destinationSearch').addEventListener('input', (e) => {
-        clearTimeout(searchTimeout);
-        const val = e.target.value.trim();
-        if (val.length >= 2) {
-            searchTimeout = setTimeout(() => searchLocations(val, 'destination'), 300);
-        } else {
-            document.getElementById('destinationSuggestions').classList.remove('active');
-        }
+        searchLocations(e.target.value, 'destination');
     });
 
     // SELECCIONAR UBICACIÓN
@@ -434,41 +410,37 @@
             const lon = parseFloat(item.dataset.lon);
             const name = item.dataset.name;
             const type = item.dataset.type;
-            
-            if (!isNaN(lat) && !isNaN(lon) && name && type) {
-                selectLocation(lat, lon, name, type);
-            }
+            selectLocation(lat, lon, name, type);
         } else if (!e.target.closest('.search-container')) {
             document.querySelectorAll('.search-suggestions').forEach(s => s.classList.remove('active'));
         }
     });
 
-    const selectLocation = (lat, lon, name, type) => {
+    function selectLocation(lat, lon, name, type) {
         const loc = { lat, lng: lon, name };
-        const shortName = name.split(',')[0];
         
         if (type === 'origin') {
             selectedOrigin = loc;
-            document.getElementById('originSearch').value = shortName;
+            document.getElementById('originSearch').value = name;
             if (markers.origin) map.removeLayer(markers.origin);
             markers.origin = L.marker([lat, lon], { 
                 icon: L.icon({ 
-                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', 
-                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', 
-                    iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] 
-                }) 
-            }).addTo(map).bindPopup('📍 Origen: ' + shortName).openPopup();
+                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                    iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+                })
+            }).addTo(map).bindPopup('📍 Origen: ' + name).openPopup();
         } else if (type === 'destination') {
             selectedDestination = loc;
-            document.getElementById('destinationSearch').value = shortName;
+            document.getElementById('destinationSearch').value = name;
             if (markers.destination) map.removeLayer(markers.destination);
-            markers.destination = L.marker([lat, lon], { 
-                icon: L.icon({ 
-                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', 
-                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', 
-                    iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] 
-                }) 
-            }).addTo(map).bindPopup('📍 Destino: ' + shortName).openPopup();
+            markers.destination = L.marker([lat, lon], {
+                icon: L.icon({
+                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                    iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+                })
+            }).addTo(map).bindPopup('📍 Destino: ' + name).openPopup();
         }
         
         document.querySelectorAll('.search-suggestions').forEach(s => s.classList.remove('active'));
@@ -478,40 +450,29 @@
         } else {
             map.setView([lat, lon], 14);
         }
-    };
+    }
 
-    // DIBUJAR RUTA POR CARRETERAS
-    const drawRoute = () => {
+    // DIBUJAR RUTA
+    function drawRoute() {
         if (!selectedOrigin || !selectedDestination) return;
-        
-        if (routingControl) {
-            try { map.removeControl(routingControl); } catch (e) {}
-        }
+        if (routingControl) try { map.removeControl(routingControl); } catch (e) {}
         
         try {
             routingControl = L.Routing.control({
-                waypoints: [
-                    L.latLng(selectedOrigin.lat, selectedOrigin.lng), 
-                    L.latLng(selectedDestination.lat, selectedDestination.lng)
-                ],
+                waypoints: [L.latLng(selectedOrigin.lat, selectedOrigin.lng), L.latLng(selectedDestination.lat, selectedDestination.lng)],
                 show: false,
                 lineOptions: { styles: [{ color: '#00d4ff', opacity: 0.9, weight: 5 }] },
                 createMarker: () => null,
                 addWaypoints: false,
                 draggableWaypoints: false,
-                fitSelectedRoutes: true,
-                router: L.Routing.osrmv1({ serviceUrl: 'https://router.project-osrm.org/route/v1' })
+                fitSelectedRoutes: true
             }).addTo(map);
-            
-            map.fitBounds(L.latLngBounds([selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]), { padding: [100, 100] });
         } catch (e) {
-            console.error('Error en routing:', e);
-            L.polyline([[selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]], { 
-                color: '#00d4ff', weight: 5, opacity: 0.9, dashArray: '5, 5' 
-            }).addTo(map);
-            map.fitBounds(L.latLngBounds([selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]), { padding: [100, 100] });
+            L.polyline([[selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]], 
+                { color: '#00d4ff', weight: 5, opacity: 0.9 }).addTo(map);
         }
-    };
+        map.fitBounds(L.latLngBounds([selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]), { padding: [100, 100] });
+    }
 
     // LÓGICA DE PRECIOS
     const calculatePrice = (dist, vehicle, weight, access, service) => {
@@ -521,9 +482,7 @@
         const weightPrice = (weight / 100) * 1500;
         const accessMultipliers = { easy: 1, medium: 1.15, hard: 1.3 };
         const servicePrice = service === 'acarreo' ? 8000 : 0;
-        
-        let total = (basePrice + distPrice + weightPrice) * config.multiplier * accessMultipliers[access] + servicePrice;
-        return Math.round(total);
+        return Math.round((basePrice + distPrice + weightPrice) * config.multiplier * accessMultipliers[access] + servicePrice);
     };
 
     document.getElementById('searchTransportersBtn').addEventListener('click', () => {
@@ -531,7 +490,6 @@
         const dist = calculateDist(selectedOrigin, selectedDestination);
         const weight = parseFloat(document.getElementById('loadWeight').value) || 100;
         const access = document.getElementById('accessType').value;
-        
         const basePrice = calculatePrice(dist, selectedVehicle, weight, access, selectedServiceType);
         
         const offers = [
@@ -546,11 +504,8 @@
                     <div class="transportista-name">${t.name}</div>
                     <div class="transportista-price">₡${t.price.toLocaleString()}</div>
                 </div>
-                <div style="font-size:11px; color:#bbb; margin-bottom:5px;">
-                    <i class="fas fa-truck"></i> ${t.vehicle} | <i class="fas fa-id-card"></i> ${t.plate}
-                </div>
                 <div style="font-size:11px; color:#bbb;">
-                    <i class="fas fa-phone"></i> ${t.phone} | ⭐ ${t.rating}
+                    <i class="fas fa-truck"></i> ${t.vehicle} | <i class="fas fa-id-card"></i> ${t.plate} | ⭐ ${t.rating}
                 </div>
             </div>
         `).join('');
@@ -592,9 +547,8 @@
             <p><strong>Socio:</strong> ${selectedTransporter.name}</p>
             <p><strong>Placa:</strong> ${selectedTransporter.plate}</p>
             <p><strong>Cédula:</strong> ${selectedTransporter.license}</p>
-            <p><strong>Origen:</strong> ${selectedOrigin.name.split(',')[0]}</p>
-            <p><strong>Destino:</strong> ${selectedDestination.name.split(',')[0]}</p>
-            <p><strong>Vehículo:</strong> ${selectedVehicle.toUpperCase()} (${selectedTransporter.vehicle})</p>
+            <p><strong>Origen:</strong> ${selectedOrigin.name}</p>
+            <p><strong>Destino:</strong> ${selectedDestination.name}</p>
             <p><strong>Código Confirmación:</strong> <span style="color:#00d4ff; font-weight:bold;">${pendingMoveData.code}</span></p>
         `;
         document.getElementById('facturaTotal').textContent = '₡' + price.toLocaleString();
@@ -617,25 +571,15 @@
 
     const validateFormCompletion = () => {
         const verificationCode = document.getElementById('verificationCodeInput').value;
-        if (sinpePhotoUploaded && verificationCode.length >= 4) {
-            document.getElementById('confirmMoveBtn').disabled = false;
-        } else {
-            document.getElementById('confirmMoveBtn').disabled = true;
-        }
+        document.getElementById('confirmMoveBtn').disabled = !(sinpePhotoUploaded && verificationCode.length >= 4);
     };
 
     document.getElementById('verificationCodeInput').addEventListener('input', validateFormCompletion);
 
     document.getElementById('confirmMoveBtn').addEventListener('click', () => {
-        if (!sinpePhotoUploaded) {
-            alert('Por favor adjunta el comprobante SINPE');
-            return;
-        }
+        if (!sinpePhotoUploaded) return alert('Por favor adjunta el comprobante SINPE');
         const verificationCode = document.getElementById('verificationCodeInput').value;
-        if (verificationCode.length < 4) {
-            alert('Por favor ingresa un código de verificación válido');
-            return;
-        }
+        if (verificationCode.length < 4) return alert('Por favor ingresa un código válido');
         
         push(ref(db, 'moves'), pendingMoveData).then(() => {
             alert('¡Solicitud enviada! Código: ' + pendingMoveData.code);
@@ -664,33 +608,28 @@
                         if (m.status === 'in_progress') activeCount++;
                         if (m.status === 'completed') {
                             earnings += m.price;
-                            historyList.innerHTML += `
-                                <div style="background:#2a2a2a; padding:10px; border-radius:8px; margin-bottom:8px; font-size:12px;">
-                                    <div style="display:flex; justify-content:space-between;">
-                                        <strong>${m.clientName}</strong>
-                                        <span style="color:#4ade80;">₡${m.price.toLocaleString()}</span>
-                                    </div>
-                                    <div style="color:#888; font-size:10px;">${m.date} | ${m.origin.name.split(',')[0]}</div>
-                                </div>`;
+                            historyList.innerHTML += `<div style="background:#2a2a2a; padding:10px; border-radius:8px; margin-bottom:8px; font-size:12px;">
+                                <div style="display:flex; justify-content:space-between;">
+                                    <strong>${m.clientName}</strong>
+                                    <span style="color:#4ade80;">₡${m.price.toLocaleString()}</span>
+                                </div>
+                                <div style="color:#888; font-size:10px;">${m.date}</div>
+                            </div>`;
                         }
                     }
 
-                    const html = `
-                        <div class="uber-job-card">
-                            <div class="job-header">
-                                <div style="font-weight:bold;">${m.origin.name.split(',')[0]} → ${m.destination.name.split(',')[0]}</div>
-                                <div class="job-price">₡${m.price.toLocaleString()}</div>
-                            </div>
-                            <p style="font-size:11px; color:#aaa;">Cliente: ${m.clientName} | Peso: ${m.weight}kg</p>
-                            ${m.status === 'pending' && m.transporter === currentUser.id ? `<button class="btn acceptJobBtn" data-id="${key}" ${activeCount >= 3 ? 'disabled' : ''}>${activeCount >= 3 ? 'Límite alcanzado (3)' : 'Aceptar Oferta'}</button>` : ''}
-                            ${m.status === 'in_progress' && m.transporter === currentUser.id ? `
-                                <div style="display:flex; gap:10px; margin-top:10px;">
-                                    <button class="btn btn-sm startNavBtn" data-id="${key}">Ver Ruta</button>
-                                    <button class="btn btn-sm openCodeBtn" style="background:#4ade80;" data-id="${key}">Finalizar</button>
-                                </div>` 
-                            : ''}
+                    const html = `<div class="uber-job-card">
+                        <div class="job-header">
+                            <div style="font-weight:bold;">${m.origin.name} → ${m.destination.name}</div>
+                            <div class="job-price">₡${m.price.toLocaleString()}</div>
                         </div>
-                    `;
+                        <p style="font-size:11px; color:#aaa;">Cliente: ${m.clientName}</p>
+                        ${m.status === 'pending' && m.transporter === currentUser.id ? `<button class="btn acceptJobBtn" data-id="${key}" ${activeCount >= 3 ? 'disabled' : ''}>Aceptar Oferta</button>` : ''}
+                        ${m.status === 'in_progress' && m.transporter === currentUser.id ? `<div style="display:flex; gap:10px; margin-top:10px;">
+                            <button class="btn btn-sm startNavBtn" data-id="${key}">Ver Ruta</button>
+                            <button class="btn btn-sm openCodeBtn" style="background:#4ade80;" data-id="${key}">Finalizar</button>
+                        </div>` : ''}
+                    </div>`;
 
                     if(m.status === 'pending' && m.transporter === currentUser.id) jobsTab.innerHTML += html;
                     else if(m.status === 'in_progress' && m.transporter === currentUser.id) activeTab.innerHTML += html;
@@ -710,23 +649,13 @@
             if(data) {
                 Object.keys(data).forEach(key => {
                     const m = data[key];
-                    tbody.innerHTML += `<tr>
-                        <td>#${key.slice(-4)}</td>
-                        <td>${m.clientName}</td>
-                        <td>${m.transporterName}</td>
-                        <td>₡${m.price.toLocaleString()}</td>
-                        <td><span class="status-badge status-${m.status}">${m.status}</span></td>
-                    </tr>`;
+                    tbody.innerHTML += `<tr><td>#${key.slice(-4)}</td><td>${m.clientName}</td><td>${m.transporterName}</td><td>₡${m.price.toLocaleString()}</td><td><span class="status-badge status-${m.status}">${m.status}</span></td></tr>`;
                 });
             }
         });
 
         const partnersList = document.getElementById('adminPartnersList');
-        partnersList.innerHTML = transporters.map(t => `
-            <div class="partner-item" data-tid="${t.id}">
-                <i class="fas fa-user-tie"></i> ${t.name} <span style="font-size:10px; color:#666;">(${t.plate})</span>
-            </div>
-        `).join('');
+        partnersList.innerHTML = transporters.map(t => `<div class="partner-item" data-tid="${t.id}"><i class="fas fa-user-tie"></i> ${t.name} (${t.plate})</div>`).join('');
     };
 
     document.addEventListener('click', (e) => {
@@ -737,10 +666,8 @@
             document.getElementById('partnerDetailContent').innerHTML = `
                 <div class="detail-item"><div class="detail-label">Teléfono</div>${t.phone}</div>
                 <div class="detail-item"><div class="detail-label">Placa</div>${t.plate}</div>
-                <div class="detail-item"><div class="detail-label">Modelo</div>${t.vehicle} (${t.model})</div>
+                <div class="detail-item"><div class="detail-label">Modelo</div>${t.vehicle}</div>
                 <div class="detail-item"><div class="detail-label">Licencia</div>${t.license}</div>
-                <div class="detail-item"><div class="detail-label">Seguro/Póliza</div>${t.insurance}</div>
-                <div class="detail-item"><div class="detail-label">Contacto Emergencia</div>${t.emergency}</div>
             `;
             openModal('partnerDetailModal');
         }
@@ -793,9 +720,7 @@
         const R = 6371;
         const dLat = (p2.lat - p1.lat) * Math.PI / 180;
         const dLon = (p2.lng - p1.lng) * Math.PI / 180;
-        const a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
-                  Math.cos(p1.lat*Math.PI/180) * Math.cos(p2.lat*Math.PI/180) * 
-                  Math.sin(dLon/2) * Math.sin(dLon/2);
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(p1.lat*Math.PI/180) * Math.cos(p2.lat*Math.PI/180) * Math.sin(dLon/2) * Math.sin(dLon/2);
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     };
 
