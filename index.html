@@ -74,6 +74,25 @@
         .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 13px; }
         .detail-item { background: #222; padding: 10px; border-radius: 6px; border: 1px solid #333; }
         .detail-label { color: #888; font-size: 11px; margin-bottom: 4px; }
+        
+        /* ESTILOS REGISTRO */
+        .register-link { text-align: center; margin-top: 15px; font-size: 13px; color: #aaa; }
+        .register-link span { color: #00d4ff; cursor: pointer; font-weight: bold; }
+        .register-type-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .register-type-btn { padding: 15px; background: #2a2a2a; border: 2px solid #444; border-radius: 8px; color: #fff; cursor: pointer; text-align: center; font-size: 13px; transition: 0.3s; }
+        .register-type-btn.active { border-color: #00d4ff; background: #1a3a3a; }
+        
+        /* MEJORAS INTERFAZ FACTURA Y FICHA (MODELO) */
+        .factura-header { border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 15px; }
+        .factura-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+        .factura-label { color: #888; }
+        .factura-value { font-weight: 600; }
+        .transportista-ficha { background: #222; border-radius: 10px; padding: 15px; border: 1px solid #333; margin-bottom: 15px; }
+        .ficha-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .ficha-avatar { width: 50px; height: 50px; background: #00d4ff22; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #00d4ff; font-size: 20px; }
+        .ficha-title { flex: 1; }
+        .ficha-name { font-weight: bold; font-size: 16px; }
+        .ficha-rating { color: #fbbf24; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -101,7 +120,46 @@
                 </select>
             </div>
             <button class="btn" id="loginBtn">Entrar</button>
+            <div class="register-link">¿No tienes cuenta? <span id="showRegisterBtn">Regístrate aquí</span></div>
             <p id="connStatus" style="font-size:11px; color:#666; margin-top:15px; text-align:center;">Cargando Firebase...</p>
+        </div>
+
+        <!-- SECCIÓN REGISTRO -->
+        <div class="section" id="registerSection">
+            <div class="logo"><i class="fas fa-user-plus"></i> Crear Cuenta</div>
+            <div class="register-type-selector">
+                <div class="register-type-btn active" id="regTypeClient">Cliente</div>
+                <div class="register-type-btn" id="regTypeTrans">Socio</div>
+            </div>
+            
+            <div id="clientRegForm">
+                <div class="form-group"><label>Nombre Completo</label><input type="text" id="regName" class="search-input" placeholder="Ej: Juan Pérez"></div>
+                <div class="form-group"><label>Cédula</label><input type="text" id="regId" class="search-input" placeholder="Número de identificación"></div>
+                <div class="form-group"><label>Teléfono</label><input type="tel" id="regPhone" class="search-input" placeholder="8888-8888"></div>
+                <div class="form-group"><label>Ubicación (Ciudad/Provincia)</label><input type="text" id="regLoc" class="search-input" placeholder="Ej: San José, Escazú"></div>
+            </div>
+
+            <div id="transRegForm" style="display:none;">
+                <div class="form-group"><label>Nombre Completo</label><input type="text" id="regTName" class="search-input"></div>
+                <div class="form-group"><label>Cédula</label><input type="text" id="regTId" class="search-input"></div>
+                <div class="form-group"><label>Teléfono</label><input type="tel" id="regTPhone" class="search-input"></div>
+                <div class="form-group" style="display:flex; gap:10px;">
+                    <div style="flex:1;"><label>Edad</label><input type="number" id="regTAge" class="search-input"></div>
+                    <div style="flex:1;"><label>¿Problema Físico?</label><select id="regTPhys" class="search-input"><option value="no">No</option><option value="si">Sí</option></select></div>
+                </div>
+                <div class="form-group"><label>Vehículo (Marca/Modelo)</label><input type="text" id="regTVehicle" class="search-input"></div>
+                <div class="form-group" style="display:flex; gap:10px;">
+                    <div style="flex:1;"><label>Placa</label><input type="text" id="regTPlate" class="search-input"></div>
+                    <div style="flex:1;"><label>Licencia</label><input type="text" id="regTLicense" class="search-input"></div>
+                </div>
+                <div class="form-group"><label>Número de Seguro</label><input type="text" id="regTInsurance" class="search-input"></div>
+            </div>
+
+            <div class="form-group"><label>Correo Electrónico</label><input type="email" id="regEmail" class="search-input"></div>
+            <div class="form-group"><label>Contraseña</label><input type="password" id="regPass" class="search-input"></div>
+            
+            <button class="btn" id="executeRegisterBtn">Finalizar Registro</button>
+            <button class="btn btn-secondary" style="margin-top:10px;" id="backToLoginBtn">Volver al Login</button>
         </div>
 
         <!-- SECCIÓN CLIENTE -->
@@ -226,24 +284,35 @@
 
 <!-- MODAL FACTURA -->
 <div class="modal" id="facturaModal">
-    <div class="modal-content">
-        <button class="modal-close" data-close="facturaModal">×</button>
-        <div class="modal-header">Confirmación de Mudanza</div>
-        <div id="facturaDetails" style="font-size:13px; line-height:1.6; margin-bottom:15px;"></div>
-        <div style="background:#222; padding:15px; border-radius:8px; margin-bottom:15px;">
-            <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:18px; color:#4ade80;">
-                <span>Total a Pagar:</span>
-                <span id="facturaTotal">₡0</span>
+        <div class="modal-content">
+            <button class="modal-close" data-close="facturaModal">×</button>
+            <div class="modal-header"><i class="fas fa-file-invoice-dollar"></i> Detalle de la Mudanza</div>
+            
+            <div class="transportista-ficha" id="fichaTransportista">
+                <!-- Se llena dinámicamente -->
             </div>
+
+            <div id="facturaDetails" class="factura-header">
+                <!-- Se llena dinámicamente -->
+            </div>
+
+            <div style="background: #1a3a3a; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #00d4ff44;">
+                <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:20px; color:#4ade80;">
+                    <span>Total:</span>
+                    <span id="facturaTotal">₡0</span>
+                </div>
+            </div>
+
+            <div class="alert-box alert-info"><i class="fas fa-info-circle"></i> Pago por SINPE: 7228-4602. Adjunta el comprobante para confirmar.</div>
+            
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="comprobanteFileInput" style="display:none">
+                <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                <div class="upload-text" id="uploadText">Subir comprobante de pago</div>
+            </div>
+            
+            <button class="btn" id="confirmMoveBtn" disabled>Confirmar Mudanza</button>
         </div>
-        <div class="alert-box alert-info"><i class="fas fa-info-circle"></i> Pago por SINPE: 7228-4602. Adjunta el comprobante.</div>
-        <div class="upload-area" id="uploadArea">
-            <input type="file" id="comprobanteFileInput" style="display:none">
-            <i class="fas fa-cloud-upload-alt upload-icon"></i>
-            <div class="upload-text" id="uploadText">Haz clic para adjuntar comprobante</div>
-        </div>
-        <button class="btn" id="confirmMoveBtn" disabled>Confirmar y Pagar</button>
-    </div>
 </div>
 
 <!-- MODAL CÓDIGO -->
@@ -296,10 +365,13 @@
         camion: { multiplier: 1.8, fuelCost: 1.7, capacity: 3500, name: 'Camión' }
     };
 
-    const transporters = [
+    let transporters = [
         { id: 1, email: 'carlos@test.com', password: '1234', name: 'Carlos Rodríguez', phone: '8888-1111', plate: 'BC-123', vehicle: 'Toyota Hiace', rating: 4.8, model: '2022', license: 'B2', insurance: 'INS-992', emergency: '8888-0000' },
         { id: 2, email: 'miguel@test.com', password: '1234', name: 'Miguel Vargas', phone: '8888-2222', plate: 'CL-456', vehicle: 'Hino 300', rating: 4.6, model: '2021', license: 'B3', insurance: 'INS-112', emergency: '8888-0001' },
         { id: 3, email: 'ana@test.com', password: '1234', name: 'Ana Quesada', phone: '8888-3333', plate: 'PK-789', vehicle: 'Nissan Frontier', rating: 4.9, model: '2023', license: 'B1', insurance: 'INS-445', emergency: '8888-0002' }
+    ];
+    let registeredClients = [
+        { email: 'cliente@test.com', password: '1234', name: 'Laura Fernández', phone: '8888-0000', idNum: '1-1111-1111', location: 'San José' }
     ];
 
     // INICIALIZAR MAPA
@@ -347,9 +419,9 @@
         } else if (role === 'transporter') {
             const t = transporters.find(x => x.email === email && x.password === pass);
             if (t) { currentUser = { ...t, role }; _authenticated = true; }
-        } else if (role === 'client' && email === 'cliente@test.com' && pass === '1234') {
-            currentUser = { email, role, name: 'Laura Fern\u00e1ndez' };
-            _authenticated = true;
+        } else if (role === 'client') {
+            const c = registeredClients.find(x => x.email === email && x.password === pass);
+            if (c) { currentUser = { ...c, role }; _authenticated = true; }
         }
 
         // Intento fallido
@@ -388,6 +460,69 @@
     });
 
     document.querySelectorAll('.logoutBtn').forEach(btn => btn.addEventListener('click', () => location.reload()));
+
+    // LÓGICA DE REGISTRO
+    document.getElementById('showRegisterBtn').addEventListener('click', () => {
+        document.getElementById('authSection').classList.remove('active');
+        document.getElementById('registerSection').classList.add('active');
+    });
+
+    document.getElementById('backToLoginBtn').addEventListener('click', () => {
+        document.getElementById('registerSection').classList.remove('active');
+        document.getElementById('authSection').classList.add('active');
+    });
+
+    document.getElementById('regTypeClient').addEventListener('click', () => {
+        document.getElementById('regTypeClient').classList.add('active');
+        document.getElementById('regTypeTrans').classList.remove('active');
+        document.getElementById('clientRegForm').style.display = 'block';
+        document.getElementById('transRegForm').style.display = 'none';
+    });
+
+    document.getElementById('regTypeTrans').addEventListener('click', () => {
+        document.getElementById('regTypeTrans').classList.add('active');
+        document.getElementById('regTypeClient').classList.remove('active');
+        document.getElementById('transRegForm').style.display = 'block';
+        document.getElementById('clientRegForm').style.display = 'none';
+    });
+
+    document.getElementById('executeRegisterBtn').addEventListener('click', () => {
+        const isClient = document.getElementById('regTypeClient').classList.contains('active');
+        const email = document.getElementById('regEmail').value.trim().toLowerCase();
+        const pass = document.getElementById('regPass').value;
+
+        if (!email || !pass) return alert('Email y contraseña son obligatorios');
+
+        if (isClient) {
+            const newUser = {
+                email, password: pass,
+                name: document.getElementById('regName').value,
+                idNum: document.getElementById('regId').value,
+                phone: document.getElementById('regPhone').value,
+                location: document.getElementById('regLoc').value
+            };
+            registeredClients.push(newUser);
+            alert('Registro de Cliente exitoso. Ya puedes iniciar sesión.');
+        } else {
+            const newTrans = {
+                id: transporters.length + 1,
+                email, password: pass,
+                name: document.getElementById('regTName').value,
+                idNum: document.getElementById('regTId').value,
+                phone: document.getElementById('regTPhone').value,
+                age: document.getElementById('regTAge').value,
+                physical: document.getElementById('regTPhys').value,
+                vehicle: document.getElementById('regTVehicle').value,
+                plate: document.getElementById('regTPlate').value,
+                license: document.getElementById('regTLicense').value,
+                insurance: document.getElementById('regTInsurance').value,
+                rating: 5.0
+            };
+            transporters.push(newTrans);
+            alert('Registro de Socio exitoso. Ya puedes iniciar sesión.');
+        }
+        document.getElementById('backToLoginBtn').click();
+    });
 
     // BÚSQUEDA DE UBICACIONES
     const searchLocations = async (query, type) => {
@@ -532,12 +667,29 @@
             timestamp: Date.now(),
             date: new Date().toLocaleDateString()
         };
-        document.getElementById('facturaDetails').innerHTML = `
-            <p><strong>Socio:</strong> ${selectedTransporter.name}</p>
-            <p><strong>Origen:</strong> ${selectedOrigin.name.split(',')[0]}</p>
-            <p><strong>Destino:</strong> ${selectedDestination.name.split(',')[0]}</p>
-            <p><strong>Vehículo:</strong> ${selectedVehicle.toUpperCase()} (${selectedTransporter.plate})</p>
+
+        // FICHA TÉCNICA (MODELO)
+        document.getElementById('fichaTransportista').innerHTML = `
+            <div class="ficha-header">
+                <div class="ficha-avatar"><i class="fas fa-user-tie"></i></div>
+                <div class="ficha-title">
+                    <div class="ficha-name">${selectedTransporter.name}</div>
+                    <div class="ficha-rating"><i class="fas fa-star"></i> ${selectedTransporter.rating} · Socio Verificado</div>
+                </div>
+            </div>
+            <div class="factura-row"><span class="factura-label">Vehículo:</span><span class="factura-value">${selectedTransporter.vehicle}</span></div>
+            <div class="factura-row"><span class="factura-label">Placa:</span><span class="factura-value">${selectedTransporter.plate}</span></div>
+            <div class="factura-row"><span class="factura-label">Teléfono:</span><span class="factura-value">${selectedTransporter.phone}</span></div>
         `;
+
+        // DETALLES FACTURA (MODELO)
+        document.getElementById('facturaDetails').innerHTML = `
+            <div class="factura-row"><span class="factura-label">Origen:</span><span class="factura-value">${selectedOrigin.name.split(',')[0]}</span></div>
+            <div class="factura-row"><span class="factura-label">Destino:</span><span class="factura-value">${selectedDestination.name.split(',')[0]}</span></div>
+            <div class="factura-row"><span class="factura-label">Servicio:</span><span class="factura-value">${selectedServiceType === 'acarreo' ? 'Con Acarreo' : 'Puesta Afuera'}</span></div>
+            <div class="factura-row"><span class="factura-label">Peso aprox:</span><span class="factura-value">${pendingMoveData.weight} kg</span></div>
+        `;
+
         document.getElementById('facturaTotal').textContent = '₡' + price.toLocaleString();
         openModal('facturaModal');
     };
