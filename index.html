@@ -75,7 +75,7 @@
         .detail-item { background: #222; padding: 10px; border-radius: 6px; border: 1px solid #333; }
         .detail-label { color: #888; font-size: 11px; margin-bottom: 4px; }
         
-        /* NUEVOS ESTILOS PARA V3 */
+        /* ESTILOS PARA V3 */
         .factura-box { background: #fff; color: #000; padding: 20px; border-radius: 8px; font-family: 'Courier New', Courier, monospace; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         .factura-header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
         .factura-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 12px; }
@@ -86,8 +86,9 @@
         .clickable-row { cursor: pointer; transition: background 0.2s; }
         .clickable-row:hover { background: #2a2a2a; }
         
-        /* ESTILOS PARA OFERTAS CON CONFIRMACIÓN */
-        .oferta-card { background: #2a2a2a; border: 1px solid #00d4ff33; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+        /* ESTILOS PARA OFERTAS */
+        .oferta-card { background: #2a2a2a; border: 1px solid #00d4ff33; border-radius: 8px; padding: 12px; margin-bottom: 10px; cursor: pointer; transition: all 0.3s ease; }
+        .oferta-card:hover { border-color: #00d4ff; background: #3a3a3a; }
         .oferta-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .oferta-monto { color: #4ade80; font-weight: bold; font-size: 14px; }
         .oferta-codigo { background: #000; padding: 4px 8px; border-radius: 4px; color: #00d4ff; font-size: 11px; font-weight: bold; }
@@ -112,7 +113,7 @@
         .sinpe-upload-required { font-size: 11px; color: #f59e0b; font-weight: bold; }
         .sinpe-preview { width: 100%; max-width: 200px; border-radius: 6px; margin-top: 10px; border: 1px solid #00d4ff; }
         
-        /* ESTILOS PARA HISTORIAL MEJORADO */
+        /* ESTILOS PARA HISTORIAL */
         .historial-item { background: #222; padding: 12px; border-radius: 6px; border-left: 3px solid #00d4ff; margin-bottom: 10px; }
         .historial-item.completed { border-left-color: #4ade80; }
         .historial-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
@@ -192,19 +193,7 @@
                 </div>
             </div>
 
-            <!-- FACTURA CON COMPROBANTE SINPE -->
-            <div class="form-group">
-                <label style="color:#f59e0b; font-weight:bold;">📸 Comprobante de Pago SINPE (Requerido)</label>
-                <div class="sinpe-upload-area" id="sinpeUploadArea">
-                    <div class="sinpe-upload-icon"><i class="fas fa-receipt"></i></div>
-                    <div class="sinpe-upload-text">Sube la foto del comprobante SINPE</div>
-                    <div class="sinpe-upload-required">Número: 7228-4602</div>
-                    <input type="file" id="sinpePhotoInput" accept="image/*" style="display:none;">
-                </div>
-                <div id="sinpePreviewContainer" style="text-align:center;"></div>
-            </div>
-
-            <button class="btn" id="requestTransportBtn">Solicitar Transporte</button>
+            <button class="btn" id="searchTransportBtn">Buscar Transportistas</button>
             <div id="clientJobsList" style="margin-top:20px;"></div>
         </div>
 
@@ -220,7 +209,7 @@
                 <button class="tab-btn" data-tab="history">Historial</button>
             </div>
 
-            <!-- TAB: OFERTAS CON CONFIRMACIÓN -->
+            <!-- TAB: OFERTAS -->
             <div id="offersTab" class="tab-content active">
                 <div id="jobsTab"></div>
             </div>
@@ -279,6 +268,15 @@
     </div>
 </div>
 
+<!-- MODAL: SELECCIONAR TRANSPORTISTA -->
+<div class="modal" id="selectTransporterModal">
+    <div class="modal-content">
+        <button class="modal-close" data-close="selectTransporterModal"><i class="fas fa-times"></i></button>
+        <div class="modal-header">🚗 Selecciona un Transportista</div>
+        <div id="transportersList"></div>
+    </div>
+</div>
+
 <!-- MODAL: FACTURA DEL CLIENTE -->
 <div class="modal" id="invoiceModal">
     <div class="modal-content">
@@ -302,101 +300,27 @@
             <div class="factura-row"><strong>Comprobante SINPE:</strong> <span id="invoiceSINPE">7228-4602</span></div>
             <div class="factura-total">TOTAL: ₡<span id="invoiceTotal">0</span></div>
         </div>
-    </div>
-</div>
 
-<!-- MODAL: DETALLES DE OFERTA -->
-<div class="modal" id="offerDetailModal">
-    <div class="modal-content">
-        <button class="modal-close" data-close="offerDetailModal"><i class="fas fa-times"></i></button>
-        <div class="modal-header">🎯 Detalles de Oferta</div>
-        
-        <div style="margin-bottom:15px;">
-            <label style="color:#aaa; font-size:12px;">Información del Transportista</label>
-            <div class="transportista-info-grid">
-                <div class="transportista-info-item">
-                    <div class="transportista-info-label">Nombre</div>
-                    <div class="transportista-info-value" id="offerTransporterName">-</div>
-                </div>
-                <div class="transportista-info-item">
-                    <div class="transportista-info-label">Placa del Vehículo</div>
-                    <div class="transportista-info-value" id="offerTransporterPlate">-</div>
-                </div>
-                <div class="transportista-info-item">
-                    <div class="transportista-info-label">Cédula</div>
-                    <div class="transportista-info-value" id="offerTransporterID">-</div>
-                </div>
-                <div class="transportista-info-item">
-                    <div class="transportista-info-label">Teléfono</div>
-                    <div class="transportista-info-value" id="offerTransporterPhone">-</div>
-                </div>
+        <!-- COMPROBANTE SINPE -->
+        <div style="margin-top:20px; border-top:1px solid #444; padding-top:20px;">
+            <label style="color:#f59e0b; font-weight:bold; display:block; margin-bottom:10px;">📸 Comprobante de Pago SINPE (Requerido)</label>
+            <div class="sinpe-upload-area" id="sinpeUploadArea">
+                <div class="sinpe-upload-icon"><i class="fas fa-receipt"></i></div>
+                <div class="sinpe-upload-text">Sube la foto del comprobante SINPE</div>
+                <div class="sinpe-upload-required">Número: 7228-4602</div>
+                <input type="file" id="sinpePhotoInput" accept="image/*" style="display:none;">
             </div>
+            <div id="sinpePreviewContainer" style="text-align:center;"></div>
         </div>
 
-        <div style="margin-bottom:15px;">
-            <label style="color:#aaa; font-size:12px;">Oferta Vigente</label>
-            <div class="oferta-card">
-                <div class="oferta-header">
-                    <span class="oferta-monto">₡<span id="offerAmount">0</span></span>
-                    <span class="oferta-codigo" id="offerCode">-</span>
-                </div>
-                <div class="oferta-detalles">
-                    <div class="oferta-detalle-item">
-                        <i class="fas fa-calendar"></i>
-                        <span id="offerDate">-</span>
-                    </div>
-                    <div class="oferta-detalle-item">
-                        <i class="fas fa-clock"></i>
-                        <span id="offerTime">-</span>
-                    </div>
-                    <div class="oferta-detalle-item">
-                        <i class="fas fa-user"></i>
-                        <span id="offerClientName">-</span>
-                    </div>
-                    <div class="oferta-detalle-item">
-                        <i class="fas fa-phone"></i>
-                        <span id="offerClientPhone">-</span>
-                    </div>
-                </div>
-            </div>
+        <!-- CÓDIGO DE VERIFICACIÓN -->
+        <div style="margin-top:20px; border-top:1px solid #444; padding-top:20px;">
+            <label style="color:#aaa; font-size:12px; margin-bottom:8px; display:block;">Código de Verificación</label>
+            <input type="text" id="verificationCodeInput" class="access-code-input" placeholder="Ingresa el código de verificación" maxlength="6">
+            <div style="font-size:11px; color:#aaa; margin-bottom:15px;">Se envió un código de verificación a tu email</div>
         </div>
 
-        <div style="margin-bottom:15px;">
-            <label style="color:#aaa; font-size:12px;">Ruta de Transporte</label>
-            <div style="background:#222; padding:10px; border-radius:6px; border:1px solid #333; font-size:12px;">
-                <div style="margin-bottom:8px;"><strong>Origen:</strong> <span id="offerOriginDetail">-</span></div>
-                <div><strong>Destino:</strong> <span id="offerDestinationDetail">-</span></div>
-            </div>
-        </div>
-
-        <button class="btn" id="acceptOfferBtn">Aceptar Oferta</button>
-    </div>
-</div>
-
-<!-- MODAL: FINALIZACIÓN CON CÓDIGO DE ACCESO -->
-<div class="modal" id="finishAccessModal">
-    <div class="modal-content">
-        <button class="modal-close" data-close="finishAccessModal"><i class="fas fa-times"></i></button>
-        <div class="modal-header">🔐 Código de Acceso para Finalizar</div>
-        
-        <div class="alert-box alert-info">
-            <i class="fas fa-info-circle"></i>
-            <span>Ingresa el código de acceso proporcionado por el cliente para confirmar la finalización del servicio.</span>
-        </div>
-
-        <div style="margin-bottom:15px;">
-            <label style="color:#aaa; font-size:12px; margin-bottom:8px; display:block;">Código de Acceso</label>
-            <input type="text" id="accessCodeInput" class="access-code-input" placeholder="Ingresa el código" maxlength="6">
-        </div>
-
-        <div style="background:#222; padding:12px; border-radius:6px; border:1px solid #333; margin-bottom:15px; font-size:12px;">
-            <div style="margin-bottom:8px;"><strong>Cliente:</strong> <span id="finishClientName">-</span></div>
-            <div style="margin-bottom:8px;"><strong>Monto:</strong> <span id="finishAmount" style="color:#4ade80; font-weight:bold;">₡0</span></div>
-            <div><strong>Código Confirmación:</strong> <span id="finishConfirmCode" style="color:#00d4ff; font-weight:bold;">-</span></div>
-        </div>
-
-        <button class="btn" id="submitAccessCodeBtn">Verificar y Finalizar</button>
-        <button class="btn btn-secondary" onclick="closeModal('finishAccessModal')">Cancelar</button>
+        <button class="btn" id="confirmInvoiceBtn">Confirmar y Finalizar</button>
     </div>
 </div>
 
@@ -440,6 +364,33 @@
     </div>
 </div>
 
+<!-- MODAL: FINALIZACIÓN CON CÓDIGO DE ACCESO (TRANSPORTISTA) -->
+<div class="modal" id="finishAccessModal">
+    <div class="modal-content">
+        <button class="modal-close" data-close="finishAccessModal"><i class="fas fa-times"></i></button>
+        <div class="modal-header">🔐 Código de Acceso para Finalizar</div>
+        
+        <div class="alert-box alert-info">
+            <i class="fas fa-info-circle"></i>
+            <span>Ingresa el código de acceso proporcionado por el cliente para confirmar la finalización del servicio.</span>
+        </div>
+
+        <div style="margin-bottom:15px;">
+            <label style="color:#aaa; font-size:12px; margin-bottom:8px; display:block;">Código de Acceso</label>
+            <input type="text" id="accessCodeInput" class="access-code-input" placeholder="Ingresa el código" maxlength="6">
+        </div>
+
+        <div style="background:#222; padding:12px; border-radius:6px; border:1px solid #333; margin-bottom:15px; font-size:12px;">
+            <div style="margin-bottom:8px;"><strong>Cliente:</strong> <span id="finishClientName">-</span></div>
+            <div style="margin-bottom:8px;"><strong>Monto:</strong> <span id="finishAmount" style="color:#4ade80; font-weight:bold;">₡0</span></div>
+            <div><strong>Código Confirmación:</strong> <span id="finishConfirmCode" style="color:#00d4ff; font-weight:bold;">-</span></div>
+        </div>
+
+        <button class="btn" id="submitAccessCodeBtn">Verificar y Finalizar</button>
+        <button class="btn btn-secondary" onclick="closeModal('finishAccessModal')">Cancelar</button>
+    </div>
+</div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
 
@@ -450,7 +401,9 @@
     let currentMove = null;
     let selectedOrigin = null;
     let selectedDestination = null;
+    let selectedTransporter = null;
     let selectedSINPEPhoto = null;
+    let routingControl = null;
 
     // DATOS DE TRANSPORTISTAS (SIMULADOS)
     const transporters = [
@@ -534,14 +487,84 @@
         }
 
         if (selectedOrigin && selectedDestination) {
-            L.marker([selectedOrigin.lat, selectedOrigin.lng]).addTo(map).bindPopup('Origen');
-            L.marker([selectedDestination.lat, selectedDestination.lng]).addTo(map).bindPopup('Destino');
-            L.polyline([[selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]], {color: '#00d4ff', weight: 3}).addTo(map);
-            map.fitBounds([[selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]]);
+            drawRoute();
+            map.fitBounds([[selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]], { padding: [50, 50] });
         }
 
         document.getElementById('originSuggestions').classList.remove('active');
         document.getElementById('destinationSuggestions').classList.remove('active');
+    };
+
+    // DIBUJAR RUTA POR CARRETERAS PRINCIPALES
+    const drawRoute = () => {
+        if (routingControl) map.removeControl(routingControl);
+        routingControl = L.Routing.control({
+            waypoints: [L.latLng(selectedOrigin.lat, selectedOrigin.lng), L.latLng(selectedDestination.lat, selectedDestination.lng)],
+            show: false,
+            lineOptions: { styles: [{ color: '#00d4ff', opacity: 0.8, weight: 4 }] },
+            createMarker: () => null,
+            addWaypoints: false,
+            draggableWaypoints: false,
+            fitSelectedRoutes: true
+        }).addTo(map);
+    };
+
+    // BUSCAR TRANSPORTISTAS
+    document.getElementById('searchTransportBtn').addEventListener('click', () => {
+        if (!selectedOrigin || !selectedDestination) {
+            alert('Por favor selecciona origen y destino');
+            return;
+        }
+
+        const transportersHTML = transporters.map(t => `
+            <div class="oferta-card" onclick="selectTransporter(${t.id}, '${t.name}', '${t.plate}', '${t.license}', ${Math.floor(Math.random() * 50000) + 15000})">
+                <div class="oferta-header">
+                    <span style="font-weight:600;">${t.name}</span>
+                    <span class="oferta-monto">₡${(Math.floor(Math.random() * 50000) + 15000).toLocaleString()}</span>
+                </div>
+                <div class="oferta-detalles">
+                    <div class="oferta-detalle-item">
+                        <i class="fas fa-car"></i>
+                        <span>${t.plate}</span>
+                    </div>
+                    <div class="oferta-detalle-item">
+                        <i class="fas fa-id-card"></i>
+                        <span>${t.license}</span>
+                    </div>
+                    <div class="oferta-detalle-item">
+                        <i class="fas fa-phone"></i>
+                        <span>${t.phone}</span>
+                    </div>
+                    <div class="oferta-detalle-item">
+                        <i class="fas fa-star"></i>
+                        <span>4.8★</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        document.getElementById('transportersList').innerHTML = transportersHTML;
+        openModal('selectTransporterModal');
+    });
+
+    window.selectTransporter = (id, name, plate, license, price) => {
+        selectedTransporter = { id, name, plate, license, price };
+        closeModal('selectTransporterModal');
+        
+        // Mostrar factura
+        document.getElementById('invoiceClient').textContent = currentUser.name;
+        document.getElementById('invoicePhone').textContent = '8765-1234';
+        document.getElementById('invoiceOrigin').textContent = selectedOrigin.name.split(',')[0];
+        document.getElementById('invoiceDestination').textContent = selectedDestination.name.split(',')[0];
+        document.getElementById('invoiceTransporter').textContent = name;
+        document.getElementById('invoicePlate').textContent = plate;
+        document.getElementById('invoiceTransporterID').textContent = license;
+        document.getElementById('invoiceDate').textContent = new Date().toLocaleDateString();
+        document.getElementById('invoiceTime').textContent = new Date().toLocaleTimeString();
+        document.getElementById('invoiceCode').textContent = 'CONF-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+        document.getElementById('invoiceTotal').textContent = price.toLocaleString();
+        
+        openModal('invoiceModal');
     };
 
     // MANEJO DE COMPROBANTE SINPE
@@ -565,6 +588,35 @@
             };
             reader.readAsDataURL(file);
         }
+    });
+
+    // CONFIRMAR FACTURA
+    document.getElementById('confirmInvoiceBtn').addEventListener('click', () => {
+        const sinpePhoto = document.getElementById('sinpePhotoInput').value;
+        const verificationCode = document.getElementById('verificationCodeInput').value;
+
+        if (!sinpePhoto) {
+            alert('Por favor carga el comprobante SINPE');
+            return;
+        }
+        if (!verificationCode || verificationCode.length < 4) {
+            alert('Por favor ingresa un código de verificación válido');
+            return;
+        }
+
+        alert('✓ Mudanza solicitada correctamente. Espera la confirmación del transportista.');
+        closeModal('invoiceModal');
+        
+        // Limpiar
+        selectedOrigin = null;
+        selectedDestination = null;
+        selectedTransporter = null;
+        selectedSINPEPhoto = null;
+        document.getElementById('originSearch').value = '';
+        document.getElementById('destinationSearch').value = '';
+        document.getElementById('sinpePhotoInput').value = '';
+        document.getElementById('verificationCodeInput').value = '';
+        if (routingControl) map.removeControl(routingControl);
     });
 
     // AUTENTICACIÓN
@@ -601,99 +653,8 @@
         });
     });
 
-    // SOLICITAR TRANSPORTE (CLIENTE)
-    document.getElementById('requestTransportBtn').addEventListener('click', () => {
-        if (!selectedOrigin || !selectedDestination) {
-            alert('Por favor selecciona origen y destino');
-            return;
-        }
-        if (!selectedSINPEPhoto) {
-            alert('Por favor carga el comprobante SINPE (requerido)');
-            return;
-        }
-
-        const code = Math.random().toString(36).substr(2, 6).toUpperCase();
-        const move = {
-            id: Math.random().toString(36).substr(2, 9),
-            client: currentUser.name,
-            clientEmail: currentUser.email,
-            clientPhone: '8765-1234',
-            origin: selectedOrigin,
-            destination: selectedDestination,
-            price: Math.floor(Math.random() * 50000) + 15000,
-            date: new Date().toLocaleDateString(),
-            hour: new Date().toLocaleTimeString(),
-            code,
-            status: 'pending',
-            transporterId: null,
-            transporter: null,
-            sinpePhoto: selectedSINPEPhoto.name
-        };
-
-        // MOSTRAR OFERTAS DE TRANSPORTISTAS
-        const offersHTML = transporters.map(t => `
-            <div class="oferta-card" onclick="viewOfferDetail('${move.id}', ${t.id})">
-                <div class="oferta-header">
-                    <span class="oferta-monto">₡${move.price.toLocaleString()}</span>
-                    <span class="oferta-codigo">${code}</span>
-                </div>
-                <div class="oferta-detalles">
-                    <div class="oferta-detalle-item">
-                        <i class="fas fa-user"></i>
-                        <span>${t.name}</span>
-                    </div>
-                    <div class="oferta-detalle-item">
-                        <i class="fas fa-car"></i>
-                        <span>${t.plate}</span>
-                    </div>
-                    <div class="oferta-detalle-item">
-                        <i class="fas fa-id-card"></i>
-                        <span>${t.license}</span>
-                    </div>
-                    <div class="oferta-detalle-item">
-                        <i class="fas fa-phone"></i>
-                        <span>${t.phone}</span>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-
-        document.getElementById('clientJobsList').innerHTML = `
-            <div style="margin-top:20px;">
-                <label style="color:#aaa; font-size:12px; margin-bottom:10px; display:block;">Ofertas Disponibles</label>
-                ${offersHTML}
-            </div>
-        `;
-
-        selectedOrigin = null;
-        selectedDestination = null;
-        selectedSINPEPhoto = null;
-        document.getElementById('sinpePhotoInput').value = '';
-        document.getElementById('sinpePreviewContainer').innerHTML = '';
-    });
-
-    window.viewOfferDetail = (moveId, transporterId) => {
-        const transporter = transporters.find(t => t.id === transporterId);
-        
-        document.getElementById('offerTransporterName').textContent = transporter.name;
-        document.getElementById('offerTransporterPlate').textContent = transporter.plate;
-        document.getElementById('offerTransporterID').textContent = transporter.license;
-        document.getElementById('offerTransporterPhone').textContent = transporter.phone;
-        document.getElementById('offerAmount').textContent = '45000'; // Ejemplo
-        document.getElementById('offerCode').textContent = 'CONF-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-        document.getElementById('offerDate').textContent = new Date().toLocaleDateString();
-        document.getElementById('offerTime').textContent = new Date().toLocaleTimeString();
-        document.getElementById('offerClientName').textContent = currentUser.name;
-        document.getElementById('offerClientPhone').textContent = '8765-1234';
-        document.getElementById('offerOriginDetail').textContent = 'San José, Costa Rica';
-        document.getElementById('offerDestinationDetail').textContent = 'Alajuela, Costa Rica';
-
-        openModal('offerDetailModal');
-    };
-
     // TRANSPORTISTA: ESCUCHAR TRABAJOS
     const listenToJobs = () => {
-        // Simulación de trabajos disponibles
         const jobsHTML = transporters.slice(0, 2).map((t, i) => `
             <div class="uber-job-card">
                 <div style="display:flex; justify-content:space-between;">
