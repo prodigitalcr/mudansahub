@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <style>
         /* ESTILOS ORIGINALES Y NUEVOS */
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -73,7 +75,10 @@
         #gpsView.active { display: flex; }
         .gps-header { background: #1a1a1a; padding: 15px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
         .gps-map { flex: 1; width: 100%; }
-        .gps-instructions { background: #fff; padding: 20px; border-top: 1px solid #333; font-size: 16px; font-weight: bold; color: #000; text-align: center; }
+        .gps-instructions { background: #fff; padding: 20px; border-top: 1px solid #333; font-size: 16px; font-weight: bold; color: #000; text-align: center; box-shadow: 0 -5px 15px rgba(0,0,0,0.2); }
+        .leaflet-routing-container { background: white !important; color: black !important; padding: 10px; border-radius: 8px; font-size: 12px; max-height: 200px; overflow-y: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .leaflet-routing-alt h2, .leaflet-routing-alt h3 { color: black !important; }
+        .leaflet-routing-instruction-text { color: black !important; }
         
         /* EDICIÓN DE PERFILES */
         .edit-input { width: 100%; padding: 8px; background: #333; border: 1px solid #444; border-radius: 4px; color: #fff; font-size: 12px; margin-bottom: 10px; }
@@ -289,8 +294,17 @@
                 <button class="tab-btn" data-tab="docs">Documentación</button>
             </div>
             <div id="movesTab" class="tab-content active">
+                <div style="display:flex; gap:10px; margin-bottom:15px; align-items:center; flex-wrap:wrap;">
+                    <div style="flex:1; min-width:200px;">
+                        <label style="font-size:11px; color:#888; display:block; margin-bottom:4px;">Filtrar por Día</label>
+                        <input type="date" id="movesDateFilter" class="search-input" style="padding:8px;">
+                    </div>
+                    <button class="btn btn-sm" id="exportMovesPdfBtn" style="background:#ff4b4b; color:#fff; margin-top:15px;">
+                        <i class="fas fa-file-pdf"></i> Exportar a PDF
+                    </button>
+                </div>
                 <div style="overflow-x:auto;">
-                    <table class="admin-table">
+                    <table class="admin-table" id="adminMovesTable">
                         <thead><tr><th>ID</th><th>Cliente</th><th>Socio</th><th>Fecha</th><th>Hora</th><th>Total</th><th>Comisión (20%)</th><th>Estado</th></tr></thead>
                         <tbody id="movesTableBody"></tbody>
                     </table>
@@ -929,18 +943,25 @@
             tbody.innerHTML = '';
             let totalSales = 0, totalComm = 0, companyRegal = 0, partnersRegal = 0;
             const selectedMonth = document.getElementById('financeCalendar').value; // YYYY-MM
+            const selectedDay = document.getElementById('movesDateFilter').value; // YYYY-MM-DD
 
             if(data) {
                 Object.keys(data).forEach(key => {
                     const m = data[key];
                     const comm = m.price * 0.2;
                     const net = m.price * 0.8;
+                    
+                    const moveDate = new Date(m.timestamp);
+                    const moveMonth = `${moveDate.getFullYear()}-${String(moveDate.getMonth()+1).padStart(2,'0')}`;
+                    const moveDay = moveDate.toISOString().split('T')[0];
+
+                    // Filtro para tabla de mudanzas (Día)
+                    if (selectedDay && moveDay !== selectedDay) return;
+
                     totalSales += m.price;
                     totalComm += comm;
 
-                    const moveDate = new Date(m.timestamp);
-                    const moveMonth = `${moveDate.getFullYear()}-${String(moveDate.getMonth()+1).padStart(2,'0')}`;
-
+                    // Filtro para finanzas (Mes)
                     if (!selectedMonth || moveMonth === selectedMonth) {
                         if (m.status === 'completed') {
                             companyRegal += comm;
@@ -966,6 +987,29 @@
     };
 
     document.getElementById('financeCalendar').addEventListener('change', listenToAdmin);
+    document.getElementById('movesDateFilter').addEventListener('change', listenToAdmin);
+
+    document.getElementById('exportMovesPdfBtn').addEventListener('click', () => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        doc.setFontSize(18);
+        doc.text('Reporte de Mudanzas - MudanzasHub CR', 14, 20);
+        doc.setFontSize(11);
+        doc.text(`Fecha de reporte: ${new Date().toLocaleString()}`, 14, 30);
+        
+        const table = document.getElementById('adminMovesTable');
+        doc.autoTable({
+            html: '#adminMovesTable',
+            startY: 40,
+            theme: 'grid',
+            headStyles: { fillColor: [0, 212, 255], textColor: [0, 0, 0] },
+            styles: { fontSize: 8 }
+        });
+        
+        doc.save(`Reporte_Mudanzas_${new Date().toISOString().split('T')[0]}.pdf`);
+    });
+
 
     // LÓGICA GPS NAVEGACIÓN EN VIVO
     const startGpsNavigation = (moveId) => {
