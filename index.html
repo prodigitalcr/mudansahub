@@ -147,6 +147,7 @@
             </div>
 
             <button class="btn" id="searchTransportersBtn">Ver Ofertas Disponibles</button>
+            
             <div id="transportistasList" style="margin-top:20px;"></div>
         </div>
 
@@ -258,6 +259,7 @@
     let routingControl = null;
     let activeNavMove = null;
     let pendingMoveData = null;
+    let searchTimeout = null;
 
     const vehicleMultipliers = { pickup: 1, camion: 1.8, buseta: 1.4 };
     const transporters = [
@@ -300,7 +302,7 @@
 
     document.querySelectorAll('.logoutBtn').forEach(btn => btn.addEventListener('click', () => location.reload()));
 
-    // LÓGICA DE BÚSQUEDA ROBUSTA
+    // LÓGICA DE BÚSQUEDA ROBUSTA (TIEMPO REAL CON DEBOUNCE)
     const searchLocations = async (query, type) => {
         if (query.length < 3) {
             document.getElementById(type + 'Suggestions').classList.remove('active');
@@ -328,8 +330,13 @@
         }
     };
 
-    document.getElementById('originSearch').addEventListener('input', (e) => searchLocations(e.target.value, 'origin'));
-    document.getElementById('destinationSearch').addEventListener('input', (e) => searchLocations(e.target.value, 'destination'));
+    const handleSearchInput = (e, type) => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => searchLocations(e.target.value, type), 400);
+    };
+
+    document.getElementById('originSearch').addEventListener('input', (e) => handleSearchInput(e, 'origin'));
+    document.getElementById('destinationSearch').addEventListener('input', (e) => handleSearchInput(e, 'destination'));
 
     // GESTIÓN DE CLICS EN SUGERENCIAS (DELEGACIÓN DE EVENTOS)
     document.addEventListener('click', (e) => {
@@ -355,8 +362,14 @@
             if (markers.destination) map.removeLayer(markers.destination);
             markers.destination = L.marker([lat, lon], { icon: L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] }) }).addTo(map).bindPopup('Destino');
         }
+        
         document.querySelectorAll('.search-suggestions').forEach(s => s.classList.remove('active'));
-        if (selectedOrigin && selectedDestination) drawRoute();
+        
+        if (selectedOrigin && selectedDestination) {
+            drawRoute();
+        } else {
+            map.setView([lat, lon], 14);
+        }
     };
 
     const drawRoute = () => {
@@ -370,7 +383,10 @@
             draggableWaypoints: false,
             fitSelectedRoutes: true
         }).addTo(map);
-        map.fitBounds([[selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]], { padding: [50, 50] });
+        
+        // Ajustar vista para mostrar ambos puntos
+        const bounds = L.latLngBounds([selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]);
+        map.fitBounds(bounds, { padding: [50, 50] });
     };
 
     // SELECTORES DE VEHÍCULO Y SERVICIO
