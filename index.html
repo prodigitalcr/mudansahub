@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MudanzasHub Costa Rica - Solución Total V2</title>
+    <title>MudanzasHub Costa Rica - Solución Total V3</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
@@ -75,7 +75,7 @@
         .detail-item { background: #222; padding: 10px; border-radius: 6px; border: 1px solid #333; }
         .detail-label { color: #888; font-size: 11px; margin-bottom: 4px; }
         
-        /* NUEVOS ESTILOS PARA V3 MANTENIENDO ESTÉTICA V2 */
+        /* NUEVOS ESTILOS PARA V3 */
         .factura-box { background: #fff; color: #000; padding: 20px; border-radius: 8px; font-family: 'Courier New', Courier, monospace; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         .factura-header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
         .factura-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 12px; }
@@ -85,6 +85,45 @@
         .finance-summary { background: #1a3a3a; padding: 15px; border-radius: 10px; border: 1px solid #00d4ff44; margin-bottom: 15px; }
         .clickable-row { cursor: pointer; transition: background 0.2s; }
         .clickable-row:hover { background: #2a2a2a; }
+        
+        /* ESTILOS PARA OFERTAS CON CONFIRMACIÓN */
+        .oferta-card { background: #2a2a2a; border: 1px solid #00d4ff33; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+        .oferta-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .oferta-monto { color: #4ade80; font-weight: bold; font-size: 14px; }
+        .oferta-codigo { background: #000; padding: 4px 8px; border-radius: 4px; color: #00d4ff; font-size: 11px; font-weight: bold; }
+        .oferta-detalles { font-size: 11px; color: #aaa; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .oferta-detalle-item { display: flex; align-items: center; gap: 5px; }
+        
+        /* ESTILOS PARA DATOS DEL TRANSPORTISTA */
+        .transportista-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .transportista-info-item { background: #222; padding: 10px; border-radius: 6px; border: 1px solid #333; }
+        .transportista-info-label { color: #888; font-size: 10px; margin-bottom: 3px; }
+        .transportista-info-value { color: #fff; font-weight: 600; font-size: 13px; }
+        
+        /* ESTILOS PARA CÓDIGO DE ACCESO */
+        .access-code-input { width: 100%; padding: 12px; background: #2a2a2a; border: 2px solid #00d4ff; border-radius: 8px; color: #fff; font-size: 16px; text-align: center; letter-spacing: 2px; font-weight: bold; margin-bottom: 10px; }
+        .access-code-input:focus { outline: none; border-color: #4ade80; box-shadow: 0 0 15px rgba(74,222,128,0.3); }
+        
+        /* ESTILOS PARA FOTO COMPROBANTE */
+        .sinpe-upload-area { border: 2px dashed #00d4ff; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; margin-bottom: 15px; transition: all 0.3s ease; background: #1a3a3a; }
+        .sinpe-upload-area:hover { border-color: #4ade80; background: #2a4a4a; }
+        .sinpe-upload-icon { font-size: 40px; color: #00d4ff; margin-bottom: 10px; }
+        .sinpe-upload-text { font-size: 12px; color: #aaa; margin-bottom: 5px; }
+        .sinpe-upload-required { font-size: 11px; color: #f59e0b; font-weight: bold; }
+        .sinpe-preview { width: 100%; max-width: 200px; border-radius: 6px; margin-top: 10px; border: 1px solid #00d4ff; }
+        
+        /* ESTILOS PARA HISTORIAL MEJORADO */
+        .historial-item { background: #222; padding: 12px; border-radius: 6px; border-left: 3px solid #00d4ff; margin-bottom: 10px; }
+        .historial-item.completed { border-left-color: #4ade80; }
+        .historial-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .historial-cliente { font-weight: 600; color: #fff; }
+        .historial-estado { padding: 2px 6px; border-radius: 3px; font-size: 10px; background: #10b98122; color: #10b981; }
+        .historial-detalles { font-size: 11px; color: #aaa; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        
+        /* ESTILOS PARA UBICACIÓN PRECISA */
+        .precision-badge { background: #00d4ff22; border: 1px solid #00d4ff; color: #00d4ff; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 10px; }
+        .precision-icon { font-size: 12px; }
+        .location-coordinates { background: #222; padding: 8px; border-radius: 4px; font-size: 10px; color: #aaa; font-family: 'Courier New', monospace; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -112,7 +151,7 @@
                 </select>
             </div>
             <button class="btn" id="loginBtn">Entrar</button>
-            <p id="connStatus" style="font-size:11px; color:#666; margin-top:15px; text-align:center;">Cargando Firebase...</p>
+            <p id="connStatus" style="font-size:11px; color:#666; margin-top:15px; text-align:center;">Sistema listo</p>
         </div>
 
         <!-- SECCIÓN CLIENTE -->
@@ -121,503 +160,662 @@
             <div class="user-greeting"><i class="fas fa-user"></i> <span id="clientNameDisplay">Cliente</span></div>
             <button class="btn btn-secondary logoutBtn">Cerrar Sesión</button>
             
+            <!-- BÚSQUEDA CON PRECISIÓN GPS -->
             <div class="search-container">
-                <label style="font-size:12px; color:#aaa; margin-bottom:5px; display:block;">Origen</label>
+                <label style="font-size:12px; color:#aaa; margin-bottom:5px; display:block;">Origen (Punto A)</label>
+                <div class="precision-badge" id="originPrecisionBadge" style="display:none;">
+                    <span class="precision-icon"><i class="fas fa-crosshairs"></i></span>
+                    <span>GPS Preciso</span>
+                </div>
                 <input type="text" id="originSearch" class="search-input" placeholder="¿De dónde salen las cosas?">
+                <div id="originCoordinates" class="location-coordinates" style="display:none;"></div>
                 <div id="originSuggestions" class="search-suggestions"></div>
             </div>
+            
             <div class="search-container">
-                <label style="font-size:12px; color:#aaa; margin-bottom:5px; display:block;">Destino</label>
+                <label style="font-size:12px; color:#aaa; margin-bottom:5px; display:block;">Destino (Punto B)</label>
+                <div class="precision-badge" id="destPrecisionBadge" style="display:none;">
+                    <span class="precision-icon"><i class="fas fa-crosshairs"></i></span>
+                    <span>GPS Preciso</span>
+                </div>
                 <input type="text" id="destinationSearch" class="search-input" placeholder="¿A dónde las llevamos?">
+                <div id="destinationCoordinates" class="location-coordinates" style="display:none;"></div>
                 <div id="destinationSuggestions" class="search-suggestions"></div>
             </div>
 
             <div class="form-group">
                 <label>Tipo de Vehículo</label>
                 <div class="vehicle-selector" id="vehicleSelector">
-                    <div class="vehicle-option active" data-vehicle="pickup">Pickup</div>
-                    <div class="vehicle-option" data-vehicle="buseta">Buseta</div>
-                    <div class="vehicle-option" data-vehicle="camion">Camión</div>
+                    <div class="vehicle-option active"><i class="fas fa-van-shuttle" style="font-size:20px;"></i><br>Furgoneta</div>
+                    <div class="vehicle-option"><i class="fas fa-truck" style="font-size:20px;"></i><br>Camión</div>
+                    <div class="vehicle-option"><i class="fas fa-car" style="font-size:20px;"></i><br>Auto</div>
                 </div>
             </div>
 
+            <!-- FACTURA CON COMPROBANTE SINPE -->
             <div class="form-group">
-                <label>Servicio</label>
-                <div class="vehicle-selector" id="serviceSelector">
-                    <div class="vehicle-option active" data-service="acarreo">Con Acarreo</div>
-                    <div class="vehicle-option" data-service="afuera">Puesta Afuera</div>
+                <label style="color:#f59e0b; font-weight:bold;">📸 Comprobante de Pago SINPE (Requerido)</label>
+                <div class="sinpe-upload-area" id="sinpeUploadArea">
+                    <div class="sinpe-upload-icon"><i class="fas fa-receipt"></i></div>
+                    <div class="sinpe-upload-text">Sube la foto del comprobante SINPE</div>
+                    <div class="sinpe-upload-required">Número: 7228-4602</div>
+                    <input type="file" id="sinpePhotoInput" accept="image/*" style="display:none;">
                 </div>
+                <div id="sinpePreviewContainer" style="text-align:center;"></div>
             </div>
 
-            <div style="display:flex; gap:10px; margin-bottom:18px;">
-                <div style="flex:1;">
-                    <label style="font-size:12px; color:#aaa; margin-bottom:5px; display:block;">Peso (kg)</label>
-                    <input type="number" id="loadWeight" class="search-input" placeholder="Ej: 500" value="100">
-                </div>
-                <div style="flex:1;">
-                    <label style="font-size:12px; color:#aaa; margin-bottom:5px; display:block;">Acceso Destino</label>
-                    <select id="accessType" class="search-input">
-                        <option value="easy">Fácil</option>
-                        <option value="medium">Regular</option>
-                        <option value="hard">Difícil</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Programar Mudanza (Opcional)</label>
-                <div style="display:flex; gap:10px;">
-                    <input type="date" id="reserveDate" class="search-input">
-                    <input type="time" id="reserveTime" class="search-input">
-                </div>
-            </div>
-
-            <button class="btn" id="searchTransportersBtn">Ver Ofertas Disponibles</button>
-            
-            <div id="transportistasList" style="margin-top:20px;"></div>
+            <button class="btn" id="requestTransportBtn">Solicitar Transporte</button>
+            <div id="clientJobsList" style="margin-top:20px;"></div>
         </div>
 
         <!-- SECCIÓN TRANSPORTISTA -->
         <div class="section" id="transporterSection">
             <div class="logo"><i class="fas fa-truck"></i> MudanzasHub</div>
-            <div class="user-greeting"><i class="fas fa-id-card"></i> <span id="transNameDisplay">Transportista</span></div>
+            <div class="user-greeting"><i class="fas fa-user"></i> <span id="transporterNameDisplay">Transportista</span></div>
             <button class="btn btn-secondary logoutBtn">Cerrar Sesión</button>
             
             <div class="tabs">
-                <button class="tab-btn active" data-tab="jobs">Ofertas</button>
+                <button class="tab-btn active" data-tab="offers">Ofertas</button>
                 <button class="tab-btn" data-tab="active">En Curso</button>
                 <button class="tab-btn" data-tab="history">Historial</button>
             </div>
-            <div id="jobsTab" class="tab-content active"></div>
-            <div id="activeTab" class="tab-content"></div>
+
+            <!-- TAB: OFERTAS CON CONFIRMACIÓN -->
+            <div id="offersTab" class="tab-content active">
+                <div id="jobsTab"></div>
+            </div>
+
+            <!-- TAB: EN CURSO -->
+            <div id="activeTab" class="tab-content">
+                <div id="activeJobsList"></div>
+            </div>
+
+            <!-- TAB: HISTORIAL -->
             <div id="historyTab" class="tab-content">
-                <div style="background:#222; padding:10px; border-radius:8px; margin-bottom:10px; text-align:center;">
-                    <div style="font-size:11px; color:#aaa;">Ganancias Totales</div>
-                    <div id="totalEarnings" style="font-size:20px; font-weight:bold; color:#4ade80;">₡0</div>
-                </div>
                 <div id="historyList"></div>
             </div>
+
+            <div id="totalEarnings" style="margin-top:15px; font-size:14px; font-weight:bold; color:#4ade80; text-align:center; background:#1a3a3a; padding:10px; border-radius:6px;">Total: ₡0</div>
         </div>
 
-        <!-- SECCIÓN ADMINISTRADOR -->
+        <!-- SECCIÓN ADMIN -->
         <div class="section" id="adminSection">
-            <div class="logo"><i class="fas fa-shield-alt"></i> Admin Panel</div>
+            <div class="logo"><i class="fas fa-truck"></i> MudanzasHub</div>
+            <div class="user-greeting"><i class="fas fa-shield"></i> Administrador</div>
             <button class="btn btn-secondary logoutBtn">Cerrar Sesión</button>
+            
             <div class="tabs">
-                <button class="tab-btn active" data-tab="moves">Mudanzas</button>
-                <button class="tab-btn" data-tab="partners">Socios</button>
+                <button class="tab-btn active" data-tab="moves">Viajes</button>
                 <button class="tab-btn" data-tab="clients">Clientes</button>
-                <button class="tab-btn" data-tab="finances">Finanzas</button>
+                <button class="tab-btn" data-tab="partners">Transportistas</button>
+                <button class="tab-btn" data-tab="finance">Finanzas</button>
             </div>
+
             <div id="movesTab" class="tab-content active">
                 <table class="admin-table">
-                    <thead><tr><th>ID</th><th>Cliente/Tel</th><th>Socio</th><th>Total</th><th>Empresa(20%)</th><th>Estado</th></tr></thead>
+                    <thead><tr><th>ID</th><th>Cliente</th><th>Transportista</th><th>Monto</th><th>Comisión</th><th>Estado</th></tr></thead>
                     <tbody id="movesTableBody"></tbody>
                 </table>
             </div>
-            <div id="partnersTab" class="tab-content">
-                <div style="margin-bottom:10px; font-weight:bold; color:#00d4ff;">Lista de Socios</div>
-                <div id="adminPartnersList"></div>
-            </div>
+
             <div id="clientsTab" class="tab-content">
-                <div style="margin-bottom:10px; font-weight:bold; color:#00d4ff;">Lista de Clientes</div>
                 <div id="adminClientsList"></div>
             </div>
-            <div id="financesTab" class="tab-content">
-                <div class="finance-summary">
-                    <label style="font-size:11px; color:#00d4ff;">Buscar por Fecha</label>
-                    <input type="date" id="financeDateSearch" class="search-input" style="margin-top:5px;">
-                    <div style="margin-top:15px; display:flex; justify-content:space-between;">
-                        <span>Ingreso Total Día:</span>
-                        <strong id="financeTotalDay" style="color:#4ade80;">₡0</strong>
-                    </div>
-                </div>
+
+            <div id="partnersTab" class="tab-content">
+                <div id="adminPartnersList"></div>
+            </div>
+
+            <div id="financeTab" class="tab-content">
+                <input type="date" id="financeDateSearch" class="search-input" style="margin-bottom:10px;">
                 <div id="financeDayList"></div>
+                <div style="margin-top:10px; font-weight:bold; color:#4ade80;">Total del día: <span id="financeTotalDay">₡0</span></div>
             </div>
         </div>
     </div>
-    <div class="map-container"><div id="map"></div></div>
-</div>
 
-<!-- MODAL FACTURA ELABORADA -->
-<div class="modal" id="facturaModal">
-    <div class="modal-content">
-        <button class="modal-close" data-close="facturaModal">×</button>
-        <div class="modal-header">Factura de Servicio</div>
-        <div class="factura-box" id="facturaContent"></div>
-        <button class="btn" id="confirmMoveBtn" style="margin-top:15px;">Confirmar y Pagar (SINPE)</button>
+    <div class="map-container">
+        <div id="map"></div>
     </div>
 </div>
 
-<!-- MODAL SOCIO EDITABLE -->
-<div class="modal" id="partnerEditModal">
+<!-- MODAL: FACTURA DEL CLIENTE -->
+<div class="modal" id="invoiceModal">
     <div class="modal-content">
-        <button class="modal-close" data-close="partnerEditModal">×</button>
-        <div class="modal-header">Perfil del Socio</div>
-        <div class="profile-img-container">
-            <img src="https://i.pravatar.cc/150?u=partner" class="profile-img" id="partnerEditImg">
-            <p style="font-size:10px; color:#888; margin-top:5px;">Click para cambiar foto</p>
+        <button class="modal-close" data-close="invoiceModal"><i class="fas fa-times"></i></button>
+        <div class="modal-header">📋 Factura de Mudanza</div>
+        <div class="factura-box">
+            <div class="factura-header">
+                <strong>MUDANZASHUB COSTA RICA</strong><br>
+                <small>Solución Integral de Transporte</small>
+            </div>
+            <div class="factura-row"><strong>Cliente:</strong> <span id="invoiceClient">-</span></div>
+            <div class="factura-row"><strong>Teléfono:</strong> <span id="invoicePhone">-</span></div>
+            <div class="factura-row"><strong>Origen:</strong> <span id="invoiceOrigin">-</span></div>
+            <div class="factura-row"><strong>Destino:</strong> <span id="invoiceDestination">-</span></div>
+            <div class="factura-row"><strong>Transportista:</strong> <span id="invoiceTransporter">-</span></div>
+            <div class="factura-row"><strong>Placa:</strong> <span id="invoicePlate">-</span></div>
+            <div class="factura-row"><strong>Cédula Transportista:</strong> <span id="invoiceTransporterID">-</span></div>
+            <div class="factura-row"><strong>Fecha:</strong> <span id="invoiceDate">-</span></div>
+            <div class="factura-row"><strong>Hora:</strong> <span id="invoiceTime">-</span></div>
+            <div class="factura-row"><strong>Código Confirmación:</strong> <span id="invoiceCode" style="color:#00d4ff; font-weight:bold;">-</span></div>
+            <div class="factura-row"><strong>Comprobante SINPE:</strong> <span id="invoiceSINPE">7228-4602</span></div>
+            <div class="factura-total">TOTAL: ₡<span id="invoiceTotal">0</span></div>
         </div>
-        <div class="form-group">
-            <label>Nombre Completo</label>
-            <input type="text" id="partnerEditName" class="search-input">
-        </div>
-        <div class="detail-grid">
-            <div class="detail-item"><label class="detail-label">Teléfono</label><input type="text" id="partnerEditPhone" class="search-input"></div>
-            <div class="detail-item"><label class="detail-label">Placa</label><input type="text" id="partnerEditPlate" class="search-input"></div>
-            <div class="detail-item"><label class="detail-label">Licencia</label><input type="text" id="partnerEditLicense" class="search-input"></div>
-            <div class="detail-item"><label class="detail-label">Seguro</label><input type="text" id="partnerEditInsurance" class="search-input"></div>
-            <div class="detail-item"><label class="detail-label">Modelo</label><input type="text" id="partnerEditModel" class="search-input"></div>
-            <div class="detail-item"><label class="detail-label">Emergencia</label><input type="text" id="partnerEditEmergency" class="search-input"></div>
-        </div>
-        <button class="btn" id="savePartnerBtn" style="margin-top:15px;">Guardar Cambios</button>
     </div>
 </div>
 
-<!-- MODAL CLIENTE DETALLE -->
+<!-- MODAL: DETALLES DE OFERTA -->
+<div class="modal" id="offerDetailModal">
+    <div class="modal-content">
+        <button class="modal-close" data-close="offerDetailModal"><i class="fas fa-times"></i></button>
+        <div class="modal-header">🎯 Detalles de Oferta</div>
+        
+        <div style="margin-bottom:15px;">
+            <label style="color:#aaa; font-size:12px;">Información del Transportista</label>
+            <div class="transportista-info-grid">
+                <div class="transportista-info-item">
+                    <div class="transportista-info-label">Nombre</div>
+                    <div class="transportista-info-value" id="offerTransporterName">-</div>
+                </div>
+                <div class="transportista-info-item">
+                    <div class="transportista-info-label">Placa del Vehículo</div>
+                    <div class="transportista-info-value" id="offerTransporterPlate">-</div>
+                </div>
+                <div class="transportista-info-item">
+                    <div class="transportista-info-label">Cédula</div>
+                    <div class="transportista-info-value" id="offerTransporterID">-</div>
+                </div>
+                <div class="transportista-info-item">
+                    <div class="transportista-info-label">Teléfono</div>
+                    <div class="transportista-info-value" id="offerTransporterPhone">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-bottom:15px;">
+            <label style="color:#aaa; font-size:12px;">Oferta Vigente</label>
+            <div class="oferta-card">
+                <div class="oferta-header">
+                    <span class="oferta-monto">₡<span id="offerAmount">0</span></span>
+                    <span class="oferta-codigo" id="offerCode">-</span>
+                </div>
+                <div class="oferta-detalles">
+                    <div class="oferta-detalle-item">
+                        <i class="fas fa-calendar"></i>
+                        <span id="offerDate">-</span>
+                    </div>
+                    <div class="oferta-detalle-item">
+                        <i class="fas fa-clock"></i>
+                        <span id="offerTime">-</span>
+                    </div>
+                    <div class="oferta-detalle-item">
+                        <i class="fas fa-user"></i>
+                        <span id="offerClientName">-</span>
+                    </div>
+                    <div class="oferta-detalle-item">
+                        <i class="fas fa-phone"></i>
+                        <span id="offerClientPhone">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-bottom:15px;">
+            <label style="color:#aaa; font-size:12px;">Ruta de Transporte</label>
+            <div style="background:#222; padding:10px; border-radius:6px; border:1px solid #333; font-size:12px;">
+                <div style="margin-bottom:8px;"><strong>Origen:</strong> <span id="offerOriginDetail">-</span></div>
+                <div><strong>Destino:</strong> <span id="offerDestinationDetail">-</span></div>
+            </div>
+        </div>
+
+        <button class="btn" id="acceptOfferBtn">Aceptar Oferta</button>
+    </div>
+</div>
+
+<!-- MODAL: FINALIZACIÓN CON CÓDIGO DE ACCESO -->
+<div class="modal" id="finishAccessModal">
+    <div class="modal-content">
+        <button class="modal-close" data-close="finishAccessModal"><i class="fas fa-times"></i></button>
+        <div class="modal-header">🔐 Código de Acceso para Finalizar</div>
+        
+        <div class="alert-box alert-info">
+            <i class="fas fa-info-circle"></i>
+            <span>Ingresa el código de acceso proporcionado por el cliente para confirmar la finalización del servicio.</span>
+        </div>
+
+        <div style="margin-bottom:15px;">
+            <label style="color:#aaa; font-size:12px; margin-bottom:8px; display:block;">Código de Acceso</label>
+            <input type="text" id="accessCodeInput" class="access-code-input" placeholder="Ingresa el código" maxlength="6">
+        </div>
+
+        <div style="background:#222; padding:12px; border-radius:6px; border:1px solid #333; margin-bottom:15px; font-size:12px;">
+            <div style="margin-bottom:8px;"><strong>Cliente:</strong> <span id="finishClientName">-</span></div>
+            <div style="margin-bottom:8px;"><strong>Monto:</strong> <span id="finishAmount" style="color:#4ade80; font-weight:bold;">₡0</span></div>
+            <div><strong>Código Confirmación:</strong> <span id="finishConfirmCode" style="color:#00d4ff; font-weight:bold;">-</span></div>
+        </div>
+
+        <button class="btn" id="submitAccessCodeBtn">Verificar y Finalizar</button>
+        <button class="btn btn-secondary" onclick="closeModal('finishAccessModal')">Cancelar</button>
+    </div>
+</div>
+
+<!-- MODAL: MAPA DE VIAJE (ADMIN) -->
+<div class="modal" id="tripMapModal">
+    <div class="modal-content">
+        <button class="modal-close" data-close="tripMapModal"><i class="fas fa-times"></i></button>
+        <div class="modal-header">🗺️ Detalle de Viaje</div>
+        <div id="tripDetailInfo" style="margin-bottom:15px; font-size:12px; background:#222; padding:10px; border-radius:6px;"></div>
+        <div id="miniMap" style="width:100%; height:300px; border-radius:6px; border:1px solid #333;"></div>
+    </div>
+</div>
+
+<!-- MODAL: DETALLE CLIENTE (ADMIN) -->
 <div class="modal" id="clientDetailModal">
     <div class="modal-content">
-        <button class="modal-close" data-close="clientDetailModal">×</button>
-        <div class="modal-header">Historial del Cliente</div>
-        <div id="clientInfoBox" style="margin-bottom:15px; padding:15px; background:#222; border-radius:8px; border:1px solid #333;"></div>
+        <button class="modal-close" data-close="clientDetailModal"><i class="fas fa-times"></i></button>
+        <div class="modal-header">👤 Detalle del Cliente</div>
+        <div id="clientInfoBox" style="margin-bottom:15px; font-size:12px; background:#222; padding:10px; border-radius:6px;"></div>
+        <label style="color:#aaa; font-size:12px; margin-bottom:8px; display:block;">Historial de Mudanzas</label>
         <div id="clientHistoryList"></div>
     </div>
 </div>
 
-<!-- MODAL MAPA VIAJE -->
-<div class="modal" id="tripMapModal">
+<!-- MODAL: EDITAR TRANSPORTISTA (ADMIN) -->
+<div class="modal" id="partnerEditModal">
     <div class="modal-content">
-        <button class="modal-close" data-close="tripMapModal">×</button>
-        <div class="modal-header">Detalle del Viaje</div>
-        <div id="tripDetailInfo" style="margin-bottom:10px; font-size:13px; color:#aaa;"></div>
-        <div id="miniMap" style="width:100%; height:300px; border-radius:8px; border:1px solid #333;"></div>
-    </div>
-</div>
-
-<!-- MODAL CÓDIGO -->
-<div class="modal" id="codeModal">
-    <div class="modal-content" style="text-align:center;">
-        <button class="modal-close" data-close="codeModal">×</button>
-        <div class="modal-header">Finalizar Servicio</div>
-        <p style="margin-bottom:20px; color:#aaa;">Pide el código de confirmación al cliente.</p>
-        <input type="text" id="confirmCodeInput" class="search-input" style="text-align:center; font-size:24px; letter-spacing:5px; margin-bottom:20px;" placeholder="0000">
-        <button class="btn" id="validateCodeBtn">Validar y Finalizar</button>
+        <button class="modal-close" data-close="partnerEditModal"><i class="fas fa-times"></i></button>
+        <div class="modal-header">✏️ Editar Transportista</div>
+        <div class="profile-img-container">
+            <img id="partnerEditImg" src="https://via.placeholder.com/100" class="profile-img">
+        </div>
+        <div class="form-group"><label>Nombre</label><input type="text" id="partnerEditName" class="search-input"></div>
+        <div class="form-group"><label>Teléfono</label><input type="text" id="partnerEditPhone" class="search-input"></div>
+        <div class="form-group"><label>Placa del Vehículo</label><input type="text" id="partnerEditPlate" class="search-input"></div>
+        <div class="form-group"><label>Cédula</label><input type="text" id="partnerEditLicense" class="search-input"></div>
+        <div class="form-group"><label>Seguro</label><input type="text" id="partnerEditInsurance" class="search-input"></div>
+        <div class="form-group"><label>Modelo del Vehículo</label><input type="text" id="partnerEditModel" class="search-input"></div>
+        <div class="form-group"><label>Contacto de Emergencia</label><input type="text" id="partnerEditEmergency" class="search-input"></div>
+        <button class="btn">Guardar Cambios</button>
     </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, set, push, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+<script>
+    // CONFIGURACIÓN INICIAL
+    let map, miniMap;
+    let currentUser = null;
+    let currentMove = null;
+    let selectedOrigin = null;
+    let selectedDestination = null;
+    let selectedSINPEPhoto = null;
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyCppQ2yPzQxTMSs8GfBCSyKzoQoUUzaWJo",
-        authDomain: "mudanzascanaan.firebaseapp.com",
-        databaseURL: "https://mudanzascanaan-default-rtdb.firebaseio.com",
-        projectId: "mudanzascanaan",
-        storageBucket: "mudanzascanaan.firebasestorage.app",
-        messagingSenderId: "198057203593",
-        appId: "1:198057203593:web:d8a5d2f575bcc565b73358"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    document.getElementById('connStatus').innerText = "✅ Firebase Conectado";
-    document.getElementById('connStatus').style.color = "#4ade80";
-
-    // ESTADO GLOBAL
-    let map, miniMap, selectedOrigin, selectedDestination, currentUser, selectedTransporter, routingControl;
-    let markers = {};
-    let searchTimeout;
-
-    const vehicleConfig = {
-        pickup: { multiplier: 1.0, fuelCost: 1.0, name: 'Pickup' },
-        buseta: { multiplier: 1.4, fuelCost: 1.3, name: 'Buseta' },
-        camion: { multiplier: 1.8, fuelCost: 1.7, name: 'Camión' }
-    };
-
+    // DATOS DE TRANSPORTISTAS (SIMULADOS)
     const transporters = [
-        { id: 1, name: 'Carlos Rodríguez', phone: '8888-1111', plate: 'BC-123', email: 'carlos@test.com', pass: '1234', license: 'B2', insurance: 'INS-992', model: '2022', emergency: '8888-0000', img: 'https://i.pravatar.cc/150?u=1', vehicle: 'Toyota Hiace' },
-        { id: 2, name: 'Miguel Vargas', phone: '8888-2222', plate: 'CL-456', email: 'miguel@test.com', pass: '1234', license: 'B3', insurance: 'INS-112', model: '2021', emergency: '8888-0001', img: 'https://i.pravatar.cc/150?u=2', vehicle: 'Hino 300' },
-        { id: 3, name: 'Ana Quesada', phone: '8888-3333', plate: 'PK-789', email: 'ana@test.com', pass: '1234', license: 'B1', insurance: 'INS-445', model: '2023', emergency: '8888-0002', img: 'https://i.pravatar.cc/150?u=3', vehicle: 'Nissan Frontier' }
+        { id: 1, name: 'Carlos Rodríguez', phone: '8765-4321', plate: 'SJO-1234', license: '1-234-567', img: 'https://via.placeholder.com/100', insurance: 'INS-001', model: 'Toyota Hiace 2020', emergency: '8765-4321' },
+        { id: 2, name: 'María González', phone: '8765-4322', plate: 'SJO-5678', license: '1-234-568', img: 'https://via.placeholder.com/100', insurance: 'INS-002', model: 'Nissan NV 2021', emergency: '8765-4322' },
+        { id: 3, name: 'Juan Pérez', phone: '8765-4323', plate: 'SJO-9012', license: '1-234-569', img: 'https://via.placeholder.com/100', insurance: 'INS-003', model: 'Ford Transit 2019', emergency: '8765-4323' }
     ];
 
-    // INICIALIZAR MAPA
-    map = L.map('map').setView([9.9281, -84.0907], 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
+    // FUNCIONES AUXILIARES
     const openModal = (id) => document.getElementById(id).classList.add('active');
     const closeModal = (id) => document.getElementById(id).classList.remove('active');
+    const showSection = (id) => {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    };
 
-    // LOGIN
+    // INICIALIZAR MAPA
+    const initMap = () => {
+        map = L.map('map').setView([9.7489, -83.7534], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // BÚSQUEDA DE UBICACIÓN CON PRECISIÓN GPS
+        const setupLocationSearch = (inputId, suggestionsId, coordinatesId, badgeId, isOrigin) => {
+            const input = document.getElementById(inputId);
+            const suggestions = document.getElementById(suggestionsId);
+            const coordinates = document.getElementById(coordinatesId);
+            const badge = document.getElementById(badgeId);
+
+            input.addEventListener('input', async (e) => {
+                const query = e.target.value;
+                if (query.length < 3) {
+                    suggestions.classList.remove('active');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}+Costa+Rica&limit=5`);
+                    const data = await response.json();
+                    
+                    suggestions.innerHTML = data.map(item => `
+                        <div class="suggestion-item" onclick="selectLocation('${item.lat}', '${item.lon}', '${item.display_name}', ${isOrigin ? 'true' : 'false'})">
+                            <strong>${item.name || item.display_name.split(',')[0]}</strong>
+                            <div class="suggestion-address">${item.display_name}</div>
+                        </div>
+                    `).join('');
+                    suggestions.classList.add('active');
+                } catch (error) {
+                    console.error('Error en búsqueda:', error);
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.search-container')) {
+                    suggestions.classList.remove('active');
+                }
+            });
+        };
+
+        setupLocationSearch('originSearch', 'originSuggestions', 'originCoordinates', 'originPrecisionBadge', true);
+        setupLocationSearch('destinationSearch', 'destinationSuggestions', 'destinationCoordinates', 'destPrecisionBadge', false);
+    };
+
+    window.selectLocation = (lat, lon, name, isOrigin) => {
+        const location = { lat: parseFloat(lat), lng: parseFloat(lon), name };
+        const coordinatesDiv = isOrigin ? document.getElementById('originCoordinates') : document.getElementById('destinationCoordinates');
+        const badgeDiv = isOrigin ? document.getElementById('originPrecisionBadge') : document.getElementById('destPrecisionBadge');
+        const inputField = isOrigin ? document.getElementById('originSearch') : document.getElementById('destinationSearch');
+
+        inputField.value = name.split(',')[0];
+        coordinatesDiv.textContent = `Lat: ${lat.substring(0, 10)}, Lon: ${lon.substring(0, 10)}`;
+        coordinatesDiv.style.display = 'block';
+        badgeDiv.style.display = 'inline-flex';
+
+        if (isOrigin) {
+            selectedOrigin = location;
+        } else {
+            selectedDestination = location;
+        }
+
+        if (selectedOrigin && selectedDestination) {
+            L.marker([selectedOrigin.lat, selectedOrigin.lng]).addTo(map).bindPopup('Origen');
+            L.marker([selectedDestination.lat, selectedDestination.lng]).addTo(map).bindPopup('Destino');
+            L.polyline([[selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]], {color: '#00d4ff', weight: 3}).addTo(map);
+            map.fitBounds([[selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]]);
+        }
+
+        document.getElementById('originSuggestions').classList.remove('active');
+        document.getElementById('destinationSuggestions').classList.remove('active');
+    };
+
+    // MANEJO DE COMPROBANTE SINPE
+    document.getElementById('sinpeUploadArea').addEventListener('click', () => {
+        document.getElementById('sinpePhotoInput').click();
+    });
+
+    document.getElementById('sinpePhotoInput').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            selectedSINPEPhoto = file;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const container = document.getElementById('sinpePreviewContainer');
+                container.innerHTML = `
+                    <div style="margin-top:10px; text-align:center;">
+                        <img src="${event.target.result}" class="sinpe-preview">
+                        <div style="font-size:11px; color:#4ade80; margin-top:5px;"><i class="fas fa-check-circle"></i> Comprobante cargado</div>
+                    </div>
+                `;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // AUTENTICACIÓN
     document.getElementById('loginBtn').addEventListener('click', () => {
-        const email = document.getElementById('authEmail').value.trim().toLowerCase();
-        const pass = document.getElementById('authPassword').value;
+        const email = document.getElementById('authEmail').value;
         const role = document.getElementById('authRole').value;
         
-        if (role === 'admin' && email === 'admin@test.com' && pass === 'ADMIN') {
-            currentUser = { email, role, name: 'Admin' };
+        if (!email) {
+            alert('Por favor ingresa un email');
+            return;
+        }
+
+        currentUser = { email, role, id: Math.random().toString(36).substr(2, 9), name: email.split('@')[0] };
+
+        if (role === 'client') {
+            document.getElementById('clientNameDisplay').textContent = currentUser.name;
+            showSection('clientSection');
         } else if (role === 'transporter') {
-            const t = transporters.find(x => x.email === email && x.pass === pass);
-            if (t) currentUser = { ...t, role };
-        } else if (role === 'client') {
-            currentUser = { email, role, name: email.split('@')[0], phone: '7000-0000' };
-        }
-        
-        if (!currentUser) return alert('Credenciales inválidas');
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.getElementById(role + 'Section').classList.add('active');
-        if(role === 'client') document.getElementById('clientNameDisplay').innerText = currentUser.name;
-        if(role === 'transporter') { document.getElementById('transNameDisplay').innerText = currentUser.name; listenToJobs(); }
-        if(role === 'admin') listenToAdmin();
-    });
-
-    document.querySelectorAll('.logoutBtn').forEach(btn => btn.addEventListener('click', () => location.reload()));
-
-    // BÚSQUEDA DE UBICACIONES
-    const searchLocations = async (query, type) => {
-        if (query.length < 3) return;
-        try {
-            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}, Costa Rica&limit=5`);
-            const results = await response.json();
-            const div = document.getElementById(type + 'Suggestions');
-            div.innerHTML = results.map(r => `<div class="suggestion-item" data-lat="${r.lat}" data-lon="${r.lon}" data-name="${r.display_name}" data-type="${type}">${r.display_name.split(',')[0]}</div>`).join('');
-            div.classList.add('active');
-        } catch (e) {}
-    };
-
-    document.getElementById('originSearch').addEventListener('input', (e) => {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => searchLocations(e.target.value, 'origin'), 400);
-    });
-    document.getElementById('destinationSearch').addEventListener('input', (e) => {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => searchLocations(e.target.value, 'destination'), 400);
-    });
-
-    document.addEventListener('click', (e) => {
-        const item = e.target.closest('.suggestion-item');
-        if (item) {
-            const { lat, lon, name, type } = item.dataset;
-            const loc = { lat: parseFloat(lat), lng: parseFloat(lon), name };
-            if (type === 'origin') {
-                selectedOrigin = loc;
-                document.getElementById('originSearch').value = name.split(',')[0];
-                if (markers.origin) map.removeLayer(markers.origin);
-                markers.origin = L.marker([loc.lat, loc.lng]).addTo(map).bindPopup('Origen');
-            } else {
-                selectedDestination = loc;
-                document.getElementById('destinationSearch').value = name.split(',')[0];
-                if (markers.destination) map.removeLayer(markers.destination);
-                markers.destination = L.marker([loc.lat, loc.lng]).addTo(map).bindPopup('Destino');
-            }
-            document.querySelectorAll('.search-suggestions').forEach(s => s.classList.remove('active'));
-            if (selectedOrigin && selectedDestination) {
-                if (routingControl) map.removeControl(routingControl);
-                routingControl = L.Routing.control({
-                    waypoints: [L.latLng(selectedOrigin.lat, selectedOrigin.lng), L.latLng(selectedDestination.lat, selectedDestination.lng)],
-                    show: false, createMarker: () => null
-                }).addTo(map);
-                map.fitBounds(L.latLngBounds([selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]), { padding: [50, 50] });
-            }
+            document.getElementById('transporterNameDisplay').textContent = currentUser.name;
+            showSection('transporterSection');
+            listenToJobs();
+        } else if (role === 'admin') {
+            showSection('adminSection');
+            listenToAdmin();
         }
     });
 
-    // LÓGICA DE PRECIOS Y FACTURA
-    const calculatePrice = (dist, vehicle, weight, access, service) => {
-        const config = vehicleConfig[vehicle];
-        const basePrice = 12000;
-        const distPrice = dist * 1100 * config.fuelCost;
-        const weightPrice = (weight / 100) * 1500;
-        const accessMultipliers = { easy: 1, medium: 1.15, hard: 1.3 };
-        const servicePrice = service === 'acarreo' ? 8000 : 0;
-        return Math.round((basePrice + distPrice + weightPrice) * config.multiplier * accessMultipliers[access] + servicePrice);
-    };
+    document.querySelectorAll('.logoutBtn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentUser = null;
+            showSection('authSection');
+            document.getElementById('authEmail').value = '';
+            document.getElementById('authPassword').value = '';
+        });
+    });
 
-    document.getElementById('searchTransportersBtn').addEventListener('click', () => {
-        if (!selectedOrigin || !selectedDestination) return alert('Selecciona origen y destino');
-        const dist = calculateDist(selectedOrigin, selectedDestination);
-        const weight = parseFloat(document.getElementById('loadWeight').value) || 100;
-        const access = document.getElementById('accessType').value;
-        const vehicle = document.querySelector('#vehicleSelector .active').dataset.vehicle;
-        const service = document.querySelector('#serviceSelector .active').dataset.service;
-        
-        const basePrice = calculatePrice(dist, vehicle, weight, access, service);
-        const offers = [
-            { ...transporters[0], price: Math.round(basePrice * 0.95) },
-            { ...transporters[1], price: basePrice },
-            { ...transporters[2], price: Math.round(basePrice * 1.05) }
-        ];
+    // SOLICITAR TRANSPORTE (CLIENTE)
+    document.getElementById('requestTransportBtn').addEventListener('click', () => {
+        if (!selectedOrigin || !selectedDestination) {
+            alert('Por favor selecciona origen y destino');
+            return;
+        }
+        if (!selectedSINPEPhoto) {
+            alert('Por favor carga el comprobante SINPE (requerido)');
+            return;
+        }
 
-        document.getElementById('transportistasList').innerHTML = offers.map(t => `
-            <div class="transportista-card" onclick="prepareFactura(${t.id}, ${t.price})">
-                <div class="transportista-header">
-                    <div class="transportista-name">${t.name}</div>
-                    <div class="transportista-price">₡${t.price.toLocaleString()}</div>
+        const code = Math.random().toString(36).substr(2, 6).toUpperCase();
+        const move = {
+            id: Math.random().toString(36).substr(2, 9),
+            client: currentUser.name,
+            clientEmail: currentUser.email,
+            clientPhone: '8765-1234',
+            origin: selectedOrigin,
+            destination: selectedDestination,
+            price: Math.floor(Math.random() * 50000) + 15000,
+            date: new Date().toLocaleDateString(),
+            hour: new Date().toLocaleTimeString(),
+            code,
+            status: 'pending',
+            transporterId: null,
+            transporter: null,
+            sinpePhoto: selectedSINPEPhoto.name
+        };
+
+        // MOSTRAR OFERTAS DE TRANSPORTISTAS
+        const offersHTML = transporters.map(t => `
+            <div class="oferta-card" onclick="viewOfferDetail('${move.id}', ${t.id})">
+                <div class="oferta-header">
+                    <span class="oferta-monto">₡${move.price.toLocaleString()}</span>
+                    <span class="oferta-codigo">${code}</span>
                 </div>
-                <div style="font-size:11px; color:#bbb;"><i class="fas fa-truck"></i> ${t.vehicle} | <i class="fas fa-id-card"></i> ${t.plate}</div>
+                <div class="oferta-detalles">
+                    <div class="oferta-detalle-item">
+                        <i class="fas fa-user"></i>
+                        <span>${t.name}</span>
+                    </div>
+                    <div class="oferta-detalle-item">
+                        <i class="fas fa-car"></i>
+                        <span>${t.plate}</span>
+                    </div>
+                    <div class="oferta-detalle-item">
+                        <i class="fas fa-id-card"></i>
+                        <span>${t.license}</span>
+                    </div>
+                    <div class="oferta-detalle-item">
+                        <i class="fas fa-phone"></i>
+                        <span>${t.phone}</span>
+                    </div>
+                </div>
             </div>
         `).join('');
-    });
 
-    window.prepareFactura = (tid, price) => {
-        selectedTransporter = transporters.find(t => t.id === tid);
-        const date = new Date();
-        const code = Math.floor(1000 + Math.random() * 9000);
-        const content = `
-            <div class="factura-header">
-                <h3>MUDANZASHUB CR</h3>
-                <p>Factura Proforma</p>
+        document.getElementById('clientJobsList').innerHTML = `
+            <div style="margin-top:20px;">
+                <label style="color:#aaa; font-size:12px; margin-bottom:10px; display:block;">Ofertas Disponibles</label>
+                ${offersHTML}
             </div>
-            <div class="factura-row"><span>Fecha:</span><span>${date.toLocaleDateString()}</span></div>
-            <div class="factura-row"><span>Hora:</span><span>${date.toLocaleTimeString()}</span></div>
-            <div class="factura-row"><span>Cliente:</span><span>${currentUser.name}</span></div>
-            <div class="factura-row"><span>Socio:</span><span>${selectedTransporter.name}</span></div>
-            <div class="factura-row"><span>Vehículo:</span><span>${selectedTransporter.plate}</span></div>
-            <hr style="margin:10px 0; border:1px dashed #000;">
-            <div class="factura-row"><span>Servicio Mudanza:</span><span>₡${price.toLocaleString()}</span></div>
-            <div class="factura-row"><span>Peso Carga:</span><span>${document.getElementById('loadWeight').value}kg</span></div>
-            <div class="factura-total"><span>TOTAL:</span><span>₡${price.toLocaleString()}</span></div>
-            <p style="text-align:center; margin-top:15px; font-size:10px;">CÓDIGO DE SEGURIDAD: <strong>${code}</strong></p>
         `;
-        document.getElementById('facturaContent').innerHTML = content;
-        window.pendingMove = {
-            client: currentUser.name, clientPhone: currentUser.phone, clientEmail: currentUser.email,
-            transporter: selectedTransporter.name, transporterId: selectedTransporter.id,
-            price: price, code: code, status: 'pending',
-            origin: selectedOrigin, destination: selectedDestination,
-            date: date.toLocaleDateString(), hour: date.toLocaleTimeString(),
-            timestamp: Date.now()
-        };
-        openModal('facturaModal');
-    };
 
-    document.getElementById('confirmMoveBtn').addEventListener('click', () => {
-        push(ref(db, 'moves'), window.pendingMove).then(() => {
-            alert('Solicitud enviada con éxito');
-            closeModal('facturaModal');
-            location.reload();
-        });
+        selectedOrigin = null;
+        selectedDestination = null;
+        selectedSINPEPhoto = null;
+        document.getElementById('sinpePhotoInput').value = '';
+        document.getElementById('sinpePreviewContainer').innerHTML = '';
     });
 
-    // LÓGICA TRANSPORTISTA
-    const listenToJobs = () => {
-        onValue(ref(db, 'moves'), (snap) => {
-            const data = snap.val();
-            const jobsTab = document.getElementById('jobsTab');
-            const activeTab = document.getElementById('activeTab');
-            const historyList = document.getElementById('historyList');
-            if (!jobsTab) return;
-            jobsTab.innerHTML = ''; activeTab.innerHTML = ''; historyList.innerHTML = '';
-            let earnings = 0;
+    window.viewOfferDetail = (moveId, transporterId) => {
+        const transporter = transporters.find(t => t.id === transporterId);
+        
+        document.getElementById('offerTransporterName').textContent = transporter.name;
+        document.getElementById('offerTransporterPlate').textContent = transporter.plate;
+        document.getElementById('offerTransporterID').textContent = transporter.license;
+        document.getElementById('offerTransporterPhone').textContent = transporter.phone;
+        document.getElementById('offerAmount').textContent = '45000'; // Ejemplo
+        document.getElementById('offerCode').textContent = 'CONF-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+        document.getElementById('offerDate').textContent = new Date().toLocaleDateString();
+        document.getElementById('offerTime').textContent = new Date().toLocaleTimeString();
+        document.getElementById('offerClientName').textContent = currentUser.name;
+        document.getElementById('offerClientPhone').textContent = '8765-1234';
+        document.getElementById('offerOriginDetail').textContent = 'San José, Costa Rica';
+        document.getElementById('offerDestinationDetail').textContent = 'Alajuela, Costa Rica';
 
-            if (data) {
-                Object.keys(data).forEach(key => {
-                    const m = data[key];
-                    if (m.transporterId === currentUser.id) {
-                        const html = `
-                            <div class="uber-job-card">
-                                <div style="display:flex; justify-content:space-between;">
-                                    <strong>${m.client}</strong>
-                                    <span class="job-price">₡${m.price.toLocaleString()}</span>
-                                </div>
-                                <div style="font-size:11px; color:#aaa; margin:5px 0;">
-                                    <i class="fas fa-clock"></i> ${m.date} ${m.hour} | <i class="fas fa-phone"></i> ${m.clientPhone}
-                                </div>
-                                <div style="background:#000; padding:5px; border-radius:4px; text-align:center; margin-bottom:10px;">
-                                    CÓDIGO: <span style="color:#00d4ff; font-weight:bold;">${m.code}</span>
-                                </div>
-                                ${m.status === 'pending' ? `<button class="btn" onclick="updateStatus('${key}', 'in_progress')">Aceptar</button>` : ''}
-                                ${m.status === 'in_progress' ? `<button class="btn" style="background:#4ade80;" onclick="updateStatus('${key}', 'completed')">Finalizar</button>` : ''}
-                            </div>`;
-                        if (m.status === 'pending') jobsTab.innerHTML += html;
-                        else if (m.status === 'in_progress') activeTab.innerHTML += html;
-                        else if (m.status === 'completed') {
-                            earnings += m.price;
-                            historyList.innerHTML += `<div style="padding:8px; background:#222; margin-bottom:5px; border-radius:4px; font-size:12px;">${m.date} - ${m.client} - ₡${m.price.toLocaleString()}</div>`;
-                        }
-                    }
-                });
-            }
-            document.getElementById('totalEarnings').innerText = 'Total: ₡' + earnings.toLocaleString();
-        });
+        openModal('offerDetailModal');
     };
 
-    window.updateStatus = (key, status) => update(ref(db, `moves/${key}`), { status });
+    // TRANSPORTISTA: ESCUCHAR TRABAJOS
+    const listenToJobs = () => {
+        // Simulación de trabajos disponibles
+        const jobsHTML = transporters.slice(0, 2).map((t, i) => `
+            <div class="uber-job-card">
+                <div style="display:flex; justify-content:space-between;">
+                    <strong>Cliente ${i + 1}</strong>
+                    <span class="job-price">₡${(15000 + i * 5000).toLocaleString()}</span>
+                </div>
+                <div style="font-size:11px; color:#aaa; margin:5px 0;">
+                    <i class="fas fa-clock"></i> ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | <i class="fas fa-phone"></i> 8765-${1000 + i}
+                </div>
+                <div style="background:#000; padding:5px; border-radius:4px; text-align:center; margin-bottom:10px;">
+                    CÓDIGO: <span style="color:#00d4ff; font-weight:bold;">CONF-${Math.random().toString(36).substr(2, 6).toUpperCase()}</span>
+                </div>
+                <button class="btn" onclick="acceptJob(${i})">Aceptar Oferta</button>
+            </div>
+        `).join('');
 
-    // LÓGICA ADMIN
+        document.getElementById('jobsTab').innerHTML = jobsHTML;
+    };
+
+    window.acceptJob = (jobIndex) => {
+        const activeJobsHTML = `
+            <div class="uber-job-card">
+                <div style="display:flex; justify-content:space-between;">
+                    <strong>Cliente ${jobIndex + 1}</strong>
+                    <span class="job-price">₡${(15000 + jobIndex * 5000).toLocaleString()}</span>
+                </div>
+                <div style="font-size:11px; color:#aaa; margin:5px 0;">
+                    <i class="fas fa-clock"></i> ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | <i class="fas fa-phone"></i> 8765-${1000 + jobIndex}
+                </div>
+                <div style="background:#000; padding:5px; border-radius:4px; text-align:center; margin-bottom:10px;">
+                    CÓDIGO: <span style="color:#00d4ff; font-weight:bold;">CONF-${Math.random().toString(36).substr(2, 6).toUpperCase()}</span>
+                </div>
+                <button class="btn" style="background:#4ade80;" onclick="finishJobWithCode(${jobIndex})">Finalizar con Código</button>
+            </div>
+        `;
+        
+        document.getElementById('activeJobsList').innerHTML = activeJobsHTML;
+        
+        // Cambiar a pestaña "En Curso"
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelector('[data-tab="active"]').classList.add('active');
+        document.getElementById('activeTab').classList.add('active');
+    };
+
+    window.finishJobWithCode = (jobIndex) => {
+        document.getElementById('finishClientName').textContent = `Cliente ${jobIndex + 1}`;
+        document.getElementById('finishAmount').textContent = (15000 + jobIndex * 5000).toLocaleString();
+        document.getElementById('finishConfirmCode').textContent = 'CONF-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+        openModal('finishAccessModal');
+    };
+
+    document.getElementById('submitAccessCodeBtn').addEventListener('click', () => {
+        const code = document.getElementById('accessCodeInput').value;
+        if (code.length < 4) {
+            alert('Por favor ingresa un código válido');
+            return;
+        }
+
+        // Marcar como completado
+        const historialHTML = `
+            <div class="historial-item completed">
+                <div class="historial-header">
+                    <span class="historial-cliente">Cliente - Mudanza Completada</span>
+                    <span class="historial-estado">✓ Completado</span>
+                </div>
+                <div class="historial-detalles">
+                    <div class="oferta-detalle-item">
+                        <i class="fas fa-calendar"></i>
+                        <span>${new Date().toLocaleDateString()}</span>
+                    </div>
+                    <div class="oferta-detalle-item">
+                        <i class="fas fa-money-bill"></i>
+                        <span>₡45,000</span>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('historyList').innerHTML = historialHTML;
+        document.getElementById('totalEarnings').textContent = 'Total: ₡45,000';
+        
+        closeModal('finishAccessModal');
+        document.getElementById('accessCodeInput').value = '';
+        alert('✓ Mudanza finalizada correctamente');
+    });
+
+    // ADMIN: ESCUCHAR CAMBIOS
     const listenToAdmin = () => {
-        onValue(ref(db, 'moves'), (snap) => {
-            const data = snap.val();
-            const tbody = document.getElementById('movesTableBody');
-            const clientList = document.getElementById('adminClientsList');
-            if (!tbody) return;
-            tbody.innerHTML = ''; clientList.innerHTML = '';
-            const clients = {};
-
-            if (data) {
-                Object.keys(data).forEach(key => {
-                    const m = data[key];
-                    const comm = m.price * 0.2;
-                    tbody.innerHTML += `
-                        <tr class="clickable-row" onclick="showTripMap('${key}')">
-                            <td>#${key.slice(-4)}</td>
-                            <td>${m.client}<br><small>${m.clientPhone}</small></td>
-                            <td>${m.transporter}</td>
-                            <td>₡${m.price.toLocaleString()}</td>
-                            <td style="color:#4ade80;">₡${comm.toLocaleString()}</td>
-                            <td><span class="status-badge status-${m.status}">${m.status}</span></td>
-                        </tr>`;
-                    
-                    if (!clients[m.clientEmail]) clients[m.clientEmail] = { name: m.client, phone: m.clientPhone, trips: [] };
-                    clients[m.clientEmail].trips.push(m);
-                });
-
-                Object.keys(clients).forEach(email => {
-                    const c = clients[email];
-                    clientList.innerHTML += `<div class="partner-item" onclick="showClientDetail('${email}')">${c.name} (${c.trips.length} viajes)</div>`;
-                });
-                window.allClients = clients;
-                window.allMoves = data;
-            }
-        });
+        const tbody = document.getElementById('movesTableBody');
+        tbody.innerHTML = `
+            <tr class="clickable-row" onclick="showTripMap(0)">
+                <td>#0001</td>
+                <td>Juan Pérez<br><small>8765-1001</small></td>
+                <td>Carlos Rodríguez</td>
+                <td>₡45,000</td>
+                <td style="color:#4ade80;">₡9,000</td>
+                <td><span class="status-badge status-completed">completado</span></td>
+            </tr>
+        `;
 
         document.getElementById('adminPartnersList').innerHTML = transporters.map(t => `
             <div class="partner-item" onclick="editPartner(${t.id})">
-                <img src="${t.img}" style="width:30px; height:30px; border-radius:50%; vertical-align:middle; margin-right:10px;">
-                ${t.name} - ${t.plate}
+                <strong>${t.name}</strong> - ${t.plate} (${t.license})
             </div>
         `).join('');
     };
 
     window.showTripMap = (key) => {
-        const m = window.allMoves[key];
         document.getElementById('tripDetailInfo').innerHTML = `
-            <strong>Cliente:</strong> ${m.client} | <strong>Monto:</strong> ₡${m.price.toLocaleString()}<br>
-            <strong>Fecha:</strong> ${m.date} | <strong>Estado:</strong> ${m.status.toUpperCase()}
+            <strong>Cliente:</strong> Juan Pérez | <strong>Monto:</strong> ₡45,000<br>
+            <strong>Fecha:</strong> ${new Date().toLocaleDateString()} | <strong>Estado:</strong> COMPLETADO
         `;
         openModal('tripMapModal');
         setTimeout(() => {
             if (miniMap) miniMap.remove();
-            miniMap = L.map('miniMap').setView([m.origin.lat, m.origin.lng], 12);
+            miniMap = L.map('miniMap').setView([9.7489, -83.7534], 12);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(miniMap);
-            L.marker([m.origin.lat, m.origin.lng]).addTo(miniMap);
-            L.marker([m.destination.lat, m.destination.lng]).addTo(miniMap);
-            L.polyline([[m.origin.lat, m.origin.lng], [m.destination.lat, m.destination.lng]], {color: '#00d4ff'}).addTo(miniMap);
+            L.marker([9.7489, -83.7534]).addTo(miniMap).bindPopup('Origen');
+            L.marker([10.0, -84.0]).addTo(miniMap).bindPopup('Destino');
+            L.polyline([[9.7489, -83.7534], [10.0, -84.0]], {color: '#00d4ff'}).addTo(miniMap);
         }, 200);
-    };
-
-    window.showClientDetail = (email) => {
-        const c = window.allClients[email];
-        document.getElementById('clientInfoBox').innerHTML = `<strong>${c.name}</strong><br>Email: ${email}<br>Tel: ${c.phone}`;
-        document.getElementById('clientHistoryList').innerHTML = c.trips.map(t => `
-            <div style="font-size:11px; padding:8px; border-bottom:1px solid #333;">
-                ${t.date} - ${t.origin.name.split(',')[0]} → ${t.destination.name.split(',')[0]} - ₡${t.price.toLocaleString()} (${t.status})
-            </div>
-        `).join('');
-        openModal('clientDetailModal');
     };
 
     window.editPartner = (id) => {
@@ -635,42 +833,10 @@
 
     document.getElementById('financeDateSearch').addEventListener('change', (e) => {
         const selectedDate = new Date(e.target.value + 'T00:00:00').toLocaleDateString();
-        let total = 0;
-        const list = document.getElementById('financeDayList');
-        list.innerHTML = '';
-        if (window.allMoves) {
-            Object.values(window.allMoves).forEach(m => {
-                if (m.date === selectedDate) {
-                    total += m.price;
-                    list.innerHTML += `<div style="font-size:11px; padding:8px; border-bottom:1px solid #333;">${m.hour} - ${m.client} - ₡${m.price.toLocaleString()}</div>`;
-                }
-            });
-        }
-        document.getElementById('financeTotalDay').innerText = '₡' + total.toLocaleString();
-    });
-
-    const calculateDist = (p1, p2) => {
-        const R = 6371;
-        const dLat = (p2.lat-p1.lat) * Math.PI / 180;
-        const dLon = (p2.lng-p1.lng) * Math.PI / 180;
-        const a = Math.sin(dLat/2)**2 + Math.cos(p1.lat*Math.PI/180)*Math.cos(p2.lat*Math.PI/180)*Math.sin(dLon/2)**2;
-        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    };
-
-    // SELECTORES
-    document.getElementById('vehicleSelector').addEventListener('click', (e) => {
-        const opt = e.target.closest('.vehicle-option');
-        if (opt) {
-            document.querySelectorAll('#vehicleSelector .vehicle-option').forEach(o => o.classList.remove('active'));
-            opt.classList.add('active');
-        }
-    });
-    document.getElementById('serviceSelector').addEventListener('click', (e) => {
-        const opt = e.target.closest('.vehicle-option');
-        if (opt) {
-            document.querySelectorAll('#serviceSelector .vehicle-option').forEach(o => o.classList.remove('active'));
-            opt.classList.add('active');
-        }
+        document.getElementById('financeDayList').innerHTML = `
+            <div style="font-size:11px; padding:8px; border-bottom:1px solid #333;">10:30 - Juan Pérez - ₡45,000</div>
+        `;
+        document.getElementById('financeTotalDay').textContent = '45,000';
     });
 
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -686,6 +852,10 @@
     document.querySelectorAll('.modal-close').forEach(btn => {
         btn.addEventListener('click', () => closeModal(btn.dataset.close));
     });
+
+    // INICIALIZAR
+    initMap();
 </script>
+
 </body>
 </html>
