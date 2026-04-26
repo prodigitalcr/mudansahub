@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MudanzasHub Costa Rica - Acceso Corregido</title>
+    <title>MudanzasHub - Solución Final</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <style>
-        /* DISEÑO ORIGINAL OFICIAL3 */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f0f0f; color: #fff; overflow: hidden; }
         .container { display: flex; height: 100vh; }
@@ -20,13 +19,8 @@
         .form-group { margin-bottom: 18px; }
         .form-group label { display: block; margin-bottom: 7px; font-size: 13px; font-weight: 600; color: #aaa; }
         .search-input { width: 100%; padding: 11px 12px; background: #2a2a2a; border: 1px solid #444; border-radius: 8px; color: #fff; font-size: 14px; }
-        .search-input:focus { outline: none; border-color: #00d4ff; box-shadow: 0 0 10px rgba(0,212,255,0.3); }
-        .btn { width: 100%; padding: 13px; background: #00d4ff; color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.3s ease; }
-        .btn:hover { background: #00b8d4; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,212,255,0.4); }
+        .btn { width: 100%; padding: 13px; background: #00d4ff; color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; }
         .btn-secondary { background: #333; color: #fff; margin-bottom: 10px; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
-        .modal.active { display: flex; }
-        .modal-content { background: #1a1a1a; border: 1px solid #444; border-radius: 12px; padding: 28px; width: 92%; max-width: 620px; max-height: 92vh; overflow-y: auto; position: relative; }
         .section { display: none; }
         .section.active { display: block !important; }
         .tabs { display: flex; background: #222; border-radius: 8px; padding: 4px; margin-bottom: 18px; }
@@ -54,7 +48,7 @@
 
 <div class="container">
     <div class="sidebar">
-        <!-- AUTH SECTION -->
+        <!-- SECCIÓN DE AUTENTICACIÓN -->
         <div class="section active" id="authSection">
             <div class="logo"><i class="fas fa-truck"></i> MudanzasHub</div>
             <h2 style="margin-bottom: 10px; color: #00d4ff;">Bienvenido</h2>
@@ -68,60 +62,56 @@
                     <option value="admin">Administrador</option>
                 </select>
             </div>
-            <button class="btn" onclick="login()">Entrar</button>
-            <p id="connStatus" style="font-size:11px; color:#666; margin-top:15px; text-align:center;">Conectando a Firebase...</p>
+            <button class="btn" onclick="window.login()">Entrar</button>
+            <p id="connStatus" style="font-size:11px; color:#666; margin-top:15px; text-align:center;">Cargando sistema...</p>
         </div>
 
-        <!-- CLIENT SECTION -->
+        <!-- SECCIÓN CLIENTE -->
         <div class="section" id="clientSection">
             <div class="logo"><i class="fas fa-truck"></i> MudanzasHub</div>
             <div class="user-greeting"><i class="fas fa-user"></i> <span id="clientNameDisplay">Cliente</span></div>
-            <button class="btn btn-secondary" onclick="logout()">Cerrar Sesión</button>
-            
+            <button class="btn btn-secondary" onclick="window.logout()">Cerrar Sesión</button>
             <div class="form-group" style="position:relative;">
                 <label>Origen</label>
-                <input type="text" id="originSearch" class="search-input" placeholder="Busca origen..." oninput="searchLoc(this.value, 'origin')">
+                <input type="text" id="originSearch" class="search-input" placeholder="Busca origen..." oninput="window.searchLoc(this.value, 'origin')">
                 <div id="originSuggestions" class="search-suggestions"></div>
             </div>
             <div class="form-group" style="position:relative;">
                 <label>Destino</label>
-                <input type="text" id="destinationSearch" class="search-input" placeholder="Busca destino..." oninput="searchLoc(this.value, 'destination')">
+                <input type="text" id="destinationSearch" class="search-input" placeholder="Busca destino..." oninput="window.searchLoc(this.value, 'destination')">
                 <div id="destinationSuggestions" class="search-suggestions"></div>
             </div>
-
             <div class="form-group">
                 <label>Vehículo</label>
                 <div class="vehicle-selector">
-                    <div class="vehicle-option active" onclick="setVehicle('pickup', this)">Pickup</div>
-                    <div class="vehicle-option" onclick="setVehicle('camion', this)">Camión</div>
-                    <div class="vehicle-option" onclick="setVehicle('buseta', this)">Buseta</div>
+                    <div class="vehicle-option active" onclick="window.setVehicle('pickup', this)">Pickup</div>
+                    <div class="vehicle-option" onclick="window.setVehicle('camion', this)">Camión</div>
+                    <div class="vehicle-option" onclick="window.setVehicle('buseta', this)">Buseta</div>
                 </div>
             </div>
-
-            <button class="btn" onclick="requestMove()">Solicitar Mudanza</button>
+            <button class="btn" onclick="window.requestMove()">Solicitar Mudanza</button>
         </div>
 
-        <!-- TRANSPORTER SECTION -->
+        <!-- SECCIÓN TRANSPORTISTA -->
         <div class="section" id="transporterSection">
             <div class="logo"><i class="fas fa-truck"></i> MudanzasHub</div>
             <div class="user-greeting"><i class="fas fa-id-card"></i> <span id="transNameDisplay">Transportista</span></div>
-            <button class="btn btn-secondary" onclick="logout()">Cerrar Sesión</button>
-            
+            <button class="btn btn-secondary" onclick="window.logout()">Cerrar Sesión</button>
             <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('jobs', this)">Ofertas</button>
-                <button class="tab-btn" onclick="switchTab('my-jobs', this)">Mis Viajes</button>
+                <button class="tab-btn active" onclick="window.switchTab('jobs', this)">Ofertas</button>
+                <button class="tab-btn" onclick="window.switchTab('my-jobs', this)">Mis Viajes</button>
             </div>
             <div id="jobsTab" class="tab-content active"></div>
             <div id="my-jobsTab" class="tab-content"></div>
         </div>
 
-        <!-- ADMIN SECTION -->
+        <!-- SECCIÓN ADMINISTRADOR -->
         <div class="section" id="adminSection">
             <div class="logo"><i class="fas fa-shield-alt"></i> Admin Panel</div>
-            <button class="btn btn-secondary" onclick="logout()">Cerrar Sesión</button>
+            <button class="btn btn-secondary" onclick="window.logout()">Cerrar Sesión</button>
             <div class="tabs">
-                <button class="tab-btn active" onclick="switchAdminTab('moves', this)">Mudanzas</button>
-                <button class="tab-btn" onclick="switchAdminTab('users', this)">Usuarios</button>
+                <button class="tab-btn active" onclick="window.switchAdminTab('moves', this)">Mudanzas</button>
+                <button class="tab-btn" onclick="window.switchAdminTab('users', this)">Usuarios</button>
             </div>
             <div id="adminMovesTab" class="tab-content active">
                 <table class="admin-table">
@@ -137,7 +127,9 @@
     <div class="map-container"><div id="map"></div></div>
 </div>
 
-<!-- FIREBASE SDK -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set, push, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -155,41 +147,31 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    document.getElementById('connStatus').innerText = "Conectado a Firebase: mudanzascanaan";
+    document.getElementById('connStatus').innerText = "Sistema Listo (Firebase Conectado)";
 
-    // VARIABLES GLOBALES
     let currentUser = null;
     let selectedOrigin = null;
     let selectedDestination = null;
     let currentVehicle = 'pickup';
     let map, routingControl;
 
-    // INICIALIZAR MAPA
+    // Inicializar Mapa
     map = L.map('map').setView([9.9281, -84.0907], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    // FUNCIONES DE NAVEGACIÓN (GLOBALES)
+    // EXPOSICIÓN GLOBAL DE FUNCIONES
     window.login = function() {
         const email = document.getElementById('authEmail').value.trim();
         const pass = document.getElementById('authPassword').value.trim();
         const role = document.getElementById('authRole').value;
         
-        // Validación simple para demo
-        if (!email || !pass) return alert('Por favor ingresa email y contraseña');
+        if (!email || !pass) return alert('Ingresa credenciales');
 
         currentUser = { email, role, name: email.split('@')[0] };
         
-        // OCULTAR TODAS LAS SECCIONES
+        // Cambio de sección
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        
-        // MOSTRAR LA SECCIÓN CORRESPONDIENTE
-        const targetSection = document.getElementById(role + 'Section');
-        if (targetSection) {
-            targetSection.classList.add('active');
-            console.log("Cambiando a sección:", role);
-        } else {
-            console.error("No se encontró la sección:", role + 'Section');
-        }
+        document.getElementById(role + 'Section').classList.add('active');
         
         if(role === 'client') document.getElementById('clientNameDisplay').innerText = currentUser.name;
         if(role === 'transporter') {
@@ -199,17 +181,14 @@
         if(role === 'admin') listenToAdmin();
     };
 
-    window.logout = function() {
-        location.reload();
-    };
+    window.logout = function() { location.reload(); };
 
-    // CLIENT LOGIC
     window.searchLoc = async function(q, type) {
         if(q.length < 3) return;
         const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${q}, Costa Rica`);
         const data = await res.json();
         const div = document.getElementById(type + 'Suggestions');
-        div.innerHTML = data.map(item => `<div class="suggestion-item" onclick="selectLoc(${item.lat}, ${item.lon}, '${item.display_name.replace(/'/g,"")}', '${type}')">${item.display_name}</div>`).join('');
+        div.innerHTML = data.map(item => `<div class="suggestion-item" onclick="window.selectLoc(${item.lat}, ${item.lon}, '${item.display_name.replace(/'/g,"")}', '${type}')">${item.display_name}</div>`).join('');
         div.classList.add('active');
     };
 
@@ -242,7 +221,6 @@
 
     window.requestMove = function() {
         if(!selectedOrigin || !selectedDestination) return alert('Selecciona origen y destino');
-        
         const moveData = {
             client: currentUser.email,
             origin: selectedOrigin,
@@ -252,36 +230,25 @@
             price: Math.floor(Math.random() * 50000) + 15000,
             timestamp: Date.now()
         };
-
-        const movesRef = ref(db, 'moves');
-        push(movesRef, moveData).then(() => {
-            alert('¡Mudanza solicitada! Los transportistas la verán en tiempo real.');
-        });
+        push(ref(db, 'moves'), moveData).then(() => alert('¡Solicitud enviada!'));
     };
 
-    // TRANSPORTER LOGIC
     function listenToJobs() {
-        const movesRef = ref(db, 'moves');
-        onValue(movesRef, (snapshot) => {
+        onValue(ref(db, 'moves'), (snapshot) => {
             const data = snapshot.val();
             const jobsDiv = document.getElementById('jobsTab');
             const myJobsDiv = document.getElementById('my-jobsTab');
             if (!jobsDiv || !myJobsDiv) return;
-            
-            jobsDiv.innerHTML = '';
-            myJobsDiv.innerHTML = '';
-
+            jobsDiv.innerHTML = ''; myJobsDiv.innerHTML = '';
             if(data) {
                 Object.keys(data).forEach(key => {
                     const move = data[key];
-                    const html = `
-                        <div style="background:#222; padding:15px; border-radius:8px; margin-bottom:10px; border-left:4px solid #00d4ff;">
-                            <p><strong>De:</strong> ${move.origin.name.split(',')[0]}</p>
-                            <p><strong>A:</strong> ${move.destination.name.split(',')[0]}</p>
-                            <p><strong>Precio:</strong> ₡${move.price.toLocaleString()}</p>
-                            ${move.status === 'pending' ? `<button class="btn btn-sm" onclick="acceptJob('${key}')" style="margin-top:10px; width:auto; padding:5px 15px;">Aceptar</button>` : `<span class="status-badge status-${move.status}">${move.status}</span>`}
-                        </div>
-                    `;
+                    const html = `<div style="background:#222; padding:15px; border-radius:8px; margin-bottom:10px; border-left:4px solid #00d4ff;">
+                        <p><strong>De:</strong> ${move.origin.name.split(',')[0]}</p>
+                        <p><strong>A:</strong> ${move.destination.name.split(',')[0]}</p>
+                        <p><strong>Precio:</strong> ₡${move.price.toLocaleString()}</p>
+                        ${move.status === 'pending' ? `<button class="btn" onclick="window.acceptJob('${key}')" style="margin-top:10px; width:auto; padding:5px 15px;">Aceptar</button>` : `<span class="status-badge status-${move.status}">${move.status}</span>`}
+                    </div>`;
                     if(move.status === 'pending') jobsDiv.innerHTML += html;
                     if(move.transporter === currentUser.email) myJobsDiv.innerHTML += html;
                 });
@@ -290,17 +257,11 @@
     }
 
     window.acceptJob = function(id) {
-        const moveRef = ref(db, `moves/${id}`);
-        update(moveRef, {
-            status: 'in_progress',
-            transporter: currentUser.email
-        });
+        update(ref(db, `moves/${id}`), { status: 'in_progress', transporter: currentUser.email });
     };
 
-    // ADMIN LOGIC
     function listenToAdmin() {
-        const movesRef = ref(db, 'moves');
-        onValue(movesRef, (snapshot) => {
+        onValue(ref(db, 'moves'), (snapshot) => {
             const data = snapshot.val();
             const list = document.getElementById('adminMovesList');
             if (!list) return;
@@ -308,20 +269,12 @@
             if(data) {
                 Object.keys(data).forEach(key => {
                     const move = data[key];
-                    list.innerHTML += `
-                        <tr>
-                            <td>#${key.slice(-4)}</td>
-                            <td>${move.client}</td>
-                            <td><span class="status-badge status-${move.status}">${move.status}</span></td>
-                            <td>₡${move.price.toLocaleString()}</td>
-                        </tr>
-                    `;
+                    list.innerHTML += `<tr><td>#${key.slice(-4)}</td><td>${move.client}</td><td><span class="status-badge status-${move.status}">${move.status}</span></td><td>₡${move.price.toLocaleString()}</td></tr>`;
                 });
             }
         });
     }
 
-    // TABS LOGIC
     window.switchTab = function(tab, el) {
         document.querySelectorAll('#transporterSection .tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('#transporterSection .tab-content').forEach(c => c.classList.remove('active'));
@@ -335,7 +288,6 @@
         el.classList.add('active');
         document.getElementById('admin' + tab.charAt(0).toUpperCase() + tab.slice(1) + 'Tab').classList.add('active');
     };
-
 </script>
 </body>
 </html>
