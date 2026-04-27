@@ -978,11 +978,15 @@
                                 </div>` : ''}
                             ${m.status === 'in_progress' && m.transporter === currentUser.id ? `
                                 <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
-                                    <a href="https://wa.me/${m.clientPhone || ''}" target="_blank" class="btn btn-whatsapp" style="text-decoration:none; text-align:center; font-size:12px; padding:10px;">
-                                        <i class="fab fa-whatsapp"></i> Llamar al Cliente
-                                    </a>
-                                    <button class="btn btn-sm shareLocBtn" style="background:#25d366; color:#fff;" data-id="${key}">
-                                        <i class="fab fa-whatsapp"></i> Compartir Ubicación
+                                    <div style="background: rgba(0,212,255,0.1); padding: 8px; border-radius: 6px; border: 1px solid #00d4ff44; margin-bottom: 5px;">
+                                        <div style="font-size: 10px; color: #00d4ff; font-weight: bold; text-transform: uppercase;">Teléfono del Cliente</div>
+                                        <div style="font-size: 16px; font-weight: bold; color: #fff;">${m.clientPhone || 'No registrado'}</div>
+                                    </div>
+                                    <button class="btn btn-whatsapp" onclick="window.open('https://wa.me/506${(m.clientPhone || '').replace(/[^0-9]/g, '')}', '_blank')" style="text-decoration:none; text-align:center; font-size:12px; padding:10px;">
+                                        <i class="fab fa-whatsapp"></i> Llamar al Cliente por WhatsApp
+                                    </button>
+                                    <button class="btn btn-sm shareLocBtn" style="background:#25d366; color:#fff; padding:10px;" data-id="${key}">
+                                        <i class="fab fa-whatsapp"></i> Compartir Ubicación por WhatsApp
                                     </button>
                                     <div style="display:flex; gap:10px;">
                                         <button class="btn btn-sm startNavBtn" data-id="${key}">Ver Ruta</button>
@@ -1383,13 +1387,53 @@
                 document.querySelector('.map-container').style.display = 'block';
             }
         }
+        if (e.target.classList.contains('viewMapBtn')) {
+            const mid = e.target.dataset.mid;
+            onValue(ref(db, `moves/${mid}`), (snap) => {
+                const m = snap.val();
+                if (m) {
+                    const mapDiv = document.getElementById('adminHistoryMap');
+                    mapDiv.style.display = 'block';
+                    mapDiv.style.height = '300px';
+                    
+                    // Inicializar o actualizar el mapa de historial
+                    if (window.adminHistMap) {
+                        window.adminHistMap.remove();
+                    }
+                    
+                    window.adminHistMap = L.map('adminHistoryMap').setView([m.origin.lat, m.origin.lng], 13);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(window.adminHistMap);
+                    
+                    L.marker([m.origin.lat, m.origin.lng]).addTo(window.adminHistMap).bindPopup('Origen: ' + m.origin.name).openPopup();
+                    L.marker([m.destination.lat, m.destination.lng]).addTo(window.adminHistMap).bindPopup('Destino: ' + m.destination.name);
+                    
+                    L.Routing.control({
+                        waypoints: [L.latLng(m.origin.lat, m.origin.lng), L.latLng(m.destination.lat, m.destination.lng)],
+                        lineOptions: { styles: [{ color: '#00d4ff', weight: 5 }] },
+                        addWaypoints: false,
+                        draggableWaypoints: false,
+                        createMarker: function() { return null; }
+                    }).addTo(window.adminHistMap);
+                    
+                    setTimeout(() => window.adminHistMap.invalidateSize(), 200);
+                }
+            }, { onlyOnce: true });
+        }
         if (e.target.dataset.close) closeModal(e.target.dataset.close);
     });
 
     document.getElementById('validateCodeBtn').addEventListener('click', () => {
         if (parseInt(document.getElementById('confirmCodeInput').value) === activeNavMove.code) {
             update(ref(db, `moves/${activeNavMove.key}`), { status: 'completed' });
-            alert('¡Servicio concluido!');
+            
+            // Enviar mensaje de texto simulado/WhatsApp al cliente
+            if (activeNavMove.clientPhone) {
+                const phone = activeNavMove.clientPhone.replace(/[^0-9]/g, '');
+                const text = encodeURIComponent("Su viaje ha finalizado. Gracias por solicitar nuestro servicio.");
+                window.open(`https://wa.me/506${phone}?text=${text}`, '_blank');
+            }
+            
+            alert('¡Servicio concluido! Se ha enviado el mensaje de agradecimiento al cliente.');
             closeModal('codeModal');
             document.getElementById('navOverlay').style.display = 'none';
             if (routingControl) map.removeControl(routingControl);
