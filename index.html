@@ -1173,12 +1173,25 @@
                         if (m.transporter === t.email || m.transporterName === t.name) {
                             count++;
                             hList.innerHTML += `
-                                <div class="history-item" style="padding:12px; border-left:3px solid #4ade80; display:flex; justify-content:space-between; align-items:center;">
-                                    <div style="flex:1;">
-                                        <strong style="color:#4ade80;">${m.date} | ${m.time || '--:--'}</strong><br>
-                                        Cliente: ${m.clientName}<br>
-                                        ${m.origin.name.split(',')[0]} → ${m.destination.name.split(',')[0]}<br>
-                                        <span style="color:#aaa; font-size:11px;">Total: ₡${m.price.toLocaleString()} | Estado: ${m.status}</span>
+                                <div class="history-item" style="padding:12px; border-left:3px solid #4ade80; display:flex; flex-direction:column; gap:5px; background:#1a1a1a; margin-bottom:10px;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <strong style="color:#4ade80;">${m.date} | ${m.time || '--:--'}</strong>
+                                        <span class="status-badge status-${m.status}">${m.status.toUpperCase()}</span>
+                                    </div>
+                                    <div style="font-size:13px;">${m.origin.name.split(',')[0]} → ${m.destination.name.split(',')[0]}</div>
+                                    <div style="display:flex; justify-content:space-between; margin-top:5px; padding-top:5px; border-top:1px solid #333;">
+                                        <div style="text-align:center; flex:1;">
+                                            <div style="font-size:10px; color:#888;">TOTAL</div>
+                                            <div style="font-weight:bold; color:#fff;">₡${m.price.toLocaleString()}</div>
+                                        </div>
+                                        <div style="text-align:center; flex:1; border-left:1px solid #333;">
+                                            <div style="font-size:10px; color:#ff4b4b;">SOCIO (80%)</div>
+                                            <div style="font-weight:bold; color:#ff4b4b;">₡${(m.price * 0.8).toLocaleString()}</div>
+                                        </div>
+                                        <div style="text-align:center; flex:1; border-left:1px solid #333;">
+                                            <div style="font-size:10px; color:#00d4ff;">EMPRESA (20%)</div>
+                                            <div style="font-weight:bold; color:#00d4ff;">₡${(m.price * 0.2).toLocaleString()}</div>
+                                        </div>
                                     </div>
                                 </div>`;
                         }
