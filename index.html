@@ -524,7 +524,7 @@
     document.getElementById('connStatus').style.color = "#4ade80";
 
     // ESTADO GLOBAL
-    let map, selectedOrigin, selectedDestination, currentUser, selectedTransporter;
+    let map, selectedOrigin, selectedDestination, currentUser, selectedTransporter, currentTransporterPos = null;
     let markers = {};
     let selectedVehicle = 'pickup';
     let selectedServiceType = 'acarreo';
@@ -669,7 +669,19 @@
         } else {
             document.querySelector('.map-container').style.display = 'block';
             if(role === 'client') document.getElementById('clientNameDisplay').innerText = currentUser.name;
-            if(role === 'transporter') { document.getElementById('transNameDisplay').innerText = currentUser.name; listenToJobs(); }
+            
+            if(role === 'transporter') { 
+                document.getElementById('transNameDisplay').innerText = currentUser.name; 
+                listenToJobs(); 
+                if ("geolocation" in navigator) {
+                    navigator.geolocation.watchPosition((pos) => {
+                        currentTransporterPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                        // Forzar refresco de ofertas para actualizar distancias
+                        listenToJobs();
+                    }, null, { enableHighAccuracy: true });
+                }
+            }
+
         }
     });
 
@@ -948,6 +960,13 @@
             if(data) {
                 Object.keys(data).forEach(key => {
                     const m = data[key];
+                    
+                    // Calcular distancia a la oferta si tenemos la posición del transportista
+                    let distToOffer = null;
+                    if (currentTransporterPos && m.origin) {
+                        distToOffer = calculateDist(currentTransporterPos, m.origin).toFixed(1);
+                    }
+
                     if (m.transporter === currentUser.id) {
                         if (m.status === 'in_progress') activeCount++;
                         if (m.status === 'completed') {
@@ -971,22 +990,27 @@
                                 <div class="job-price">₡${m.price.toLocaleString()}</div>
                             </div>
                             <p style="font-size:11px; color:#aaa;">Cliente: ${m.clientName} | Peso: ${m.weight}kg</p>
+                            
                             ${m.status === 'pending' && m.transporter === currentUser.id ? `
+                                <div style="background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px; margin: 10px 0; border: 1px solid #444;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <span style="font-size:12px; color:#00d4ff;"><i class="fas fa-map-marker-alt"></i> Distancia: ${distToOffer ? distToOffer + ' km' : 'Calculando...'}</span>
+                                        <button class="btn btn-sm" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${m.origin.lat},${m.origin.lng}', '_blank')" style="width:auto; padding:5px 10px; background:#444; font-size:10px;">Cómo llegar</button>
+                                    </div>
+                                </div>
                                 <div style="display:flex; gap:10px; margin-top:10px;">
                                     <button class="btn btn-accept acceptJobBtn" data-id="${key}" ${activeCount >= 3 ? 'disabled' : ''}>Aceptar</button>
                                     <button class="btn btn-reject rejectJobBtn" data-id="${key}">Rechazar</button>
                                 </div>` : ''}
+                                
                             ${m.status === 'in_progress' && m.transporter === currentUser.id ? `
                                 <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
                                     <div style="background: rgba(0,212,255,0.1); padding: 8px; border-radius: 6px; border: 1px solid #00d4ff44; margin-bottom: 5px;">
                                         <div style="font-size: 10px; color: #00d4ff; font-weight: bold; text-transform: uppercase;">Teléfono del Cliente</div>
                                         <div style="font-size: 16px; font-weight: bold; color: #fff;">${m.clientPhone || 'No registrado'}</div>
                                     </div>
-                                    <button class="btn btn-whatsapp" onclick="window.open('https://wa.me/506${(m.clientPhone || '').replace(/[^0-9]/g, '')}', '_blank')" style="text-decoration:none; text-align:center; font-size:12px; padding:10px;">
+                                    <button class="btn btn-whatsapp" onclick="window.open('https://wa.me/506${(m.clientPhone || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent('¿Le gustaría que le comparta mi ubicación?')}', '_blank')" style="text-decoration:none; text-align:center; font-size:12px; padding:10px;">
                                         <i class="fab fa-whatsapp"></i> Llamar al Cliente por WhatsApp
-                                    </button>
-                                    <button class="btn btn-sm shareLocBtn" style="background:#25d366; color:#fff; padding:10px;" data-id="${key}">
-                                        <i class="fab fa-whatsapp"></i> Compartir Ubicación por WhatsApp
                                     </button>
                                     <div style="display:flex; gap:10px;">
                                         <button class="btn btn-sm startNavBtn" data-id="${key}">Ver Ruta</button>
