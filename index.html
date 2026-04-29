@@ -24,22 +24,114 @@
         .search-container { position: relative; margin-bottom: 18px; }
         .search-input { width: 100%; padding: 11px 12px; background: #2a2a2a; border: 1px solid #444; border-radius: 8px; color: #fff; font-size: 14px; }
         .search-input:focus { outline: none; border-color: #00d4ff; box-shadow: 0 0 10px rgba(0,212,255,0.3); }
+        .search-suggestions { position: absolute; top: 100%; left: 0; right: 0; background: #2a2a2a; border: 1px solid #444; border-top: none; border-radius: 0 0 8px 8px; max-height: 300px; overflow-y: auto; z-index: 100; display: none; }
+        .search-suggestions.active { display: block; }
+        .suggestion-item { padding: 11px 12px; border-bottom: 1px solid #333; cursor: pointer; transition: all 0.2s ease; font-size: 13px; }
+        .suggestion-item:hover { background: #3a3a3a; color: #00d4ff; }
+        .suggestion-address { color: #aaa; font-size: 12px; margin-top: 3px; }
         .btn { width: 100%; padding: 13px; background: #00d4ff; color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.3s ease; }
         .btn:hover { background: #00b8d4; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,212,255,0.4); }
+        .btn:disabled { background: #555; color: #888; cursor: not-allowed; transform: none; box-shadow: none; }
         .btn-secondary { background: #333; color: #fff; margin-bottom: 10px; }
         .btn-sm { width: auto; padding: 7px 14px; font-size: 12px; display: inline-block; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: #1a1a1a; border: 1px solid #444; border-radius: 12px; padding: 28px; width: 92%; max-width: 620px; max-height: 92vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.9); position: relative; }
+        .modal-header { font-size: 19px; font-weight: bold; margin-bottom: 18px; color: #00d4ff; }
+        .modal-close { position: absolute; top: 14px; right: 14px; background: none; border: none; color: #aaa; font-size: 24px; cursor: pointer; width: auto; padding: 0; }
         .section { display: none; }
         .section.active { display: block; }
-        .tabs { display: flex; background: #222; border-radius: 8px; padding: 4px; margin-bottom: 18px; flex-wrap: wrap; }
-        .tab-btn { flex: 1; padding: 10px; background: none; border: none; color: #888; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 6px; min-width: 80px; }
+        .tabs { display: flex; background: #222; border-radius: 8px; padding: 4px; margin-bottom: 18px; }
+        .tab-btn { flex: 1; padding: 10px; background: none; border: none; color: #888; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 6px; }
         .tab-btn.active { background: #333; color: #00d4ff; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .admin-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
         .admin-table th { text-align: left; padding: 12px 8px; background: #222; color: #aaa; border: 1px solid #333; }
         .admin-table td { padding: 12px 8px; border: 1px solid #222; }
+        .admin-footer { background: #1a3a3a; padding: 10px; border-radius: 0 0 8px 8px; border: 1px solid #333; border-top: none; display: flex; justify-content: flex-end; gap: 20px; font-size: 12px; font-weight: bold; }
         
-        /* ESTILOS DEL AGENTE DE IA */
+        /* MÓVIL OPTIMIZADO PARA TRANSPORTISTAS */
+        @media (max-width: 480px) {
+            .sidebar { width: 100%; position: absolute; z-index: 2000; height: 100%; }
+            .uber-job-card { padding: 12px; margin-bottom: 10px; }
+            .job-header { flex-direction: column; align-items: flex-start; gap: 5px; }
+            .job-price { font-size: 18px; }
+            .btn-sm { padding: 10px; width: 100%; text-align: center; margin-top: 5px; }
+        }
+        
+        .btn-whatsapp { background: #25d366; color: #fff; }
+        .btn-reject { background: #ff4b4b; color: #fff; }
+        .btn-accept { background: #4ade80; color: #000; }
+        
+        .calendar-container { margin-bottom: 15px; background: #222; padding: 10px; border-radius: 8px; border: 1px solid #333; }
+        .finance-card { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 15px; margin-bottom: 10px; }
+        .finance-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px; }
+        .finance-label { color: #aaa; }
+        .finance-value { font-weight: bold; color: #00d4ff; }
+        
+        /* NAVEGACIÓN GPS MÓVIL */
+        #gpsView { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 3000; flex-direction: column; }
+        #gpsView.active { display: flex; }
+        .gps-header { background: #1a1a1a; padding: 15px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+        .gps-map { flex: 1; width: 100%; }
+        .gps-instructions { background: #fff; padding: 20px; border-top: 1px solid #333; font-size: 16px; font-weight: bold; color: #000; text-align: center; box-shadow: 0 -5px 15px rgba(0,0,0,0.2); }
+        .leaflet-routing-container { background: white !important; color: black !important; padding: 10px; border-radius: 8px; font-size: 12px; max-height: 200px; overflow-y: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .leaflet-routing-alt h2, .leaflet-routing-alt h3 { color: black !important; }
+        .leaflet-routing-instruction-text { color: black !important; }
+        
+        /* EDICIÓN DE PERFILES */
+        .edit-input { width: 100%; padding: 8px; background: #333; border: 1px solid #444; border-radius: 4px; color: #fff; font-size: 12px; margin-bottom: 10px; }
+        .history-item { background: #222; padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 11px; border-left: 3px solid #00d4ff; }
+        
+        .status-badge { padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; }
+        .status-pending { background: #f59e0b22; color: #f59e0b; }
+        .status-in_progress { background: #3b82f622; color: #3b82f6; }
+        .status-completed { background: #10b98122; color: #10b981; }
+        .vehicle-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
+        .vehicle-option { background: #2a2a2a; border: 2px solid #444; border-radius: 8px; padding: 10px; text-align: center; cursor: pointer; }
+        .vehicle-option.active { border-color: #00d4ff; background: #1a3a3a; }
+        .transportista-card { background: #2a2a2a; border: 1px solid #444; border-radius: 10px; padding: 16px; margin-bottom: 14px; cursor: pointer; transition: all 0.3s ease; }
+        .transportista-card:hover { border-color: #00d4ff; background: #2a3535; }
+        .transportista-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .transportista-name { font-weight: 700; font-size: 15px; color: #fff; }
+        .transportista-price { font-size: 20px; font-weight: bold; color: #4ade80; }
+        .uber-job-card { background: linear-gradient(135deg, #2a2a2a 0%, #303030 100%); border: 2px solid #00d4ff; border-radius: 12px; padding: 18px; margin-bottom: 14px; box-shadow: 0 4px 15px rgba(0,212,255,0.15); }
+        .job-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .job-price { font-size: 22px; font-weight: bold; color: #4ade80; }
+        .nav-overlay { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(26, 26, 26, 0.9); padding: 15px 25px; border-radius: 50px; border: 1px solid #00d4ff; z-index: 1000; display: none; align-items: center; gap: 15px; }
+        .alert-box { padding: 12px 15px; border-radius: 8px; font-size: 12px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .alert-info { background: #00d4ff11; color: #00d4ff; border: 1px solid #00d4ff33; }
+        .upload-area { border: 2px dashed #444; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; margin-bottom: 15px; transition: all 0.3s ease; }
+        .upload-area:hover { border-color: #00d4ff; background: #1a3a3a; }
+        .upload-icon { font-size: 30px; color: #555; margin-bottom: 10px; }
+        .upload-text { font-size: 12px; color: #888; }
+        .partner-item { padding: 10px; border-bottom: 1px solid #333; cursor: pointer; transition: background 0.2s; }
+        .partner-item:hover { background: #2a2a2a; color: #00d4ff; }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 13px; }
+        .detail-item { background: #222; padding: 10px; border-radius: 6px; border: 1px solid #333; }
+        .detail-label { color: #888; font-size: 11px; margin-bottom: 4px; }
+        
+        /* ESTILOS REGISTRO */
+        .register-link { text-align: center; margin-top: 15px; font-size: 13px; color: #aaa; }
+        .register-link span { color: #00d4ff; cursor: pointer; font-weight: bold; }
+        .register-type-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .register-type-btn { padding: 15px; background: #2a2a2a; border: 2px solid #444; border-radius: 8px; color: #fff; cursor: pointer; text-align: center; font-size: 13px; transition: 0.3s; }
+        .register-type-btn.active { border-color: #00d4ff; background: #1a3a3a; }
+        
+        /* MEJORAS INTERFAZ FACTURA Y FICHA (MODELO) */
+        .factura-header { border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 15px; }
+        .factura-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+        .factura-label { color: #888; }
+        .factura-value { font-weight: 600; }
+        .transportista-ficha { background: #222; border-radius: 10px; padding: 15px; border: 1px solid #333; margin-bottom: 15px; }
+        .ficha-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .ficha-avatar { width: 50px; height: 50px; background: #00d4ff22; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #00d4ff; font-size: 20px; }
+        .ficha-title { flex: 1; }
+        .ficha-name { font-weight: bold; font-size: 16px; }
+        .ficha-rating { color: #fbbf24; font-size: 12px; }
+
+        /* ESTILOS DEL AGENTE DE IA (AÑADIDOS) */
         .ai-chat-widget { position: fixed; bottom: 20px; right: 20px; width: 380px; height: 600px; background: #1a1a1a; border: 2px solid #00d4ff; border-radius: 12px; box-shadow: 0 5px 40px rgba(0, 212, 255, 0.3); display: flex; flex-direction: column; z-index: 5000; animation: slideUp 0.3s ease-out; }
         .ai-chat-widget.hidden { display: none; }
         .ai-chat-header { background: linear-gradient(135deg, #00d4ff, #0099cc); color: #000; padding: 16px; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
@@ -50,8 +142,6 @@
         .ai-message.user .ai-message-content { background: #00d4ff; color: #000; align-self: flex-end; margin-left: auto; }
         .ai-chat-input-area { padding: 12px; border-top: 1px solid #333; display: flex; gap: 8px; background: #1a1a1a; border-radius: 0 0 10px 10px; }
         .ai-chat-toggle { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; background: linear-gradient(135deg, #00d4ff, #0099cc); border: none; border-radius: 50%; color: #000; font-size: 24px; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4); display: flex; align-items: center; justify-content: center; z-index: 4999; transition: all 0.3s ease; }
-
-        /* ESTILOS PANEL ENTRENAMIENTO IA */
         .training-card { background: #222; border: 1px solid #333; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
         .training-title { font-weight: bold; color: #00d4ff; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
         .qa-item { background: #1a1a1a; border: 1px solid #444; border-radius: 6px; padding: 10px; margin-bottom: 10px; position: relative; }
@@ -60,7 +150,6 @@
         .photo-item { width: 80px; height: 80px; border-radius: 4px; border: 1px solid #444; overflow: hidden; position: relative; }
         .photo-item img { width: 100%; height: 100%; object-fit: cover; }
         .photo-item .delete-photo { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.7); color: #fff; font-size: 10px; padding: 2px; cursor: pointer; border-radius: 2px; }
-        
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -91,22 +180,153 @@
     </div>
 </div>
 
+<div class="nav-overlay" id="navOverlay">
+    <i class="fas fa-navigation" style="color:#00d4ff;"></i>
+    <span id="navStatusText">En ruta...</span>
+    <span id="navDistance" style="font-weight:bold; color:#4ade80;">0.0 km</span>
+    <button class="btn btn-sm" id="finishNavBtn">Finalizar</button>
+</div>
+
 <div class="container">
     <div class="sidebar">
         <!-- SECCIÓN AUTENTICACIÓN -->
         <div class="section active" id="authSection">
             <div class="logo"><i class="fas fa-truck"></i> MudanzasHub</div>
-            <div class="form-group"><label>Email</label><input type="email" id="authEmail" class="search-input" placeholder="admin@mudanzashub.cr"></div>
-            <div class="form-group"><label>Contraseña</label><input type="password" id="authPassword" class="search-input" placeholder="123456"></div>
+            <div class="form-group"><label>Email</label><input type="email" id="authEmail" class="search-input" placeholder="Ingresa tu email"></div>
+            <div class="form-group"><label>Contraseña</label><input type="password" id="authPassword" class="search-input" placeholder="Ingresa tu contraseña"></div>
             <div class="form-group">
                 <label>Rol</label>
                 <select id="authRole" class="search-input">
-                    <option value="admin">Administrador</option>
                     <option value="client">Cliente</option>
                     <option value="transporter">Transportista</option>
+                    <option value="admin">Administrador</option>
                 </select>
             </div>
             <button class="btn" id="loginBtn">Entrar</button>
+            <div class="register-link">¿No tienes cuenta? <span id="showRegisterBtn">Regístrate aquí</span></div>
+            <p id="connStatus" style="font-size:11px; color:#666; margin-top:15px; text-align:center;">Cargando Firebase...</p>
+        </div>
+
+        <!-- SECCIÓN REGISTRO -->
+        <div class="section" id="registerSection">
+            <div class="logo"><i class="fas fa-user-plus"></i> Crear Cuenta</div>
+            <div class="register-type-selector">
+                <div class="register-type-btn active" id="regTypeClient">Cliente</div>
+                <div class="register-type-btn" id="regTypeTrans">Socio</div>
+            </div>
+            
+            <div id="clientRegForm">
+                <div class="form-group"><label>Nombre Completo</label><input type="text" id="regName" class="search-input" placeholder="Ej: Juan Pérez"></div>
+                <div class="form-group"><label>Cédula</label><input type="text" id="regId" class="search-input" placeholder="Número de identificación"></div>
+                <div class="form-group"><label>Teléfono</label><input type="tel" id="regPhone" class="search-input" placeholder="8888-8888"></div>
+                <div class="form-group"><label>Ubicación (Ciudad/Provincia)</label><input type="text" id="regLoc" class="search-input" placeholder="Ej: San José, Escazú"></div>
+            </div>
+
+            <div id="transRegForm" style="display:none;">
+                <div class="form-group"><label>Nombre Completo</label><input type="text" id="regTName" class="search-input"></div>
+                <div class="form-group"><label>Cédula</label><input type="text" id="regTId" class="search-input"></div>
+                <div class="form-group"><label>Teléfono</label><input type="tel" id="regTPhone" class="search-input"></div>
+                <div class="form-group" style="display:flex; gap:10px;">
+                    <div style="flex:1;"><label>Edad</label><input type="number" id="regTAge" class="search-input"></div>
+                    <div style="flex:1;"><label>¿Problema Físico?</label><select id="regTPhys" class="search-input"><option value="no">No</option><option value="si">Sí</option></select></div>
+                </div>
+                <div class="form-group"><label>Vehículo (Marca/Modelo)</label><input type="text" id="regTVehicle" class="search-input"></div>
+                <div class="form-group" style="display:flex; gap:10px;">
+                    <div style="flex:1;"><label>Placa</label><input type="text" id="regTPlate" class="search-input"></div>
+                    <div style="flex:1;"><label>Licencia</label><input type="text" id="regTLicense" class="search-input"></div>
+                </div>
+                <div class="form-group"><label>Número de Seguro</label><input type="text" id="regTInsurance" class="search-input"></div>
+            </div>
+
+            <div class="form-group"><label>Correo Electrónico</label><input type="email" id="regEmail" class="search-input"></div>
+            <div class="form-group"><label>Contraseña</label><input type="password" id="regPass" class="search-input"></div>
+            
+            <button class="btn" id="executeRegisterBtn">Finalizar Registro</button>
+            <button class="btn btn-secondary" style="margin-top:10px;" id="backToLoginBtn">Volver al Login</button>
+        </div>
+
+        <!-- SECCIÓN CLIENTE -->
+        <div class="section" id="clientSection">
+            <div class="logo"><i class="fas fa-truck"></i> MudanzasHub</div>
+            <div class="user-greeting"><i class="fas fa-user"></i> <span id="clientNameDisplay">Cliente</span></div>
+            <button class="btn btn-secondary logoutBtn">Cerrar Sesión</button>
+            
+            <div class="search-container">
+                <label style="font-size:12px; color:#aaa; margin-bottom:5px; display:block;">Origen</label>
+                <input type="text" id="originSearch" class="search-input" placeholder="¿De dónde salen las cosas?">
+                <div id="originSuggestions" class="search-suggestions"></div>
+            </div>
+            <div class="search-container">
+                <label style="font-size:12px; color:#aaa; margin-bottom:5px; display:block;">Destino</label>
+                <input type="text" id="destinationSearch" class="search-input" placeholder="¿A dónde las llevamos?">
+                <div id="destinationSuggestions" class="search-suggestions"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Tipo de Vehículo</label>
+                <div class="vehicle-selector" id="vehicleSelector">
+                    <div class="vehicle-option active" data-vehicle="pickup">Pickup</div>
+                    <div class="vehicle-option" data-vehicle="buseta">Buseta</div>
+                    <div class="vehicle-option" data-vehicle="camion">Camión</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Servicio</label>
+                <div class="vehicle-selector" id="serviceSelector">
+                    <div class="vehicle-option active" data-service="acarreo">Con Acarreo</div>
+                    <div class="vehicle-option" data-service="afuera">Puesta Afuera</div>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-bottom:18px;">
+                <div style="flex:1;">
+                    <label style="font-size:12px; color:#aaa; margin-bottom:5px; display:block;">Peso (kg)</label>
+                    <input type="number" id="loadWeight" class="search-input" placeholder="Ej: 500" value="100">
+                </div>
+                <div style="flex:1;">
+                    <label style="font-size:12px; color:#aaa; margin-bottom:5px; display:block;">Acceso Destino</label>
+                    <select id="accessType" class="search-input">
+                        <option value="easy">Fácil</option>
+                        <option value="medium">Regular</option>
+                        <option value="hard">Difícil</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Programar Mudanza (Opcional)</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="date" id="reserveDate" class="search-input">
+                    <input type="time" id="reserveTime" class="search-input">
+                </div>
+            </div>
+
+            <button class="btn" id="searchTransportersBtn">Ver Ofertas Disponibles</button>
+            
+            <div id="transportistasList" style="margin-top:20px;"></div>
+        </div>
+
+        <!-- SECCIÓN TRANSPORTISTA -->
+        <div class="section" id="transporterSection">
+            <div class="logo"><i class="fas fa-truck"></i> MudanzasHub</div>
+            <div class="user-greeting"><i class="fas fa-id-card"></i> <span id="transNameDisplay">Transportista</span></div>
+            <button class="btn btn-secondary logoutBtn">Cerrar Sesión</button>
+            
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="jobs">Ofertas</button>
+                <button class="tab-btn" data-tab="active">En Curso</button>
+                <button class="tab-btn" data-tab="history">Historial</button>
+            </div>
+            <div id="jobsTab" class="tab-content active"></div>
+            <div id="activeTab" class="tab-content"></div>
+            <div id="historyTab" class="tab-content">
+                <div style="background:#222; padding:10px; border-radius:8px; margin-bottom:10px; text-align:center;">
+                    <div style="font-size:11px; color:#aaa;">Ganancias Totales</div>
+                    <div id="totalEarnings" style="font-size:20px; font-weight:bold; color:#4ade80;">₡0</div>
+                </div>
+                <div id="historyList"></div>
+            </div>
         </div>
 
         <!-- SECCIÓN ADMINISTRADOR -->
@@ -116,11 +336,40 @@
             <div class="tabs">
                 <button class="tab-btn active" data-tab="moves">Mudanzas</button>
                 <button class="tab-btn" data-tab="partners">Socios</button>
+                <button class="tab-btn" data-tab="clients">Clientes</button>
                 <button class="tab-btn" data-tab="aiTraining">Entrenamiento IA</button>
-                <button class="tab-btn" data-tab="docs">Finanzas</button>
+                <button class="tab-btn" data-tab="docs">Documentación</button>
             </div>
-
-            <!-- PESTAÑA ENTRENAMIENTO IA -->
+            <div id="movesTab" class="tab-content active">
+                <div style="display:flex; gap:10px; margin-bottom:15px; align-items:center; flex-wrap:wrap;">
+                    <div style="flex:1; min-width:200px;">
+                        <label style="font-size:11px; color:#888; display:block; margin-bottom:4px;">Filtrar por Día</label>
+                        <input type="date" id="movesDateFilter" class="search-input" style="padding:8px;">
+                    </div>
+                    <button class="btn btn-sm" id="exportMovesPdfBtn" style="background:#ff4b4b; color:#fff; margin-top:15px;">
+                        <i class="fas fa-file-pdf"></i> Exportar a PDF
+                    </button>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="admin-table" id="adminMovesTable">
+                        <thead><tr><th>ID</th><th>Cliente</th><th>Socio</th><th>Fecha</th><th>Hora</th><th>Total</th><th>Comisión (20%)</th><th>Estado</th></tr></thead>
+                        <tbody id="movesTableBody"></tbody>
+                    </table>
+                </div>
+                <div class="admin-footer">
+                    <span>Total Comisiones: <span id="totalAdminComm" style="color:#4ade80;">₡0</span></span>
+                    <span>Total General: <span id="totalAdminSales" style="color:#00d4ff;">₡0</span></span>
+                </div>
+            </div>
+            <div id="clientsTab" class="tab-content">
+                <div style="margin-bottom:10px; font-weight:bold; color:#00d4ff;">Lista de Clientes</div>
+                <div id="adminClientsList"></div>
+            </div>
+            <div id="partnersTab" class="tab-content">
+                <div style="margin-bottom:10px; font-weight:bold; color:#00d4ff;">Lista de Socios</div>
+                <div id="adminPartnersList"></div>
+            </div>
+            <!-- PESTAÑA ENTRENAMIENTO IA (AÑADIDA) -->
             <div id="aiTrainingTab" class="tab-content">
                 <div class="training-card">
                     <div class="training-title"><i class="fas fa-brain"></i> Reglas del Agente</div>
@@ -130,218 +379,362 @@
                     </div>
                     <button class="btn btn-sm" id="saveAiRules">Guardar Reglas</button>
                 </div>
-
                 <div class="training-card">
                     <div class="training-title"><i class="fas fa-question-circle"></i> Preguntas y Respuestas</div>
                     <div id="qaList"></div>
                     <div style="border-top: 1px solid #333; padding-top: 10px; margin-top: 10px;">
-                        <div class="form-group">
-                            <input type="text" id="newQuestion" class="search-input" placeholder="Nueva pregunta...">
-                        </div>
-                        <div class="form-group">
-                            <textarea id="newAnswer" class="search-input" style="height: 60px; resize: none;" placeholder="Respuesta..."></textarea>
-                        </div>
-                        <div class="form-group">
-                            <input type="text" id="newKeywords" class="search-input" placeholder="Palabras clave (separadas por coma)">
-                        </div>
+                        <div class="form-group"><input type="text" id="newQuestion" class="search-input" placeholder="Nueva pregunta..."></div>
+                        <div class="form-group"><textarea id="newAnswer" class="search-input" style="height: 60px; resize: none;" placeholder="Respuesta..."></textarea></div>
+                        <div class="form-group"><input type="text" id="newKeywords" class="search-input" placeholder="Palabras clave (separadas por coma)"></div>
                         <button class="btn btn-sm" id="addQA">Añadir Conocimiento</button>
                     </div>
                 </div>
-
                 <div class="training-card">
                     <div class="training-title"><i class="fas fa-image"></i> Entrenamiento Visual</div>
-                    <div class="upload-area" id="aiPhotoUpload" style="padding: 10px;">
-                        <i class="fas fa-camera upload-icon" style="font-size: 20px;"></i>
-                        <div class="upload-text">Subir fotos de referencia</div>
-                        <input type="file" id="aiPhotoInput" style="display:none" accept="image/*" multiple>
-                    </div>
+                    <div class="upload-area" id="aiPhotoUpload" style="padding: 10px;"><i class="fas fa-camera upload-icon" style="font-size: 20px;"></i><div class="upload-text">Subir fotos de referencia</div><input type="file" id="aiPhotoInput" style="display:none" accept="image/*" multiple></div>
                     <div class="photo-grid" id="aiPhotoGrid"></div>
                 </div>
             </div>
-
-            <!-- OTRAS PESTAÑAS (SIMULADAS) -->
-            <div id="movesTab" class="tab-content active"><p style="color:#888; font-size:12px;">Lista de mudanzas activas y completadas...</p></div>
-            <div id="partnersTab" class="tab-content"><p style="color:#888; font-size:12px;">Gestión de socios transportistas...</p></div>
-            <div id="docsTab" class="tab-content"><p style="color:#888; font-size:12px;">Reportes financieros y comisiones...</p></div>
+            <div id="docsTab" class="tab-content">
+                <div class="calendar-container">
+                    <label style="font-size:12px; color:#aaa;">Filtrar por Mes:</label>
+                    <input type="month" id="financeCalendar" class="search-input" style="margin-top:5px;">
+                </div>
+                <div id="financeReport">
+                    <div class="finance-card">
+                        <div style="font-weight:bold; color:#00d4ff; margin-bottom:10px;">Finanzas de la Plataforma (Mensual)</div>
+                        <div class="finance-row"><span class="finance-label">Regalías Empresa:</span><span class="finance-value" id="companyRegal">₡0</span></div>
+                        <div class="finance-row"><span class="finance-label">Regalías Socios:</span><span class="finance-value" id="partnersRegal">₡0</span></div>
+                        <div class="finance-row"><span class="finance-label">Mantenimiento:</span><span class="finance-value" style="color:#ff4b4b;">-$50.00</span></div>
+                        <div class="finance-row" style="border-top:1px solid #333; margin-top:10px; padding-top:5px;">
+                            <span class="finance-label">Balance Neto:</span><span class="finance-value" id="netBalance">₡0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="map-container"><div id="map" style="background:#111; display:flex; align-items:center; justify-content:center; color:#333;">Mapa Interactivo</div></div>
+    <div class="map-container"><div id="map"></div></div>
 </div>
 
-<script>
-// ============================================
-// LÓGICA DEL AGENTE DE IA (MEJORADA)
-// ============================================
+<!-- VISTA GPS NAVEGACIÓN -->
+<div id="gpsView">
+    <div class="gps-header">
+        <div style="font-weight:bold; color:#00d4ff;"><i class="fas fa-location-arrow"></i> Navegación GPS</div>
+        <button class="btn btn-sm btn-reject" id="closeGpsBtn" style="width:auto;">Salir</button>
+    </div>
+    <div id="gpsMap" class="gps-map"></div>
+    <div class="gps-instructions" id="gpsInstructions">Iniciando navegación...</div>
+</div>
 
-class AIAgent {
-    constructor() {
-        this.rules = localStorage.getItem('ai_rules') || "Eres un experto en MudanzasHub. Sé amable y profesional. Prioriza las ventajas de negocio.";
-        this.knowledgeBase = JSON.parse(localStorage.getItem('ai_knowledge')) || {
-            'que_es': { keywords: ['qué es', 'mudanzashub'], response: "MudanzasHub es la plataforma líder en Costa Rica para conectar clientes con transportistas profesionales." },
-            'ventajas': { keywords: ['ventaja', 'negocio', 'ganar'], response: "Como socio, ganas el 80% de cada servicio, tienes GPS integrado y acceso a miles de clientes." }
-        };
-        this.photos = JSON.parse(localStorage.getItem('ai_photos')) || [];
-    }
+<!-- MODALES ORIGINALES -->
+<div class="modal" id="addClientModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('addClientModal')">&times;</button>
+        <div class="modal-header">Agregar Nuevo Cliente</div>
+        <div class="form-group"><label>Nombre</label><input type="text" id="newClientName" class="search-input"></div>
+        <div class="form-group"><label>Email</label><input type="email" id="newClientEmail" class="search-input"></div>
+        <div class="form-group"><label>Teléfono</label><input type="tel" id="newClientPhone" class="search-input"></div>
+        <button class="btn" id="saveNewClientBtn">Guardar Cliente</button>
+    </div>
+</div>
 
-    save() {
-        localStorage.setItem('ai_rules', this.rules);
-        localStorage.setItem('ai_knowledge', JSON.stringify(this.knowledgeBase));
-        localStorage.setItem('ai_photos', JSON.stringify(this.photos));
-    }
+<div class="modal" id="partnerDetailModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('partnerDetailModal')">&times;</button>
+        <div class="modal-header" id="partnerDetailName">Detalle del Socio</div>
+        <div class="detail-grid" id="partnerDetailContent"></div>
+        <div style="margin-top:20px; display:flex; gap:10px;">
+            <button class="btn" id="savePartnerEditBtn">Guardar Cambios</button>
+            <button class="btn btn-reject" id="deletePartnerBtn">Eliminar Socio</button>
+        </div>
+    </div>
+</div>
 
-    getResponse(userMessage) {
-        const lowerMsg = userMessage.toLowerCase();
-        let bestMatch = null;
-        let maxMatches = 0;
+<div class="modal" id="codeModal">
+    <div class="modal-content" style="max-width:400px; text-align:center;">
+        <div class="modal-header">Finalizar Servicio</div>
+        <p style="font-size:13px; color:#aaa; margin-bottom:20px;">Solicite el código de 4 dígitos al cliente para confirmar la entrega.</p>
+        <input type="number" id="confirmCodeInput" class="search-input" style="font-size:24px; text-align:center; letter-spacing:10px; margin-bottom:20px;" placeholder="0000">
+        <button class="btn" id="validateCodeBtn">Validar y Finalizar</button>
+    </div>
+</div>
 
-        for (const key in this.knowledgeBase) {
-            const item = this.knowledgeBase[key];
-            const matches = item.keywords.filter(kw => lowerMsg.includes(kw.trim().toLowerCase())).length;
-            if (matches > maxMatches) {
-                maxMatches = matches;
-                bestMatch = item.response;
-            }
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, set, push, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCppQ2yPzQxTMSs8GfBCSyKzoQoUUzaWJo",
+        authDomain: "mudanzascanaan.firebaseapp.com",
+        databaseURL: "https://mudanzascanaan-default-rtdb.firebaseio.com",
+        projectId: "mudanzascanaan",
+        storageBucket: "mudanzascanaan.firebasestorage.app",
+        messagingSenderId: "198057203593",
+        appId: "1:198057203593:web:d8a5d2f575bcc565b73358"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    document.getElementById('connStatus').innerText = "✅ Firebase Conectado";
+    document.getElementById('connStatus').style.color = "#4ade80";
+
+    // ESTADO GLOBAL
+    let map, selectedOrigin, selectedDestination, currentUser, selectedTransporter, currentTransporterPos = null;
+    let markers = {};
+    let selectedVehicle = 'pickup';
+    let selectedServiceType = 'acarreo';
+    let routingControl = null;
+    let activeNavMove = null;
+    let pendingMoveData = null;
+    let searchTimeout = null;
+    let gpsMap = null, gpsRouting = null, userMarker = null, watchId = null;
+
+    const vehicleConfig = {
+        pickup: { multiplier: 1.0, fuelCost: 1.0, capacity: 800, name: 'Pickup' },
+        buseta: { multiplier: 1.4, fuelCost: 1.3, capacity: 1500, name: 'Buseta' },
+        camion: { multiplier: 1.8, fuelCost: 1.7, capacity: 3500, name: 'Camión' }
+    };
+
+    let transporters = [];
+    let registeredClients = [];
+
+    onValue(ref(db, 'users/transporters'), (snap) => {
+        const data = snap.val();
+        if (data) transporters = Object.values(data);
+        else transporters = [
+            { id: 1, email: 'carlos@test.com', password: '1234', name: 'Carlos Rodríguez', phone: '88881111', plate: 'BC-123', vehicle: 'Toyota Hiace', rating: 4.8, role: 'transporter' },
+            { id: 2, email: 'miguel@test.com', password: '1234', name: 'Miguel Vargas', phone: '88882222', plate: 'CL-456', vehicle: 'Hino 300', rating: 4.6, role: 'transporter' }
+        ];
+        if(currentUser && currentUser.role === 'admin') listenToAdmin();
+    });
+
+    onValue(ref(db, 'users/clients'), (snap) => {
+        const data = snap.val();
+        if (data) registeredClients = Object.values(data);
+        else registeredClients = [{ email: 'cliente@test.com', password: '1234', name: 'Laura Fernández', role: 'client' }];
+        if(currentUser && currentUser.role === 'admin') listenToAdmin();
+    });
+
+    map = L.map('map').setView([9.9281, -84.0907], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    const openModal = (id) => {
+        const modal = document.getElementById(id);
+        if (modal) {
+            modal.classList.add('active');
+            setTimeout(() => {
+                if (map) map.invalidateSize();
+                if (gpsMap) gpsMap.invalidateSize();
+            }, 300);
+        }
+    };
+    const closeModal = (id) => document.getElementById(id).classList.remove('active');
+
+    document.getElementById('loginBtn').addEventListener('click', () => {
+        const email = document.getElementById('authEmail').value.trim().toLowerCase();
+        const pass = document.getElementById('authPassword').value;
+        const role = document.getElementById('authRole').value;
+        let _authenticated = false;
+
+        if (role === 'admin' && email === 'admin@test.com' && pass === 'ADMIN') {
+            currentUser = { email, role, name: 'Admin' };
+            _authenticated = true;
+        } else if (role === 'transporter') {
+            const t = transporters.find(x => x.email === email && x.password === pass);
+            if (t) { currentUser = { ...t, role }; _authenticated = true; }
+        } else if (role === 'client') {
+            const c = registeredClients.find(x => x.email === email && x.password === pass);
+            if (c) { currentUser = { ...c, role }; _authenticated = true; }
         }
 
-        if (bestMatch) return bestMatch;
-        if (this.photos.length > 0 && lowerMsg.includes('foto')) return "Tengo " + this.photos.length + " fotos de referencia en mi base de datos para ayudarte visualmente.";
-        return "Interesante pregunta. Según mis reglas: '" + this.rules + "'. ¿Podrías darme más detalles?";
-    }
-}
-
-const agent = new AIAgent();
-
-// ============================================
-// UI Y EVENTOS
-// ============================================
-
-// Login Simulado
-document.getElementById('loginBtn').addEventListener('click', () => {
-    document.getElementById('authSection').classList.remove('active');
-    document.getElementById('adminSection').classList.add('active');
-    renderTrainingPanel();
-});
-
-// Tabs
-document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(btn.dataset.tab + 'Tab').classList.add('active');
+        if (_authenticated) {
+            document.getElementById('authSection').classList.remove('active');
+            document.getElementById(role + 'Section').classList.add('active');
+            if(role === 'admin') {
+                document.querySelector('.map-container').style.display = 'none';
+                listenToAdmin();
+                renderTrainingPanel(); // Inicializar panel IA
+            } else {
+                document.querySelector('.map-container').style.display = 'block';
+                if(role === 'client') document.getElementById('clientNameDisplay').innerText = currentUser.name;
+                if(role === 'transporter') { 
+                    document.getElementById('transNameDisplay').innerText = currentUser.name; 
+                    listenToJobs(); 
+                }
+            }
+        } else { alert('Credenciales incorrectas'); }
     });
-});
 
-// Chat Widget
-const chatWidget = document.getElementById('aiChatWidget');
-document.getElementById('aiChatToggle').addEventListener('click', () => chatWidget.classList.toggle('hidden'));
-document.getElementById('aiChatClose').addEventListener('click', () => chatWidget.classList.add('hidden'));
+    document.querySelectorAll('.logoutBtn').forEach(btn => btn.addEventListener('click', () => location.reload()));
 
-document.getElementById('aiChatSend').addEventListener('click', () => {
-    const input = document.getElementById('aiChatInput');
-    const msg = input.value.trim();
-    if (!msg) return;
+    // LÓGICA ADMIN
+    const listenToAdmin = () => {
+        onValue(ref(db, 'moves'), (snapshot) => {
+            const data = snapshot.val();
+            const tbody = document.getElementById('movesTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            let totalSales = 0, totalComm = 0, companyRegal = 0, partnersRegal = 0;
+            const selectedMonth = document.getElementById('financeCalendar').value;
+            const selectedDay = document.getElementById('movesDateFilter').value;
 
-    addMsg(msg, 'user');
-    input.value = '';
-    
-    setTimeout(() => {
-        addMsg(agent.getResponse(msg), 'bot');
-    }, 600);
-});
+            if(data) {
+                Object.keys(data).forEach(key => {
+                    const m = data[key];
+                    const comm = m.price * 0.2;
+                    const net = m.price * 0.8;
+                    const moveDate = new Date(m.timestamp);
+                    const moveMonth = `${moveDate.getFullYear()}-${String(moveDate.getMonth()+1).padStart(2,'0')}`;
+                    const moveDay = moveDate.toISOString().split('T')[0];
 
-function addMsg(text, role) {
-    const container = document.getElementById('aiChatMessages');
-    const div = document.createElement('div');
-    div.className = `ai-message ${role}`;
-    div.innerHTML = `<div class="ai-message-content">${text}</div>`;
-    container.appendChild(div);
-    container.scrollTop = container.scrollHeight;
-}
+                    if (selectedDay && moveDay !== selectedDay) return;
+                    totalSales += m.price;
+                    totalComm += comm;
 
-// Panel de Entrenamiento
-function renderTrainingPanel() {
-    document.getElementById('aiRules').value = agent.rules;
-    
-    const qaList = document.getElementById('qaList');
-    qaList.innerHTML = '';
-    for (const key in agent.knowledgeBase) {
-        const item = agent.knowledgeBase[key];
-        const div = document.createElement('div');
-        div.className = 'qa-item';
-        div.innerHTML = `
-            <i class="fas fa-trash delete-qa" onclick="deleteQA('${key}')"></i>
-            <div style="font-size:12px; font-weight:bold; color:#00d4ff;">P: ${key.replace(/_/g, ' ')}</div>
-            <div style="font-size:11px; color:#aaa;">R: ${item.response}</div>
-            <div style="font-size:10px; color:#666;">Keywords: ${item.keywords.join(', ')}</div>
-        `;
-        qaList.appendChild(div);
-    }
+                    if (!selectedMonth || moveMonth === selectedMonth) {
+                        if (m.status === 'completed') {
+                            companyRegal += comm;
+                            partnersRegal += net;
+                        }
+                    }
+                    tbody.innerHTML += `<tr><td>#${key.slice(-4)}</td><td>${m.clientName}</td><td>${m.transporterName}</td><td>${m.date}</td><td>${m.time || '--:--'}</td><td>₡${m.price.toLocaleString()}</td><td style="color:#4ade80;">₡${comm.toLocaleString()}</td><td><span class="status-badge status-${m.status}">${m.status}</span></td></tr>`;
+                });
+            }
+            document.getElementById('totalAdminSales').textContent = '₡' + totalSales.toLocaleString();
+            document.getElementById('totalAdminComm').textContent = '₡' + totalComm.toLocaleString();
+            document.getElementById('companyRegal').textContent = '₡' + companyRegal.toLocaleString();
+            document.getElementById('partnersRegal').textContent = '₡' + partnersRegal.toLocaleString();
+            document.getElementById('netBalance').textContent = '₡' + (companyRegal - 30000).toLocaleString();
+        });
 
-    const photoGrid = document.getElementById('aiPhotoGrid');
-    photoGrid.innerHTML = '';
-    agent.photos.forEach((src, index) => {
-        const div = document.createElement('div');
-        div.className = 'photo-item';
-        div.innerHTML = `
-            <img src="${src}">
-            <i class="fas fa-times delete-photo" onclick="deletePhoto(${index})"></i>
-        `;
-        photoGrid.appendChild(div);
-    });
-}
-
-document.getElementById('saveAiRules').addEventListener('click', () => {
-    agent.rules = document.getElementById('aiRules').value;
-    agent.save();
-    alert('Reglas actualizadas');
-});
-
-document.getElementById('addQA').addEventListener('click', () => {
-    const q = document.getElementById('newQuestion').value.trim();
-    const r = document.getElementById('newAnswer').value.trim();
-    const k = document.getElementById('newKeywords').value.trim();
-    
-    if (!q || !r) return;
-    
-    const key = q.toLowerCase().replace(/\s+/g, '_').substring(0, 20);
-    agent.knowledgeBase[key] = {
-        keywords: k ? k.split(',') : [q],
-        response: r
+        const partnersList = document.getElementById('adminPartnersList');
+        if (partnersList) partnersList.innerHTML = transporters.map(t => `<div class="partner-item" data-tid="${t.id}"><i class="fas fa-user-tie"></i> ${t.name}</div>`).join('');
+        const clientsList = document.getElementById('adminClientsList');
+        if (clientsList) clientsList.innerHTML = registeredClients.map(c => `<div class="partner-item client-item" data-email="${c.email}"><i class="fas fa-user"></i> ${c.name}</div>`).join('');
     };
-    agent.save();
-    renderTrainingPanel();
-    document.getElementById('newQuestion').value = '';
-    document.getElementById('newAnswer').value = '';
-    document.getElementById('newKeywords').value = '';
-});
 
-window.deleteQA = (key) => {
-    delete agent.knowledgeBase[key];
-    agent.save();
-    renderTrainingPanel();
-};
-
-// Fotos
-document.getElementById('aiPhotoUpload').addEventListener('click', () => document.getElementById('aiPhotoInput').click());
-document.getElementById('aiPhotoInput').addEventListener('change', (e) => {
-    const files = e.target.files;
-    for (let file of files) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            agent.photos.push(event.target.result);
-            agent.save();
-            renderTrainingPanel();
-        };
-        reader.readAsDataURL(file);
+    // LÓGICA DEL AGENTE DE IA (AÑADIDA)
+    class AIAgent {
+        constructor() {
+            this.rules = localStorage.getItem('ai_rules') || "Eres un experto en MudanzasHub. Sé amable y profesional. Prioriza las ventajas de negocio.";
+            this.knowledgeBase = JSON.parse(localStorage.getItem('ai_knowledge')) || {
+                'que_es': { keywords: ['qué es', 'mudanzashub'], response: "MudanzasHub es la plataforma líder en Costa Rica para conectar clientes con transportistas profesionales." },
+                'ventajas': { keywords: ['ventaja', 'negocio', 'ganar'], response: "Como socio, ganas el 80% de cada servicio, tienes GPS integrado y acceso a miles de clientes." }
+            };
+            this.photos = JSON.parse(localStorage.getItem('ai_photos')) || [];
+        }
+        save() {
+            localStorage.setItem('ai_rules', this.rules);
+            localStorage.setItem('ai_knowledge', JSON.stringify(this.knowledgeBase));
+            localStorage.setItem('ai_photos', JSON.stringify(this.photos));
+        }
+        getResponse(userMessage) {
+            const lowerMsg = userMessage.toLowerCase();
+            let bestMatch = null;
+            let maxMatches = 0;
+            for (const key in this.knowledgeBase) {
+                const item = this.knowledgeBase[key];
+                const matches = item.keywords.filter(kw => lowerMsg.includes(kw.trim().toLowerCase())).length;
+                if (matches > maxMatches) { maxMatches = matches; bestMatch = item.response; }
+            }
+            if (bestMatch) return bestMatch;
+            if (this.photos.length > 0 && lowerMsg.includes('foto')) return "Tengo " + this.photos.length + " fotos de referencia para ayudarte visualmente.";
+            return "Interesante pregunta. Según mis reglas: '" + this.rules + "'. ¿Podrías darme más detalles?";
+        }
     }
-});
+    const agent = new AIAgent();
 
-window.deletePhoto = (index) => {
-    agent.photos.splice(index, 1);
-    agent.save();
-    renderTrainingPanel();
-};
+    // UI AGENTE IA
+    const chatWidget = document.getElementById('aiChatWidget');
+    document.getElementById('aiChatToggle').addEventListener('click', () => chatWidget.classList.toggle('hidden'));
+    document.getElementById('aiChatClose').addEventListener('click', () => chatWidget.classList.add('hidden'));
+    document.getElementById('aiChatSend').addEventListener('click', () => {
+        const input = document.getElementById('aiChatInput');
+        const msg = input.value.trim();
+        if (!msg) return;
+        addMsg(msg, 'user');
+        input.value = '';
+        setTimeout(() => addMsg(agent.getResponse(msg), 'bot'), 600);
+    });
+    function addMsg(text, role) {
+        const container = document.getElementById('aiChatMessages');
+        const div = document.createElement('div');
+        div.className = `ai-message ${role}`;
+        div.innerHTML = `<div class="ai-message-content">${text}</div>`;
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    // PANEL ENTRENAMIENTO IA
+    window.renderTrainingPanel = () => {
+        document.getElementById('aiRules').value = agent.rules;
+        const qaList = document.getElementById('qaList');
+        qaList.innerHTML = '';
+        for (const key in agent.knowledgeBase) {
+            const item = agent.knowledgeBase[key];
+            const div = document.createElement('div');
+            div.className = 'qa-item';
+            div.innerHTML = `<i class="fas fa-trash delete-qa" onclick="deleteQA('${key}')"></i><div style="font-size:12px; font-weight:bold; color:#00d4ff;">P: ${key.replace(/_/g, ' ')}</div><div style="font-size:11px; color:#aaa;">R: ${item.response}</div>`;
+            qaList.appendChild(div);
+        }
+        const photoGrid = document.getElementById('aiPhotoGrid');
+        photoGrid.innerHTML = '';
+        agent.photos.forEach((src, index) => {
+            const div = document.createElement('div');
+            div.className = 'photo-item';
+            div.innerHTML = `<img src="${src}"><i class="fas fa-times delete-photo" onclick="deletePhoto(${index})"></i>`;
+            photoGrid.appendChild(div);
+        });
+    };
+
+    document.getElementById('saveAiRules').addEventListener('click', () => {
+        agent.rules = document.getElementById('aiRules').value;
+        agent.save();
+        alert('Reglas actualizadas');
+    });
+
+    document.getElementById('addQA').addEventListener('click', () => {
+        const q = document.getElementById('newQuestion').value.trim();
+        const r = document.getElementById('newAnswer').value.trim();
+        const k = document.getElementById('newKeywords').value.trim();
+        if (!q || !r) return;
+        const key = q.toLowerCase().replace(/\s+/g, '_').substring(0, 20);
+        agent.knowledgeBase[key] = { keywords: k ? k.split(',') : [q], response: r };
+        agent.save();
+        renderTrainingPanel();
+        document.getElementById('newQuestion').value = ''; document.getElementById('newAnswer').value = ''; document.getElementById('newKeywords').value = '';
+    });
+
+    window.deleteQA = (key) => { delete agent.knowledgeBase[key]; agent.save(); renderTrainingPanel(); };
+    window.deletePhoto = (index) => { agent.photos.splice(index, 1); agent.save(); renderTrainingPanel(); };
+
+    document.getElementById('aiPhotoUpload').addEventListener('click', () => document.getElementById('aiPhotoInput').click());
+    document.getElementById('aiPhotoInput').addEventListener('change', (e) => {
+        const files = e.target.files;
+        for (let file of files) {
+            const reader = new FileReader();
+            reader.onload = (event) => { agent.photos.push(event.target.result); agent.save(); renderTrainingPanel(); };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // EVENTOS TABS ORIGINALES + IA
+    document.addEventListener('click', (e) => {
+        const tabBtn = e.target.closest('.tab-btn');
+        if (tabBtn) {
+            const section = tabBtn.closest('.section');
+            section.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            section.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            tabBtn.classList.add('active');
+            section.querySelector(`#${tabBtn.dataset.tab}Tab`).classList.add('active');
+            if (section.id === 'adminSection') document.querySelector('.map-container').style.display = 'none';
+            else document.querySelector('.map-container').style.display = 'block';
+        }
+    });
 
 </script>
 </body>
