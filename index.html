@@ -131,54 +131,45 @@
         .ficha-name { font-weight: bold; font-size: 16px; }
         .ficha-rating { color: #fbbf24; font-size: 12px; }
 
-        /* ESTILOS DEL AGENTE DE IA (AÑADIDOS) */
-        .ai-chat-widget { position: fixed; bottom: 20px; right: 20px; width: 380px; height: 600px; background: #1a1a1a; border: 2px solid #00d4ff; border-radius: 12px; box-shadow: 0 5px 40px rgba(0, 212, 255, 0.3); display: flex; flex-direction: column; z-index: 5000; animation: slideUp 0.3s ease-out; }
-        .ai-chat-widget.hidden { display: none; }
-        .ai-chat-header { background: linear-gradient(135deg, #00d4ff, #0099cc); color: #000; padding: 16px; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
-        .ai-chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: #0f0f0f; }
-        .ai-message { display: flex; gap: 8px; animation: fadeIn 0.3s ease-in; }
-        .ai-message-content { max-width: 80%; padding: 10px 14px; border-radius: 8px; font-size: 13px; line-height: 1.4; }
-        .ai-message.bot .ai-message-content { background: #2a2a2a; color: #00d4ff; border-left: 3px solid #00d4ff; }
-        .ai-message.user .ai-message-content { background: #00d4ff; color: #000; align-self: flex-end; margin-left: auto; }
-        .ai-chat-input-area { padding: 12px; border-top: 1px solid #333; display: flex; gap: 8px; background: #1a1a1a; border-radius: 0 0 10px 10px; }
-        .ai-chat-toggle { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; background: linear-gradient(135deg, #00d4ff, #0099cc); border: none; border-radius: 50%; color: #000; font-size: 24px; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4); display: flex; align-items: center; justify-content: center; z-index: 4999; transition: all 0.3s ease; }
-        .training-card { background: #222; border: 1px solid #333; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
-        .training-title { font-weight: bold; color: #00d4ff; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-        .qa-item { background: #1a1a1a; border: 1px solid #444; border-radius: 6px; padding: 10px; margin-bottom: 10px; position: relative; }
-        .qa-item .delete-qa { position: absolute; top: 5px; right: 5px; color: #ff4b4b; cursor: pointer; }
-        .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-top: 10px; }
-        .photo-item { width: 80px; height: 80px; border-radius: 4px; border: 1px solid #444; overflow: hidden; position: relative; }
-        .photo-item img { width: 100%; height: 100%; object-fit: cover; }
-        .photo-item .delete-photo { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.7); color: #fff; font-size: 10px; padding: 2px; cursor: pointer; border-radius: 2px; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* MEJORAS RESPONSIVAS */
+        @media (max-width: 768px) {
+            .container { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; max-height: 100vh; position: relative; border-right: none; border-bottom: 1px solid #333; }
+            .map-container { height: 50vh; width: 100%; }
+            .modal-content { width: 95%; padding: 15px; max-height: 85vh; }
+            .detail-grid { grid-template-columns: 1fr; }
+            .admin-table { font-size: 10px; }
+            .admin-table th, .admin-table td { padding: 8px 4px; }
+            .admin-footer { flex-direction: column; align-items: flex-start; gap: 5px; }
+            
+            /* Asegurar que el mapa en modales sea visible */
+            #adminHistoryMap, #mapContainer { height: 200px !important; }
+        }
+
+        /* Estilo para el panel de instrucciones de Leaflet Routing */
+        .leaflet-routing-container {
+            background: white !important;
+            color: black !important;
+            padding: 10px !important;
+            border-radius: 8px !important;
+            font-size: 13px !important;
+            max-height: 150px !important;
+            overflow-y: auto !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5) !important;
+            width: 280px !important;
+        }
+        .leaflet-routing-alt { color: black !important; }
+        .leaflet-routing-instruction-text { color: black !important; }
+
+
+        /* Fix Leaflet z-index */
+        .leaflet-pane { z-index: 1 !important; }
+        .leaflet-top, .leaflet-bottom { z-index: 2 !important; }
+        .modal { z-index: 9999 !important; }
+
     </style>
 </head>
 <body>
-
-<!-- AGENTE DE IA CHAT WIDGET -->
-<button class="ai-chat-toggle" id="aiChatToggle" title="Asistente IA">
-    <i class="fas fa-comments"></i>
-</button>
-
-<div class="ai-chat-widget hidden" id="aiChatWidget">
-    <div class="ai-chat-header">
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <i class="fas fa-robot"></i>
-            <span>Asistente MudanzasHub</span>
-        </div>
-        <button id="aiChatClose" style="background:none; border:none; cursor:pointer;"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="ai-chat-messages" id="aiChatMessages">
-        <div class="ai-message bot">
-            <div class="ai-message-content">¡Hola! Soy tu asistente de IA. ¿En qué puedo ayudarte hoy?</div>
-        </div>
-    </div>
-    <div class="ai-chat-input-area">
-        <input type="text" class="ai-chat-input search-input" id="aiChatInput" placeholder="Escribe tu pregunta...">
-        <button class="ai-chat-send btn btn-sm" id="aiChatSend" style="width:auto;"><i class="fas fa-paper-plane"></i></button>
-    </div>
-</div>
 
 <div class="nav-overlay" id="navOverlay">
     <i class="fas fa-navigation" style="color:#00d4ff;"></i>
@@ -337,7 +328,6 @@
                 <button class="tab-btn active" data-tab="moves">Mudanzas</button>
                 <button class="tab-btn" data-tab="partners">Socios</button>
                 <button class="tab-btn" data-tab="clients">Clientes</button>
-                <button class="tab-btn" data-tab="aiTraining">Entrenamiento IA</button>
                 <button class="tab-btn" data-tab="docs">Documentación</button>
             </div>
             <div id="movesTab" class="tab-content active">
@@ -368,32 +358,6 @@
             <div id="partnersTab" class="tab-content">
                 <div style="margin-bottom:10px; font-weight:bold; color:#00d4ff;">Lista de Socios</div>
                 <div id="adminPartnersList"></div>
-            </div>
-            <!-- PESTAÑA ENTRENAMIENTO IA (AÑADIDA) -->
-            <div id="aiTrainingTab" class="tab-content">
-                <div class="training-card">
-                    <div class="training-title"><i class="fas fa-brain"></i> Reglas del Agente</div>
-                    <div class="form-group">
-                        <label>Instrucciones de Comportamiento</label>
-                        <textarea id="aiRules" class="search-input" style="height: 80px; resize: none;" placeholder="Ej: Sé amable, prioriza las ventajas de negocio..."></textarea>
-                    </div>
-                    <button class="btn btn-sm" id="saveAiRules">Guardar Reglas</button>
-                </div>
-                <div class="training-card">
-                    <div class="training-title"><i class="fas fa-question-circle"></i> Preguntas y Respuestas</div>
-                    <div id="qaList"></div>
-                    <div style="border-top: 1px solid #333; padding-top: 10px; margin-top: 10px;">
-                        <div class="form-group"><input type="text" id="newQuestion" class="search-input" placeholder="Nueva pregunta..."></div>
-                        <div class="form-group"><textarea id="newAnswer" class="search-input" style="height: 60px; resize: none;" placeholder="Respuesta..."></textarea></div>
-                        <div class="form-group"><input type="text" id="newKeywords" class="search-input" placeholder="Palabras clave (separadas por coma)"></div>
-                        <button class="btn btn-sm" id="addQA">Añadir Conocimiento</button>
-                    </div>
-                </div>
-                <div class="training-card">
-                    <div class="training-title"><i class="fas fa-image"></i> Entrenamiento Visual</div>
-                    <div class="upload-area" id="aiPhotoUpload" style="padding: 10px;"><i class="fas fa-camera upload-icon" style="font-size: 20px;"></i><div class="upload-text">Subir fotos de referencia</div><input type="file" id="aiPhotoInput" style="display:none" accept="image/*" multiple></div>
-                    <div class="photo-grid" id="aiPhotoGrid"></div>
-                </div>
             </div>
             <div id="docsTab" class="tab-content">
                 <div class="calendar-container">
@@ -427,35 +391,112 @@
     <div class="gps-instructions" id="gpsInstructions">Iniciando navegación...</div>
 </div>
 
-<!-- MODALES ORIGINALES -->
+
+<!-- MODAL AGREGAR CLIENTE (ADMIN) -->
 <div class="modal" id="addClientModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('addClientModal')">&times;</button>
         <div class="modal-header">Agregar Nuevo Cliente</div>
-        <div class="form-group"><label>Nombre</label><input type="text" id="newClientName" class="search-input"></div>
-        <div class="form-group"><label>Email</label><input type="email" id="newClientEmail" class="search-input"></div>
-        <div class="form-group"><label>Teléfono</label><input type="tel" id="newClientPhone" class="search-input"></div>
-        <button class="btn" id="saveNewClientBtn">Guardar Cliente</button>
+        <div class="form-group">
+            <label>Nombre Completo</label>
+            <input type="text" id="addCName" class="search-input">
+        </div>
+        <div class="form-group">
+            <label>Correo Electrónico</label>
+            <input type="email" id="addCEmail" class="search-input">
+        </div>
+        <div class="form-group">
+            <label>Contraseña</label>
+            <input type="password" id="addCPass" class="search-input">
+        </div>
+        <div class="form-group">
+            <label>Teléfono</label>
+            <input type="text" id="addCPhone" class="search-input">
+        </div>
+        <div class="form-group">
+            <label>Cédula</label>
+            <input type="text" id="addCId" class="search-input">
+        </div>
+        <button class="btn" id="saveNewClientBtn">Crear Cliente</button>
     </div>
 </div>
-
-<div class="modal" id="partnerDetailModal">
+<!-- MODAL DETALLE CLIENTE (ADMIN) -->
+<div class="modal" id="clientDetailModal">
     <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('partnerDetailModal')">&times;</button>
-        <div class="modal-header" id="partnerDetailName">Detalle del Socio</div>
-        <div class="detail-grid" id="partnerDetailContent"></div>
-        <div style="margin-top:20px; display:flex; gap:10px;">
-            <button class="btn" id="savePartnerEditBtn">Guardar Cambios</button>
-            <button class="btn btn-reject" id="deletePartnerBtn">Eliminar Socio</button>
+        <button class="modal-close" onclick="closeModal('clientDetailModal')">&times;</button>
+        <div class="modal-header">Perfil del Cliente</div>
+        <div id="clientDetailContent"></div>
+        <div style="margin-top:20px; font-weight:bold; color:#00d4ff; border-bottom:1px solid #333; padding-bottom:5px;">Historial de Servicios</div>
+        <div id="clientHistoryList" style="margin-top:10px; max-height:200px; overflow-y:auto;"></div>
+        <div id="adminHistoryMap" style="height:200px; margin-top:15px; border-radius:8px; display:none;"></div>
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button class="btn" id="saveClientBtn">Guardar Cambios</button>
+            <button class="btn btn-whatsapp" id="msgClientBtn">WhatsApp</button>
+            <button class="btn btn-reject" id="deleteClientBtn">Eliminar Cliente</button>
         </div>
     </div>
 </div>
 
+<!-- MODAL MENSAJERÍA ADMIN -->
+<div class="modal" id="messageModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('messageModal')">&times;</button>
+        <div class="modal-header">Enviar Mensaje</div>
+        <div id="messageTargetInfo" style="margin-bottom:15px; color:#aaa; font-size:13px;"></div>
+        <textarea id="adminMessageText" class="search-input" style="height:120px; resize:none;" placeholder="Escribe tu mensaje aquí..."></textarea>
+        <button class="btn" id="sendAdminMessageBtn" style="margin-top:15px;">Enviar Mensaje</button>
+    </div>
+</div>
+
+<!-- MODAL SOCIO DETALLE -->
+<div class="modal" id="partnerDetailModal">
+    <div class="modal-content">
+        <button class="modal-close" data-close="partnerDetailModal">×</button>
+        <div class="modal-header" id="partnerDetailName">Detalle del Socio</div>
+        <div class="detail-grid" id="partnerDetailContent"></div>
+    </div>
+</div>
+
+<!-- MODAL FACTURA -->
+<div class="modal" id="facturaModal">
+        <div class="modal-content">
+            <button class="modal-close" data-close="facturaModal">×</button>
+            <div class="modal-header"><i class="fas fa-file-invoice-dollar"></i> Detalle de la Mudanza</div>
+            
+            <div class="transportista-ficha" id="fichaTransportista">
+                <!-- Se llena dinámicamente -->
+            </div>
+
+            <div id="facturaDetails" class="factura-header">
+                <!-- Se llena dinámicamente -->
+            </div>
+
+            <div style="background: #1a3a3a; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #00d4ff44;">
+                <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:20px; color:#4ade80;">
+                    <span>Total:</span>
+                    <span id="facturaTotal">₡0</span>
+                </div>
+            </div>
+
+            <div class="alert-box alert-info"><i class="fas fa-info-circle"></i> Pago por SINPE: 7228-4602. Adjunta el comprobante para confirmar.</div>
+            
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="comprobanteFileInput" style="display:none">
+                <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                <div class="upload-text" id="uploadText">Subir comprobante de pago</div>
+            </div>
+            
+            <button class="btn" id="confirmMoveBtn" disabled>Confirmar Mudanza</button>
+        </div>
+</div>
+
+<!-- MODAL CÓDIGO -->
 <div class="modal" id="codeModal">
-    <div class="modal-content" style="max-width:400px; text-align:center;">
+    <div class="modal-content" style="text-align:center;">
+        <button class="modal-close" onclick="closeModal('codeModal')">×</button>
         <div class="modal-header">Finalizar Servicio</div>
-        <p style="font-size:13px; color:#aaa; margin-bottom:20px;">Solicite el código de 4 dígitos al cliente para confirmar la entrega.</p>
-        <input type="number" id="confirmCodeInput" class="search-input" style="font-size:24px; text-align:center; letter-spacing:10px; margin-bottom:20px;" placeholder="0000">
+        <p style="margin-bottom:20px; color:#aaa;">Pide el código de confirmación al cliente.</p>
+        <input type="text" id="confirmCodeInput" class="search-input" style="text-align:center; font-size:24px; letter-spacing:5px; margin-bottom:20px;" placeholder="0000">
         <button class="btn" id="validateCodeBtn">Validar y Finalizar</button>
     </div>
 </div>
@@ -491,8 +532,11 @@
     let activeNavMove = null;
     let pendingMoveData = null;
     let searchTimeout = null;
+    
+    // GPS NAVEGACIÓN
     let gpsMap = null, gpsRouting = null, userMarker = null, watchId = null;
 
+    // CONFIGURACIÓN DE VEHÍCULOS (Consumo y Capacidad)
     const vehicleConfig = {
         pickup: { multiplier: 1.0, fuelCost: 1.0, capacity: 800, name: 'Pickup' },
         buseta: { multiplier: 1.4, fuelCost: 1.3, capacity: 1500, name: 'Buseta' },
@@ -502,23 +546,33 @@
     let transporters = [];
     let registeredClients = [];
 
+    // Sincronización de usuarios con Firebase
     onValue(ref(db, 'users/transporters'), (snap) => {
         const data = snap.val();
-        if (data) transporters = Object.values(data);
-        else transporters = [
-            { id: 1, email: 'carlos@test.com', password: '1234', name: 'Carlos Rodríguez', phone: '88881111', plate: 'BC-123', vehicle: 'Toyota Hiace', rating: 4.8, role: 'transporter' },
-            { id: 2, email: 'miguel@test.com', password: '1234', name: 'Miguel Vargas', phone: '88882222', plate: 'CL-456', vehicle: 'Hino 300', rating: 4.6, role: 'transporter' }
-        ];
+        if (data) {
+            transporters = Object.values(data);
+        } else {
+            transporters = [
+                { id: 1, email: 'carlos@test.com', password: '1234', name: 'Carlos Rodríguez', phone: '88881111', plate: 'BC-123', vehicle: 'Toyota Hiace', rating: 4.8, model: '2022', license: 'B2', insurance: 'INS-992', emergency: '88880000', role: 'transporter' },
+                { id: 2, email: 'miguel@test.com', password: '1234', name: 'Miguel Vargas', phone: '88882222', plate: 'CL-456', vehicle: 'Hino 300', rating: 4.6, model: '2021', license: 'B3', insurance: 'INS-112', emergency: '88880001', role: 'transporter' },
+                { id: 3, email: 'ana@test.com', password: '1234', name: 'Ana Quesada', phone: '88883333', plate: 'PK-789', vehicle: 'Nissan Frontier', rating: 4.9, model: '2023', license: 'B1', insurance: 'INS-445', emergency: '88880002', role: 'transporter' }
+            ];
+        }
         if(currentUser && currentUser.role === 'admin') listenToAdmin();
     });
-
     onValue(ref(db, 'users/clients'), (snap) => {
         const data = snap.val();
-        if (data) registeredClients = Object.values(data);
-        else registeredClients = [{ email: 'cliente@test.com', password: '1234', name: 'Laura Fernández', role: 'client' }];
+        if (data) {
+            registeredClients = Object.values(data);
+        } else {
+            registeredClients = [
+                { email: 'cliente@test.com', password: '1234', name: 'Laura Fernández', phone: '88880000', idNum: '1-1111-1111', location: 'San José', role: 'client' }
+            ];
+        }
         if(currentUser && currentUser.role === 'admin') listenToAdmin();
     });
 
+    // INICIALIZAR MAPA
     map = L.map('map').setView([9.9281, -84.0907], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
@@ -526,18 +580,46 @@
         const modal = document.getElementById(id);
         if (modal) {
             modal.classList.add('active');
+            // Si el modal contiene un mapa, necesitamos invalidar su tamaño después de que se muestre
             setTimeout(() => {
-                if (map) map.invalidateSize();
-                if (gpsMap) gpsMap.invalidateSize();
+                if (typeof map !== 'undefined' && map) map.invalidateSize();
+                if (typeof gpsMap !== 'undefined' && gpsMap) gpsMap.invalidateSize();
+                if (typeof adminHistMap !== 'undefined' && adminHistMap) adminHistMap.invalidateSize();
             }, 300);
         }
     };
     const closeModal = (id) => document.getElementById(id).classList.remove('active');
 
+    // SEGURIDAD: Control de intentos fallidos de login
+    let _loginAttempts = 0;
+    let _loginBlockedUntil = 0;
+    const _MAX_ATTEMPTS = 5;
+    const _BLOCK_MS = 30000;
+
+    // LOGIN
     document.getElementById('loginBtn').addEventListener('click', () => {
+        const now = Date.now();
+
+        // Bloqueo temporal por exceso de intentos
+        if (now < _loginBlockedUntil) {
+            const secsLeft = Math.ceil((_loginBlockedUntil - now) / 1000);
+            document.getElementById('connStatus').innerText = '\u26d4 Demasiados intentos. Espera ' + secsLeft + 's.';
+            document.getElementById('connStatus').style.color = '#ff6b6b';
+            return;
+        }
+
         const email = document.getElementById('authEmail').value.trim().toLowerCase();
         const pass = document.getElementById('authPassword').value;
         const role = document.getElementById('authRole').value;
+
+        // Los tres campos son obligatorios
+        if (!email || !pass || !role) {
+            document.getElementById('connStatus').innerText = '\u26a0\ufe0f Completa todos los campos.';
+            document.getElementById('connStatus').style.color = '#f59e0b';
+            return;
+        }
+
+        // Validaci\u00f3n estricta: email + contrase\u00f1a + rol deben coincidir exactamente
         let _authenticated = false;
 
         if (role === 'admin' && email === 'admin@test.com' && pass === 'ADMIN') {
@@ -551,27 +633,402 @@
             if (c) { currentUser = { ...c, role }; _authenticated = true; }
         }
 
-        if (_authenticated) {
-            document.getElementById('authSection').classList.remove('active');
-            document.getElementById(role + 'Section').classList.add('active');
-            if(role === 'admin') {
-                document.querySelector('.map-container').style.display = 'none';
-                listenToAdmin();
-                renderTrainingPanel(); // Inicializar panel IA
+        // Intento fallido
+        if (!_authenticated) {
+            _loginAttempts++;
+            document.getElementById('authPassword').value = '';
+            if (_loginAttempts >= _MAX_ATTEMPTS) {
+                _loginBlockedUntil = Date.now() + _BLOCK_MS;
+                _loginAttempts = 0;
+                document.getElementById('loginBtn').disabled = true;
+                document.getElementById('connStatus').innerText = '\u26d4 Bloqueado 30s por m\u00faltiples intentos fallidos.';
+                document.getElementById('connStatus').style.color = '#ff6b6b';
+                setTimeout(() => {
+                    document.getElementById('loginBtn').disabled = false;
+                    document.getElementById('connStatus').innerText = '\u2705 Firebase Conectado';
+                    document.getElementById('connStatus').style.color = '#4ade80';
+                }, _BLOCK_MS);
             } else {
-                document.querySelector('.map-container').style.display = 'block';
-                if(role === 'client') document.getElementById('clientNameDisplay').innerText = currentUser.name;
-                if(role === 'transporter') { 
-                    document.getElementById('transNameDisplay').innerText = currentUser.name; 
-                    listenToJobs(); 
+                const _rem = _MAX_ATTEMPTS - _loginAttempts;
+                document.getElementById('connStatus').innerText = '\u274c Credenciales incorrectas. Intentos restantes: ' + _rem;
+                document.getElementById('connStatus').style.color = '#ff6b6b';
+            }
+            return;
+        }
+
+        // Login exitoso
+        _loginAttempts = 0;
+        _loginBlockedUntil = 0;
+        document.getElementById('connStatus').innerText = '✅ Firebase Conectado';
+        document.getElementById('authSection').classList.remove('active');
+        document.getElementById(role + 'Section').classList.add('active');
+        
+        if(role === 'admin') {
+            document.querySelector('.map-container').style.display = 'none';
+            listenToAdmin();
+        } else {
+            document.querySelector('.map-container').style.display = 'block';
+            if(role === 'client') document.getElementById('clientNameDisplay').innerText = currentUser.name;
+            
+            if(role === 'transporter') { 
+                document.getElementById('transNameDisplay').innerText = currentUser.name; 
+                listenToJobs(); 
+                if ("geolocation" in navigator) {
+                    navigator.geolocation.watchPosition((pos) => {
+                        currentTransporterPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                        // Forzar refresco de ofertas para actualizar distancias
+                        listenToJobs();
+                    }, null, { enableHighAccuracy: true });
                 }
             }
-        } else { alert('Credenciales incorrectas'); }
+
+        }
     });
 
     document.querySelectorAll('.logoutBtn').forEach(btn => btn.addEventListener('click', () => location.reload()));
 
-    // LÓGICA ADMIN
+    // LÓGICA DE REGISTRO
+    document.getElementById('showRegisterBtn').addEventListener('click', () => {
+        document.getElementById('authSection').classList.remove('active');
+        document.getElementById('registerSection').classList.add('active');
+    });
+
+    document.getElementById('backToLoginBtn').addEventListener('click', () => {
+        document.getElementById('registerSection').classList.remove('active');
+        document.getElementById('authSection').classList.add('active');
+    });
+
+    document.getElementById('regTypeClient').addEventListener('click', () => {
+        document.getElementById('regTypeClient').classList.add('active');
+        document.getElementById('regTypeTrans').classList.remove('active');
+        document.getElementById('clientRegForm').style.display = 'block';
+        document.getElementById('transRegForm').style.display = 'none';
+    });
+
+    document.getElementById('regTypeTrans').addEventListener('click', () => {
+        document.getElementById('regTypeTrans').classList.add('active');
+        document.getElementById('regTypeClient').classList.remove('active');
+        document.getElementById('transRegForm').style.display = 'block';
+        document.getElementById('clientRegForm').style.display = 'none';
+    });
+
+    document.getElementById('executeRegisterBtn').addEventListener('click', () => {
+        const isClient = document.getElementById('regTypeClient').classList.contains('active');
+        const email = document.getElementById('regEmail').value.trim().toLowerCase();
+        const pass = document.getElementById('regPass').value;
+
+        if (!email || !pass) return alert('Email y contraseña son obligatorios');
+
+        if (isClient) {
+            const newUser = {
+                email, password: pass,
+                name: document.getElementById('regName').value,
+                idNum: document.getElementById('regId').value,
+                phone: document.getElementById('regPhone').value,
+                location: document.getElementById('regLoc').value,
+                role: 'client'
+            };
+            set(ref(db, 'users/clients/' + email.replace('.', '_')), newUser);
+            alert('Registro de Cliente exitoso. Ya puedes iniciar sesión.');
+        } else {
+            const tid = Date.now();
+            const newTrans = {
+                id: tid,
+                email, password: pass,
+                name: document.getElementById('regTName').value,
+                idNum: document.getElementById('regTId').value,
+                phone: document.getElementById('regTPhone').value,
+                age: document.getElementById('regTAge').value,
+                physical: document.getElementById('regTPhys').value,
+                vehicle: document.getElementById('regTVehicle').value,
+                plate: document.getElementById('regTPlate').value,
+                license: document.getElementById('regTLicense').value,
+                insurance: document.getElementById('regTInsurance').value,
+                rating: 5.0,
+                role: 'transporter'
+            };
+            set(ref(db, 'users/transporters/' + tid), newTrans);
+            alert('Registro de Socio exitoso. Ya puedes iniciar sesión.');
+        }
+        document.getElementById('backToLoginBtn').click();
+    });
+
+    // BÚSQUEDA DE UBICACIONES
+    const searchLocations = async (query, type) => {
+        if (query.length < 3) return;
+        const suggestionsDiv = document.getElementById(type + 'Suggestions');
+        suggestionsDiv.innerHTML = '<div style="padding:10px;color:#aaa;">Buscando...</div>';
+        suggestionsDiv.classList.add('active');
+        try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}, Costa Rica&limit=6&countrycodes=cr`);
+            const results = await response.json();
+            suggestionsDiv.innerHTML = results.map(r => `
+                <div class="suggestion-item" data-lat="${r.lat}" data-lon="${r.lon}" data-name="${r.display_name.replace(/"/g, '&quot;')}" data-type="${type}">
+                    <div><strong>${r.name || r.display_name.split(',')[0]}</strong></div>
+                    <div class="suggestion-address">${r.display_name.substring(0, 60)}...</div>
+                </div>
+            `).join('');
+        } catch (e) { suggestionsDiv.innerHTML = '<div style="padding:10px;color:#ff6b6b;">Error</div>'; }
+    };
+
+    document.getElementById('originSearch').addEventListener('input', (e) => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => searchLocations(e.target.value, 'origin'), 400);
+    });
+    document.getElementById('destinationSearch').addEventListener('input', (e) => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => searchLocations(e.target.value, 'destination'), 400);
+    });
+
+    document.addEventListener('click', (e) => {
+        const item = e.target.closest('.suggestion-item');
+        if (item) {
+            const { lat, lon, name, type } = item.dataset;
+            selectLocation(parseFloat(lat), parseFloat(lon), name, type);
+        } else if (!e.target.closest('.search-container')) {
+            document.querySelectorAll('.search-suggestions').forEach(s => s.classList.remove('active'));
+        }
+    });
+
+    const selectLocation = (lat, lon, name, type) => {
+        const loc = { lat, lng: lon, name };
+        if (type === 'origin') {
+            selectedOrigin = loc;
+            document.getElementById('originSearch').value = name.split(',')[0];
+            if (markers.origin) map.removeLayer(markers.origin);
+            markers.origin = L.marker([lat, lon], { icon: L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] }) }).addTo(map).bindPopup('Origen');
+        } else {
+            selectedDestination = loc;
+            document.getElementById('destinationSearch').value = name.split(',')[0];
+            if (markers.destination) map.removeLayer(markers.destination);
+            markers.destination = L.marker([lat, lon], { icon: L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] }) }).addTo(map).bindPopup('Destino');
+        }
+        document.querySelectorAll('.search-suggestions').forEach(s => s.classList.remove('active'));
+        if (selectedOrigin && selectedDestination) drawRoute();
+        else map.setView([lat, lon], 14);
+    };
+
+    const drawRoute = () => {
+        if (routingControl) map.removeControl(routingControl);
+        routingControl = L.Routing.control({
+            waypoints: [L.latLng(selectedOrigin.lat, selectedOrigin.lng), L.latLng(selectedDestination.lat, selectedDestination.lng)],
+            show: false,
+            lineOptions: { styles: [{ color: '#00d4ff', opacity: 0.8, weight: 4 }] },
+            createMarker: () => null,
+            addWaypoints: false,
+            draggableWaypoints: false,
+            fitSelectedRoutes: true
+        }).addTo(map);
+        map.fitBounds(L.latLngBounds([selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]), { padding: [50, 50] });
+    };
+
+    // LÓGICA DE PRECIOS DINÁMICA
+    const calculatePrice = (dist, vehicle, weight, access, service) => {
+        const config = vehicleConfig[vehicle];
+        const basePrice = 12000; // Tarifa base
+        const distPrice = dist * 1100 * config.fuelCost; // Costo por km ajustado por combustible
+        const weightPrice = (weight / 100) * 1500; // Costo por peso
+        const accessMultipliers = { easy: 1, medium: 1.15, hard: 1.3 };
+        const servicePrice = service === 'acarreo' ? 8000 : 0;
+        
+        let total = (basePrice + distPrice + weightPrice) * config.multiplier * accessMultipliers[access] + servicePrice;
+        return Math.round(total);
+    };
+
+    document.getElementById('searchTransportersBtn').addEventListener('click', () => {
+        if (!selectedOrigin || !selectedDestination) return alert('Selecciona origen y destino');
+        const dist = calculateDist(selectedOrigin, selectedDestination);
+        const weight = parseFloat(document.getElementById('loadWeight').value) || 100;
+        const access = document.getElementById('accessType').value;
+        
+        // Generar 3 ofertas basadas en el promedio de los factores
+        const basePrice = calculatePrice(dist, selectedVehicle, weight, access, selectedServiceType);
+        
+        const offers = [
+            { ...transporters[0], price: Math.round(basePrice * 0.95) },
+            { ...transporters[1], price: basePrice },
+            { ...transporters[2], price: Math.round(basePrice * 1.05) }
+        ];
+
+        document.getElementById('transportistasList').innerHTML = offers.map(t => `
+            <div class="transportista-card" data-tid="${t.id}" data-price="${t.price}">
+                <div class="transportista-header">
+                    <div class="transportista-name">${t.name}</div>
+                    <div class="transportista-price">₡${t.price.toLocaleString()}</div>
+                </div>
+                <div style="font-size:11px; color:#bbb; margin-bottom:5px;">
+                    <i class="fas fa-truck"></i> ${t.vehicle} | <i class="fas fa-id-card"></i> ${t.plate}
+                </div>
+                <div style="font-size:11px; color:#bbb;">
+                    <i class="fas fa-phone"></i> ${t.phone} | ⭐ ${t.rating}
+                </div>
+            </div>
+        `).join('');
+    });
+
+    document.getElementById('transportistasList').addEventListener('click', (e) => {
+        const card = e.target.closest('.transportista-card');
+        if (card) {
+            const tid = parseInt(card.dataset.tid);
+            const price = parseInt(card.dataset.price);
+            openFactura(tid, price);
+        }
+    });
+
+    const openFactura = (tid, price) => {
+        selectedTransporter = transporters.find(t => t.id === tid);
+            const now = new Date();
+            pendingMoveData = {
+                client: currentUser.email,
+                clientName: currentUser.name,
+                clientPhone: currentUser.phone || '',
+                transporter: selectedTransporter.id,
+                transporterName: selectedTransporter.name,
+                transporterPhone: selectedTransporter.phone,
+                transporterPlate: selectedTransporter.plate,
+                origin: selectedOrigin,
+                destination: selectedDestination,
+                price: price,
+                vehicle: selectedVehicle,
+                service: selectedServiceType,
+                weight: document.getElementById('loadWeight').value,
+                access: document.getElementById('accessType').value,
+                status: 'pending',
+                code: Math.floor(1000 + Math.random() * 9000),
+                timestamp: Date.now(),
+                date: now.toLocaleDateString(),
+                time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+
+        // FICHA TÉCNICA (MODELO)
+        document.getElementById('fichaTransportista').innerHTML = `
+            <div class="ficha-header">
+                <div class="ficha-avatar"><i class="fas fa-user-tie"></i></div>
+                <div class="ficha-title">
+                    <div class="ficha-name">${selectedTransporter.name}</div>
+                    <div class="ficha-rating"><i class="fas fa-star"></i> ${selectedTransporter.rating} · Socio Verificado</div>
+                </div>
+            </div>
+            <div class="factura-row"><span class="factura-label">Vehículo:</span><span class="factura-value">${selectedTransporter.vehicle}</span></div>
+            <div class="factura-row"><span class="factura-label">Placa:</span><span class="factura-value">${selectedTransporter.plate}</span></div>
+            <div class="factura-row"><span class="factura-label">Teléfono:</span><span class="factura-value">${selectedTransporter.phone}</span></div>
+        `;
+
+        // DETALLES FACTURA (MODELO)
+        document.getElementById('facturaDetails').innerHTML = `
+            <div class="factura-row"><span class="factura-label">Origen:</span><span class="factura-value">${selectedOrigin.name.split(',')[0]}</span></div>
+            <div class="factura-row"><span class="factura-label">Destino:</span><span class="factura-value">${selectedDestination.name.split(',')[0]}</span></div>
+            <div class="factura-row"><span class="factura-label">Servicio:</span><span class="factura-value">${selectedServiceType === 'acarreo' ? 'Con Acarreo' : 'Puesta Afuera'}</span></div>
+            <div class="factura-row"><span class="factura-label">Peso aprox:</span><span class="factura-value">${pendingMoveData.weight} kg</span></div>
+        `;
+
+        document.getElementById('facturaTotal').textContent = '₡' + price.toLocaleString();
+        openModal('facturaModal');
+    };
+
+    document.getElementById('uploadArea').addEventListener('click', () => document.getElementById('comprobanteFileInput').click());
+    document.getElementById('comprobanteFileInput').addEventListener('change', (e) => {
+        if (e.target.files[0]) {
+            document.getElementById('uploadText').textContent = '✓ Comprobante adjunto';
+            document.getElementById('confirmMoveBtn').disabled = false;
+        }
+    });
+
+    document.getElementById('confirmMoveBtn').addEventListener('click', () => {
+        push(ref(db, 'moves'), pendingMoveData).then(() => {
+            // SIMULACIÓN DE NOTIFICACIÓN POR CORREO
+            console.log(`[SIMULACIÓN CORREO] Enviando notificación a ${selectedTransporter.email}: "Tienes una nueva oferta de mudanza vigente de ${currentUser.name}"`);
+            alert('¡Solicitud enviada! El transportista ha sido notificado por correo. Código: ' + pendingMoveData.code);
+            closeModal('facturaModal');
+            location.reload();
+        });
+    });
+
+    // LÓGICA TRANSPORTISTA (3 VIAJES SIMULTÁNEOS EN RUTA)
+    const listenToJobs = () => {
+        onValue(ref(db, 'moves'), (snapshot) => {
+            const data = snapshot.val();
+            const jobsTab = document.getElementById('jobsTab');
+            const activeTab = document.getElementById('activeTab');
+            const historyList = document.getElementById('historyList');
+            if (!jobsTab) return;
+            
+            jobsTab.innerHTML = ''; activeTab.innerHTML = ''; historyList.innerHTML = '';
+            let earnings = 0;
+            let activeCount = 0;
+
+            if(data) {
+                Object.keys(data).forEach(key => {
+                    const m = data[key];
+                    
+                    // Calcular distancia a la oferta si tenemos la posición del transportista
+                    let distToOffer = null;
+                    if (currentTransporterPos && m.origin) {
+                        distToOffer = calculateDist(currentTransporterPos, m.origin).toFixed(1);
+                    }
+
+                    if (m.transporter === currentUser.id) {
+                        if (m.status === 'in_progress') activeCount++;
+                        if (m.status === 'completed') {
+                            const netEarning = m.price * 0.8;
+                            earnings += netEarning;
+                            historyList.innerHTML += `
+                                <div style="background:#2a2a2a; padding:10px; border-radius:8px; margin-bottom:8px; font-size:12px;">
+                                    <div style="display:flex; justify-content:space-between;">
+                                        <strong>${m.clientName}</strong>
+                                        <span style="color:#4ade80;">₡${netEarning.toLocaleString()} (80%)</span>
+                                    </div>
+                                    <div style="color:#888; font-size:10px;">${m.date} | Total: ₡${m.price.toLocaleString()}</div>
+                                </div>`;
+                        }
+                    }
+
+                    const html = `
+                        <div class="uber-job-card">
+                            <div class="job-header">
+                                <div style="font-weight:bold;">${m.origin.name.split(',')[0]} → ${m.destination.name.split(',')[0]}</div>
+                                <div class="job-price">₡${m.price.toLocaleString()}</div>
+                            </div>
+                            <p style="font-size:11px; color:#aaa;">Cliente: ${m.clientName} | Peso: ${m.weight}kg</p>
+                            
+                            ${m.status === 'pending' && m.transporter === currentUser.id ? `
+                                <div style="background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px; margin: 10px 0; border: 1px solid #444;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <span style="font-size:12px; color:#00d4ff;"><i class="fas fa-map-marker-alt"></i> Distancia: ${distToOffer ? distToOffer + ' km' : 'Calculando...'}</span>
+                                        <button class="btn btn-sm" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${m.origin.lat},${m.origin.lng}', '_blank')" style="width:auto; padding:5px 10px; background:#444; font-size:10px;">Cómo llegar</button>
+                                    </div>
+                                </div>
+                                <div style="display:flex; gap:10px; margin-top:10px;">
+                                    <button class="btn btn-accept acceptJobBtn" data-id="${key}" ${activeCount >= 3 ? 'disabled' : ''}>Aceptar</button>
+                                    <button class="btn btn-reject rejectJobBtn" data-id="${key}">Rechazar</button>
+                                </div>` : ''}
+                                
+                            ${m.status === 'in_progress' && m.transporter === currentUser.id ? `
+                                <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+                                    <div style="background: rgba(0,212,255,0.1); padding: 8px; border-radius: 6px; border: 1px solid #00d4ff44; margin-bottom: 5px;">
+                                        <div style="font-size: 10px; color: #00d4ff; font-weight: bold; text-transform: uppercase;">Teléfono del Cliente</div>
+                                        <div style="font-size: 16px; font-weight: bold; color: #fff;">${m.clientPhone || 'No registrado'}</div>
+                                    </div>
+                                    <button class="btn btn-whatsapp" onclick="window.open('https://wa.me/506${(m.clientPhone || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent('¿Le gustaría que le comparta mi ubicación?')}', '_blank')" style="text-decoration:none; text-align:center; font-size:12px; padding:10px;">
+                                        <i class="fab fa-whatsapp"></i> Llamar al Cliente por WhatsApp
+                                    </button>
+                                    <div style="display:flex; gap:10px;">
+                                        <button class="btn btn-sm startNavBtn" data-id="${key}">Ver Ruta</button>
+                                        <button class="btn btn-sm openCodeBtn" style="background:#4ade80;" data-id="${key}">Finalizar</button>
+                                    </div>
+                                    <button class="btn btn-sm btn-reject cancelInProgressBtn" data-id="${key}">Cancelar en Curso</button>
+                                </div>` : ''}
+                        </div>`;
+
+                    if(m.status === 'pending' && m.transporter === currentUser.id) jobsTab.innerHTML += html;
+                    else if(m.status === 'in_progress' && m.transporter === currentUser.id) activeTab.innerHTML += html;
+                });
+            }
+            document.getElementById('totalEarnings').textContent = '₡' + Math.round(earnings).toLocaleString();
+        });
+    };
+
+    // LÓGICA ADMIN EXPANDIDA
     const listenToAdmin = () => {
         onValue(ref(db, 'moves'), (snapshot) => {
             const data = snapshot.val();
@@ -579,28 +1036,33 @@
             if (!tbody) return;
             tbody.innerHTML = '';
             let totalSales = 0, totalComm = 0, companyRegal = 0, partnersRegal = 0;
-            const selectedMonth = document.getElementById('financeCalendar').value;
-            const selectedDay = document.getElementById('movesDateFilter').value;
+            const selectedMonth = document.getElementById('financeCalendar').value; // YYYY-MM
+            const selectedDay = document.getElementById('movesDateFilter').value; // YYYY-MM-DD
 
             if(data) {
                 Object.keys(data).forEach(key => {
                     const m = data[key];
                     const comm = m.price * 0.2;
                     const net = m.price * 0.8;
+                    
                     const moveDate = new Date(m.timestamp);
                     const moveMonth = `${moveDate.getFullYear()}-${String(moveDate.getMonth()+1).padStart(2,'0')}`;
                     const moveDay = moveDate.toISOString().split('T')[0];
 
+                    // Filtro para tabla de mudanzas (Día)
                     if (selectedDay && moveDay !== selectedDay) return;
+
                     totalSales += m.price;
                     totalComm += comm;
 
+                    // Filtro para finanzas (Mes)
                     if (!selectedMonth || moveMonth === selectedMonth) {
                         if (m.status === 'completed') {
                             companyRegal += comm;
                             partnersRegal += net;
                         }
                     }
+
                     tbody.innerHTML += `<tr><td>#${key.slice(-4)}</td><td>${m.clientName}</td><td>${m.transporterName}</td><td>${m.date}</td><td>${m.time || '--:--'}</td><td>₡${m.price.toLocaleString()}</td><td style="color:#4ade80;">₡${comm.toLocaleString()}</td><td><span class="status-badge status-${m.status}">${m.status}</span></td></tr>`;
                 });
             }
@@ -608,122 +1070,332 @@
             document.getElementById('totalAdminComm').textContent = '₡' + totalComm.toLocaleString();
             document.getElementById('companyRegal').textContent = '₡' + companyRegal.toLocaleString();
             document.getElementById('partnersRegal').textContent = '₡' + partnersRegal.toLocaleString();
-            document.getElementById('netBalance').textContent = '₡' + (companyRegal - 30000).toLocaleString();
+            document.getElementById('netBalance').textContent = '₡' + (companyRegal - (50 * 600)).toLocaleString(); // Simulación $50 a ₡600
         });
 
         const partnersList = document.getElementById('adminPartnersList');
-        if (partnersList) partnersList.innerHTML = transporters.map(t => `<div class="partner-item" data-tid="${t.id}"><i class="fas fa-user-tie"></i> ${t.name}</div>`).join('');
+        if (partnersList) {
+            partnersList.innerHTML = transporters.map(t => `<div class="partner-item" data-tid="${t.id}"><i class="fas fa-user-tie"></i> ${t.name} <span style="font-size:10px; color:#666;">(${t.plate})</span></div>`).join('');
+        }
+
         const clientsList = document.getElementById('adminClientsList');
-        if (clientsList) clientsList.innerHTML = registeredClients.map(c => `<div class="partner-item client-item" data-email="${c.email}"><i class="fas fa-user"></i> ${c.name}</div>`).join('');
+        if (clientsList) {
+            clientsList.innerHTML = registeredClients.map(c => `<div class="partner-item client-item" data-email="${c.email}"><i class="fas fa-user"></i> ${c.name} <span style="font-size:10px; color:#666;">(${c.email})</span></div>`).join('');
+        }
     };
 
-    // LÓGICA DEL AGENTE DE IA (AÑADIDA)
-    class AIAgent {
-        constructor() {
-            this.rules = localStorage.getItem('ai_rules') || "Eres un experto en MudanzasHub. Sé amable y profesional. Prioriza las ventajas de negocio.";
-            this.knowledgeBase = JSON.parse(localStorage.getItem('ai_knowledge')) || {
-                'que_es': { keywords: ['qué es', 'mudanzashub'], response: "MudanzasHub es la plataforma líder en Costa Rica para conectar clientes con transportistas profesionales." },
-                'ventajas': { keywords: ['ventaja', 'negocio', 'ganar'], response: "Como socio, ganas el 80% de cada servicio, tienes GPS integrado y acceso a miles de clientes." }
-            };
-            this.photos = JSON.parse(localStorage.getItem('ai_photos')) || [];
-        }
-        save() {
-            localStorage.setItem('ai_rules', this.rules);
-            localStorage.setItem('ai_knowledge', JSON.stringify(this.knowledgeBase));
-            localStorage.setItem('ai_photos', JSON.stringify(this.photos));
-        }
-        getResponse(userMessage) {
-            const lowerMsg = userMessage.toLowerCase();
-            let bestMatch = null;
-            let maxMatches = 0;
-            for (const key in this.knowledgeBase) {
-                const item = this.knowledgeBase[key];
-                const matches = item.keywords.filter(kw => lowerMsg.includes(kw.trim().toLowerCase())).length;
-                if (matches > maxMatches) { maxMatches = matches; bestMatch = item.response; }
-            }
-            if (bestMatch) return bestMatch;
-            if (this.photos.length > 0 && lowerMsg.includes('foto')) return "Tengo " + this.photos.length + " fotos de referencia para ayudarte visualmente.";
-            return "Interesante pregunta. Según mis reglas: '" + this.rules + "'. ¿Podrías darme más detalles?";
-        }
-    }
-    const agent = new AIAgent();
+    document.getElementById('financeCalendar').addEventListener('change', listenToAdmin);
+    document.getElementById('movesDateFilter').addEventListener('change', listenToAdmin);
 
-    // UI AGENTE IA
-    const chatWidget = document.getElementById('aiChatWidget');
-    document.getElementById('aiChatToggle').addEventListener('click', () => chatWidget.classList.toggle('hidden'));
-    document.getElementById('aiChatClose').addEventListener('click', () => chatWidget.classList.add('hidden'));
-    document.getElementById('aiChatSend').addEventListener('click', () => {
-        const input = document.getElementById('aiChatInput');
-        const msg = input.value.trim();
-        if (!msg) return;
-        addMsg(msg, 'user');
-        input.value = '';
-        setTimeout(() => addMsg(agent.getResponse(msg), 'bot'), 600);
-    });
-    function addMsg(text, role) {
-        const container = document.getElementById('aiChatMessages');
-        const div = document.createElement('div');
-        div.className = `ai-message ${role}`;
-        div.innerHTML = `<div class="ai-message-content">${text}</div>`;
-        container.appendChild(div);
-        container.scrollTop = container.scrollHeight;
-    }
-
-    // PANEL ENTRENAMIENTO IA
-    window.renderTrainingPanel = () => {
-        document.getElementById('aiRules').value = agent.rules;
-        const qaList = document.getElementById('qaList');
-        qaList.innerHTML = '';
-        for (const key in agent.knowledgeBase) {
-            const item = agent.knowledgeBase[key];
-            const div = document.createElement('div');
-            div.className = 'qa-item';
-            div.innerHTML = `<i class="fas fa-trash delete-qa" onclick="deleteQA('${key}')"></i><div style="font-size:12px; font-weight:bold; color:#00d4ff;">P: ${key.replace(/_/g, ' ')}</div><div style="font-size:11px; color:#aaa;">R: ${item.response}</div>`;
-            qaList.appendChild(div);
-        }
-        const photoGrid = document.getElementById('aiPhotoGrid');
-        photoGrid.innerHTML = '';
-        agent.photos.forEach((src, index) => {
-            const div = document.createElement('div');
-            div.className = 'photo-item';
-            div.innerHTML = `<img src="${src}"><i class="fas fa-times delete-photo" onclick="deletePhoto(${index})"></i>`;
-            photoGrid.appendChild(div);
+    document.getElementById('exportMovesPdfBtn').addEventListener('click', () => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        doc.setFontSize(18);
+        doc.text('Reporte de Mudanzas - MudanzasHub CR', 14, 20);
+        doc.setFontSize(11);
+        doc.text(`Fecha de reporte: ${new Date().toLocaleString()}`, 14, 30);
+        
+        const table = document.getElementById('adminMovesTable');
+        const rows = [];
+        const headers = [['ID', 'Cliente', 'Socio', 'Fecha', 'Hora', 'Total', 'Comisión (20%)', 'Estado']];
+        
+        document.querySelectorAll('#movesTableBody tr').forEach(tr => {
+            const row = [];
+            tr.querySelectorAll('td').forEach(td => row.push(td.innerText));
+            rows.push(row);
         });
+
+        doc.autoTable({
+            head: headers,
+            body: rows,
+            startY: 40,
+            theme: 'grid',
+            headStyles: { fillColor: [0, 212, 255], textColor: [0, 0, 0], fontStyle: 'bold' },
+            styles: { fontSize: 8, cellPadding: 3 },
+            columnStyles: {
+                5: { halign: 'right', fontStyle: 'bold' },
+                6: { halign: 'right', textColor: [0, 150, 0] }
+            }
+        });
+        
+        doc.save(`Reporte_Mudanzas_${new Date().toISOString().split('T')[0]}.pdf`);
+    });
+
+
+    // LÓGICA GPS NAVEGACIÓN EN VIVO
+    const startGpsNavigation = (moveId) => {
+        onValue(ref(db, `moves/${moveId}`), (snapshot) => {
+            const m = snapshot.val();
+            if (!m) return;
+            document.getElementById('gpsView').classList.add('active');
+            if (!gpsMap) {
+                gpsMap = L.map('gpsMap').setView([m.origin.lat, m.origin.lng], 16);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(gpsMap);
+            }
+            if (gpsRouting) gpsMap.removeControl(gpsRouting);
+            gpsRouting = L.Routing.control({
+                waypoints: [L.latLng(m.origin.lat, m.origin.lng), L.latLng(m.destination.lat, m.destination.lng)],
+                lineOptions: { styles: [{ color: '#00d4ff', weight: 6 }] },
+                addWaypoints: false, draggableWaypoints: false
+            }).addTo(gpsMap);
+            if ("geolocation" in navigator) {
+                watchId = navigator.geolocation.watchPosition((pos) => {
+                    const { latitude, longitude } = pos.coords;
+                    if (userMarker) userMarker.setLatLng([latitude, longitude]);
+                    else userMarker = L.marker([latitude, longitude], { icon: L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png', iconSize: [25, 41] }) }).addTo(gpsMap);
+                    gpsMap.panTo([latitude, longitude]);
+                }, null, { enableHighAccuracy: true });
+            }
+        }, { onlyOnce: true });
     };
 
-    document.getElementById('saveAiRules').addEventListener('click', () => {
-        agent.rules = document.getElementById('aiRules').value;
-        agent.save();
-        alert('Reglas actualizadas');
+    document.getElementById('closeGpsBtn').addEventListener('click', () => {
+        document.getElementById('gpsView').classList.remove('active');
+        if (watchId) navigator.geolocation.clearWatch(watchId);
     });
 
-    document.getElementById('addQA').addEventListener('click', () => {
-        const q = document.getElementById('newQuestion').value.trim();
-        const r = document.getElementById('newAnswer').value.trim();
-        const k = document.getElementById('newKeywords').value.trim();
-        if (!q || !r) return;
-        const key = q.toLowerCase().replace(/\s+/g, '_').substring(0, 20);
-        agent.knowledgeBase[key] = { keywords: k ? k.split(',') : [q], response: r };
-        agent.save();
-        renderTrainingPanel();
-        document.getElementById('newQuestion').value = ''; document.getElementById('newAnswer').value = ''; document.getElementById('newKeywords').value = '';
-    });
-
-    window.deleteQA = (key) => { delete agent.knowledgeBase[key]; agent.save(); renderTrainingPanel(); };
-    window.deletePhoto = (index) => { agent.photos.splice(index, 1); agent.save(); renderTrainingPanel(); };
-
-    document.getElementById('aiPhotoUpload').addEventListener('click', () => document.getElementById('aiPhotoInput').click());
-    document.getElementById('aiPhotoInput').addEventListener('change', (e) => {
-        const files = e.target.files;
-        for (let file of files) {
-            const reader = new FileReader();
-            reader.onload = (event) => { agent.photos.push(event.target.result); agent.save(); renderTrainingPanel(); };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    // EVENTOS TABS ORIGINALES + IA
     document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('startNavBtn')) startGpsNavigation(e.target.dataset.id);
+
+        const partnerItem = e.target.closest('.partner-item');
+        if (partnerItem && !partnerItem.classList.contains('client-item')) {
+            const t = transporters.find(x => x.id === parseInt(partnerItem.dataset.tid));
+            if (!t) return;
+            document.getElementById('partnerDetailName').innerText = t.name;
+            document.getElementById('partnerDetailContent').innerHTML = `
+                <div style="grid-column: span 2; text-align:center; margin-bottom:10px;">
+                    <div style="width:80px; height:80px; background:#333; border-radius:50%; margin:0 auto 10px; display:flex; align-items:center; justify-content:center; border:2px solid #00d4ff; position:relative;">
+                        <i class="fas fa-user-tie" style="font-size:40px; color:#00d4ff;"></i>
+                        <label style="position:absolute; bottom:0; right:0; background:#00d4ff; color:#000; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; cursor:pointer;"><i class="fas fa-camera" style="font-size:12px;"></i><input type="file" style="display:none;"></label>
+                    </div>
+                </div>
+                <div class="detail-item"><div class="detail-label">Nombre</div><input type="text" class="edit-input" id="editTName" value="${t.name}"></div>
+                <div class="detail-item"><div class="detail-label">Cédula</div><input type="text" class="edit-input" id="editTId" value="${t.idNum || ''}"></div>
+                <div class="detail-item"><div class="detail-label">Edad</div><input type="number" class="edit-input" id="editTAge" value="${t.age || ''}"></div>
+                <div class="detail-item"><div class="detail-label">Discapacidad</div><select class="edit-input" id="editTPhys"><option value="no" ${t.physical==='no'?'selected':''}>No</option><option value="si" ${t.physical==='si'?'selected':''}>Sí</option></select></div>
+                <div class="detail-item"><div class="detail-label">Teléfono</div><input type="text" class="edit-input" id="editTPhone" value="${t.phone}"></div>
+                <div class="detail-item"><div class="detail-label">Placa</div><input type="text" class="edit-input" id="editTPlate" value="${t.plate}"></div>
+                <div class="detail-item"><div class="detail-label">Vehículo</div><input type="text" class="edit-input" id="editTVehicle" value="${t.vehicle}"></div>
+                <div class="detail-item"><div class="detail-label">Licencia</div><input type="text" class="edit-input" id="editTLicense" value="${t.license}"></div>
+                <div class="detail-item"><div class="detail-label">Seguro</div><input type="text" class="edit-input" id="editTInsurance" value="${t.insurance}"></div>
+                <div style="grid-column: span 2; margin-top:15px; font-weight:bold; color:#00d4ff; border-bottom:1px solid #333; padding-bottom:5px;">Historial de Servicios</div>
+                <div id="partnerHistoryList" style="grid-column: span 2; margin-top:10px; max-height:200px; overflow-y:auto;"></div>
+                <div style="grid-column: span 2; display:flex; gap:10px; margin-top:15px;">
+                    <button class="btn" id="savePartnerBtn" data-tid="${t.id}">Guardar Cambios</button>
+                    <button class="btn btn-whatsapp" id="msgPartnerBtn" data-email="${t.email}">Mensaje</button>
+                    <button class="btn btn-reject" id="deletePartnerBtn" data-tid="${t.id}">Borrar</button>
+                </div>
+            `;
+            
+            // HISTORIAL DEL SOCIO
+            onValue(ref(db, 'moves'), (snapshot) => {
+                const data = snapshot.val();
+                const hList = document.getElementById('partnerHistoryList');
+                if(!hList) return;
+                hList.innerHTML = '';
+                let count = 0;
+                if(data) {
+                    Object.keys(data).forEach(key => {
+                        const m = data[key];
+                        if (m.transporter === t.email || m.transporterName === t.name) {
+                            count++;
+                            hList.innerHTML += `
+                                <div class="history-item" style="padding:12px; border-left:3px solid #4ade80; display:flex; flex-direction:column; gap:5px; background:#1a1a1a; margin-bottom:10px;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <strong style="color:#4ade80;">${m.date} | ${m.time || '--:--'}</strong>
+                                        <span class="status-badge status-${m.status}">${m.status.toUpperCase()}</span>
+                                    </div>
+                                    <div style="font-size:13px;">${m.origin.name.split(',')[0]} → ${m.destination.name.split(',')[0]}</div>
+                                    <div style="display:flex; justify-content:space-between; margin-top:5px; padding-top:5px; border-top:1px solid #333;">
+                                        <div style="text-align:center; flex:1;">
+                                            <div style="font-size:10px; color:#888;">TOTAL</div>
+                                            <div style="font-weight:bold; color:#fff;">₡${m.price.toLocaleString()}</div>
+                                        </div>
+                                        <div style="text-align:center; flex:1; border-left:1px solid #333;">
+                                            <div style="font-size:10px; color:#ff4b4b;">SOCIO (80%)</div>
+                                            <div style="font-weight:bold; color:#ff4b4b;">₡${(m.price * 0.8).toLocaleString()}</div>
+                                        </div>
+                                        <div style="text-align:center; flex:1; border-left:1px solid #333;">
+                                            <div style="font-size:10px; color:#00d4ff;">EMPRESA (20%)</div>
+                                            <div style="font-weight:bold; color:#00d4ff;">₡${(m.price * 0.2).toLocaleString()}</div>
+                                        </div>
+                                    </div>
+                                </div>`;
+                        }
+                    });
+                }
+                if(count === 0) hList.innerHTML = '<div style="color:#666; font-size:12px;">Sin historial.</div>';
+            }, { onlyOnce: true });
+            
+            openModal('partnerDetailModal');
+        }
+
+        if (partnerItem && partnerItem.classList.contains('client-item')) {
+            const c = registeredClients.find(x => x.email === partnerItem.dataset.email);
+            if (!c) return;
+            document.getElementById('msgClientBtn').dataset.email = c.email;
+            document.getElementById('clientDetailContent').innerHTML = `
+                <div class="detail-grid">
+                    <div class="detail-item"><div class="detail-label">Nombre</div><input type="text" class="edit-input" id="editCName" value="${c.name}"></div>
+                    <div class="detail-item"><div class="detail-label">Email</div><input type="text" class="edit-input" id="editCEmail" value="${c.email}" disabled></div>
+                    <div class="detail-item"><div class="detail-label">Teléfono</div><input type="text" class="edit-input" id="editCPhone" value="${c.phone}"></div>
+                    <div class="detail-item"><div class="detail-label">Cédula</div><input type="text" class="edit-input" id="editCId" value="${c.idNum}"></div>
+                </div>
+            `;
+            
+            // HISTORIAL DEL CLIENTE
+            onValue(ref(db, 'moves'), (snapshot) => {
+                const data = snapshot.val();
+                const hList = document.getElementById('clientHistoryList');
+                hList.innerHTML = '';
+                let count = 0;
+                if(data) {
+                    Object.keys(data).forEach(key => {
+                        const m = data[key];
+                        if (m.client === c.email) {
+                            count++;
+                            const dist = calculateDist(m.origin, m.destination);
+                            const estDuration = Math.round((dist / 40) * 60);
+                            hList.innerHTML += `
+                                <div class="history-item" style="padding:12px; border-left:3px solid #00d4ff; display:flex; justify-content:space-between; align-items:center;">
+                                    <div style="flex:1;">
+                                        <strong style="color:#00d4ff;">${m.date} | ${m.time || '--:--'}</strong><br>
+                                        ${m.origin.name.split(',')[0]} → ${m.destination.name.split(',')[0]}<br>
+                                        <span style="color:#aaa; font-size:11px;">Carga: ${m.weight}kg | ${m.service} | ~${estDuration}min</span>
+                                    </div>
+                                    <button class="btn btn-sm viewMapBtn" data-mid="${key}" style="background:#00d4ff; color:#000; font-weight:bold; padding:8px 12px; white-space:nowrap; margin-left:10px;">Ver Mapa</button>
+                                </div>`;
+                        }
+                    });
+                }
+                if(count === 0) hList.innerHTML = '<div style="color:#666; font-size:12px;">Sin historial.</div>';
+            }, { onlyOnce: true });
+
+            document.getElementById('saveClientBtn').onclick = () => {
+                const updated = {
+                    ...c,
+                    name: document.getElementById('editCName').value,
+                    phone: document.getElementById('editCPhone').value,
+                    idNum: document.getElementById('editCId').value
+                };
+                update(ref(db, 'users/clients/' + c.email.replace('.', '_')), updated);
+                alert('Cliente actualizado');
+                closeModal('clientDetailModal');
+            };
+
+            document.getElementById('deleteClientBtn').onclick = () => {
+                if(confirm('¿Borrar cliente?')) {
+                    set(ref(db, 'users/clients/' + c.email.replace('.', '_')), null);
+                    closeModal('clientDetailModal');
+                }
+            };
+            openModal('clientDetailModal');
+        }
+
+        
+        if (e.target.id === 'saveNewClientBtn') {
+            const name = document.getElementById('addCName').value;
+            const email = document.getElementById('addCEmail').value.trim().toLowerCase();
+            const pass = document.getElementById('addCPass').value;
+            const phone = document.getElementById('addCPhone').value;
+            const idNum = document.getElementById('addCId').value;
+            
+            if(!name || !email || !pass) return alert('Nombre, Email y Contraseña son obligatorios');
+            
+            const newUser = { email, password: pass, name, phone, idNum, role: 'client' };
+            set(ref(db, 'users/clients/' + email.replace('.', '_')), newUser);
+            alert('Cliente creado exitosamente');
+            closeModal('addClientModal');
+            // Limpiar campos
+            ['addCName', 'addCEmail', 'addCPass', 'addCPhone', 'addCId'].forEach(id => document.getElementById(id).value = '');
+        }
+        if (e.target.id === 'savePartnerBtn') {
+            const tid = e.target.dataset.tid;
+            const t = transporters.find(x => x.id == tid);
+            const updated = {
+                ...t,
+                name: document.getElementById('editTName').value,
+                idNum: document.getElementById('editTId').value,
+                age: document.getElementById('editTAge').value,
+                physical: document.getElementById('editTPhys').value,
+                phone: document.getElementById('editTPhone').value,
+                plate: document.getElementById('editTPlate').value,
+                vehicle: document.getElementById('editTVehicle').value,
+                license: document.getElementById('editTLicense').value,
+                insurance: document.getElementById('editTInsurance').value
+            };
+            update(ref(db, 'users/transporters/' + tid), updated);
+            alert('Socio actualizado');
+            closeModal('partnerDetailModal');
+        }
+
+        if (e.target.id === 'deletePartnerBtn') {
+            if(confirm('¿Borrar socio?')) {
+                const tid = e.target.dataset.tid;
+                set(ref(db, 'users/transporters/' + tid), null);
+                closeModal('partnerDetailModal');
+            }
+        }
+
+        if (e.target.id === 'msgPartnerBtn') {
+            const tid = e.target.dataset.tid;
+            const t = transporters.find(x => x.id == tid);
+            if(t && t.phone) {
+                const phone = t.phone.replace(/[^0-9]/g, '');
+                window.open(`https://wa.me/506${phone}`, '_blank');
+            } else { alert('No hay teléfono registrado'); }
+        }
+        
+        if (e.target.id === 'msgClientBtn') {
+            const email = e.target.dataset.email;
+            const c = registeredClients.find(x => x.email === email);
+            if(c && c.phone) {
+                const phone = c.phone.replace(/[^0-9]/g, '');
+                window.open(`https://wa.me/506${phone}`, '_blank');
+            } else { alert('No hay teléfono registrado'); }
+        }
+
+        if (e.target.classList.contains('acceptJobBtn')) update(ref(db, `moves/${e.target.dataset.id}`), { status: 'in_progress' });
+        if (e.target.classList.contains('rejectJobBtn')) {
+            if(confirm('¿Deseas rechazar esta oferta?')) {
+                update(ref(db, `moves/${e.target.dataset.id}`), { transporter: null, status: 'pending' });
+            }
+        }
+        if (e.target.classList.contains('cancelInProgressBtn')) {
+            if(confirm('¿Deseas cancelar este viaje en curso? Volverá a estar pendiente.')) {
+                update(ref(db, `moves/${e.target.dataset.id}`), { status: 'pending' });
+            }
+        }
+        if (e.target.classList.contains('shareLocBtn')) {
+            const mId = e.target.dataset.id;
+            onValue(ref(db, `moves/${mId}`), (snap) => {
+                const m = snap.val();
+                if(m && "geolocation" in navigator) {
+                    navigator.geolocation.getCurrentPosition((pos) => {
+                        const link = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                        const text = encodeURIComponent(`Hola ${m.clientName}, estoy en camino. Puedes ver mi ubicación actual aquí: ${link}`);
+                        window.open(`https://wa.me/${m.clientPhone}?text=${text}`, '_blank');
+                    });
+                }
+            }, { onlyOnce: true });
+        }
+        if (e.target.classList.contains('startNavBtn')) {
+            onValue(ref(db, `moves/${e.target.dataset.id}`), (snap) => {
+                const m = snap.val();
+                selectLocation(m.origin.lat, m.origin.lng, m.origin.name, 'origin');
+                selectLocation(m.destination.lat, m.destination.lng, m.destination.name, 'destination');
+                document.getElementById('navOverlay').style.display = 'flex';
+                document.getElementById('navDistance').textContent = calculateDist(m.origin, m.destination).toFixed(1) + ' km';
+            }, { onlyOnce: true });
+        }
+        if (e.target.classList.contains('openCodeBtn')) {
+            onValue(ref(db, `moves/${e.target.dataset.id}`), (snap) => {
+                activeNavMove = { ...snap.val(), key: e.target.dataset.id };
+                openModal('codeModal');
+            }, { onlyOnce: true });
+        }
+        
         const tabBtn = e.target.closest('.tab-btn');
         if (tabBtn) {
             const section = tabBtn.closest('.section');
@@ -731,10 +1403,392 @@
             section.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             tabBtn.classList.add('active');
             section.querySelector(`#${tabBtn.dataset.tab}Tab`).classList.add('active');
-            if (section.id === 'adminSection') document.querySelector('.map-container').style.display = 'none';
-            else document.querySelector('.map-container').style.display = 'block';
+            
+            // OCULTAR MAPA EN ADMIN EXCEPTO EN HISTORIAL
+            if (section.id === 'adminSection') {
+                document.querySelector('.map-container').style.display = 'none';
+            } else {
+                document.querySelector('.map-container').style.display = 'block';
+            }
+        }
+        if (e.target.classList.contains('viewMapBtn')) {
+            const mid = e.target.dataset.mid;
+            onValue(ref(db, `moves/${mid}`), (snap) => {
+                const m = snap.val();
+                if (m) {
+                    const mapDiv = document.getElementById('adminHistoryMap');
+                    mapDiv.style.display = 'block';
+                    mapDiv.style.height = '300px';
+                    
+                    // Inicializar o actualizar el mapa de historial
+                    if (window.adminHistMap) {
+                        window.adminHistMap.remove();
+                    }
+                    
+                    window.adminHistMap = L.map('adminHistoryMap').setView([m.origin.lat, m.origin.lng], 13);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(window.adminHistMap);
+                    
+                    L.marker([m.origin.lat, m.origin.lng]).addTo(window.adminHistMap).bindPopup('Origen: ' + m.origin.name).openPopup();
+                    L.marker([m.destination.lat, m.destination.lng]).addTo(window.adminHistMap).bindPopup('Destino: ' + m.destination.name);
+                    
+                    L.Routing.control({
+                        waypoints: [L.latLng(m.origin.lat, m.origin.lng), L.latLng(m.destination.lat, m.destination.lng)],
+                        lineOptions: { styles: [{ color: '#00d4ff', weight: 5 }] },
+                        addWaypoints: false,
+                        draggableWaypoints: false,
+                        createMarker: function() { return null; }
+                    }).addTo(window.adminHistMap);
+                    
+                    setTimeout(() => window.adminHistMap.invalidateSize(), 200);
+                }
+            }, { onlyOnce: true });
+        }
+        if (e.target.dataset.close) closeModal(e.target.dataset.close);
+    });
+
+    document.getElementById('validateCodeBtn').addEventListener('click', () => {
+        if (parseInt(document.getElementById('confirmCodeInput').value) === activeNavMove.code) {
+            update(ref(db, `moves/${activeNavMove.key}`), { status: 'completed' });
+            
+            // Enviar mensaje de texto simulado/WhatsApp al cliente
+            if (activeNavMove.clientPhone) {
+                const phone = activeNavMove.clientPhone.replace(/[^0-9]/g, '');
+                const text = encodeURIComponent("Su viaje ha finalizado. Gracias por solicitar nuestro servicio.");
+                window.open(`https://wa.me/506${phone}?text=${text}`, '_blank');
+            }
+            
+            alert('¡Servicio concluido! Se ha enviado el mensaje de agradecimiento al cliente.');
+            closeModal('codeModal');
+            document.getElementById('navOverlay').style.display = 'none';
+            if (routingControl) map.removeControl(routingControl);
+        } else { alert('Código incorrecto'); }
+    });
+
+    document.getElementById('finishNavBtn').addEventListener('click', () => {
+        document.getElementById('navOverlay').style.display = 'none';
+        if (routingControl) map.removeControl(routingControl);
+    });
+
+    const calculateDist = (p1, p2) => {
+        const R = 6371;
+        const dLat = (p2.lat-p1.lat) * Math.PI / 180;
+        const dLon = (p2.lng-p1.lng) * Math.PI / 180;
+        const a = Math.sin(dLat/2)**2 + Math.cos(p1.lat*Math.PI/180)*Math.cos(p2.lat*Math.PI/180)*Math.sin(dLon/2)**2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    };
+
+    // SELECTORES
+    document.getElementById('vehicleSelector').addEventListener('click', (e) => {
+        const opt = e.target.closest('.vehicle-option');
+        if (opt) {
+            selectedVehicle = opt.dataset.vehicle;
+            document.querySelectorAll('#vehicleSelector .vehicle-option').forEach(o => o.classList.remove('active'));
+            opt.classList.add('active');
         }
     });
+    document.getElementById('serviceSelector').addEventListener('click', (e) => {
+        const opt = e.target.closest('.vehicle-option');
+        if (opt) {
+            selectedServiceType = opt.dataset.service;
+            document.querySelectorAll('#serviceSelector .vehicle-option').forEach(o => o.classList.remove('active'));
+            opt.classList.add('active');
+        }
+    });
+</script>
+
+
+    // ==================== AGENTE DE IA EXPERTO EN VENTAS ====================
+    
+    // Almacenamiento local del agente de IA
+    const AIAgentStorage = {
+        responses: {
+            greeting: "¡Hola! Soy tu asistente de ventas de MudanzasHub. ¿Cómo puedo ayudarte hoy?",
+            services: "Ofrecemos dos tipos de servicios:\n• Con Acarreo: Incluye descarga en destino\n• Puesta Afuera: Solo transporte, sin descarga",
+            pricing: "Nuestros precios dependen de:\n• Tipo de vehículo (Pickup, Buseta, Camión)\n• Distancia entre origen y destino\n• Peso de la carga\n• Dificultad de acceso\n\n¿Necesitas una cotización?",
+            vehicles: "Disponemos de:\n• Pickup: Ideal para cargas pequeñas\n• Buseta: Para mudanzas medianas\n• Camión: Para mudanzas grandes",
+            booking: "Para reservar una mudanza:\n1. Selecciona origen y destino\n2. Elige tipo de vehículo y servicio\n3. Ingresa peso de la carga\n4. Revisa las ofertas disponibles\n5. Confirma y realiza el pago",
+            payment: "Aceptamos pagos por SINPE. Debes adjuntar el comprobante para confirmar la mudanza.",
+            transporter_guide: "Guía para Transportistas:\n• Revisa tus ofertas disponibles\n• Acepta trabajos según tu disponibilidad\n• Usa GPS para navegación\n• Ingresa código de confirmación al finalizar",
+            user_guide: "Guía para Clientes:\n• Crea tu cuenta o inicia sesión\n• Busca origen y destino\n• Selecciona vehículo y servicio\n• Revisa ofertas y elige transportista\n• Realiza el pago por SINPE\n• Recibe confirmación de tu mudanza"
+        },
+        enabled: true,
+        language: "es"
+    };
+
+    // Función para obtener respuesta del agente
+    const getAIResponse = (query) => {
+        const q = query.toLowerCase().trim();
+        
+        if (q.includes('hola') || q.includes('ayuda')) {
+            return AIAgentStorage.responses.greeting;
+        } else if (q.includes('servicio') || q.includes('tipo')) {
+            return AIAgentStorage.responses.services;
+        } else if (q.includes('precio') || q.includes('costo') || q.includes('tarifa')) {
+            return AIAgentStorage.responses.pricing;
+        } else if (q.includes('vehículo') || q.includes('vehiculo') || q.includes('camión') || q.includes('pickup') || q.includes('buseta')) {
+            return AIAgentStorage.responses.vehicles;
+        } else if (q.includes('reserv') || q.includes('cómo') || q.includes('como') || q.includes('proceso')) {
+            return AIAgentStorage.responses.booking;
+        } else if (q.includes('pago') || q.includes('sinpe') || q.includes('comprobante')) {
+            return AIAgentStorage.responses.payment;
+        } else if (q.includes('transportista') || q.includes('socio')) {
+            return AIAgentStorage.responses.transporter_guide;
+        } else if (q.includes('cliente') || q.includes('usuario') || q.includes('guía')) {
+            return AIAgentStorage.responses.user_guide;
+        } else {
+            return "No estoy seguro de tu pregunta. Puedo ayudarte con:\n• Servicios disponibles\n• Precios y cotizaciones\n• Cómo reservar\n• Métodos de pago\n• Guía de usuario\n• Guía de transportista";
+        }
+    };
+
+    // ==================== INTERFAZ DE CHAT FLOTANTE ====================
+    
+    // Crear elementos del chat flotante
+    const createChatWidget = () => {
+        const chatHTML = `
+            <div id="aiChatWidget" style="position:fixed; bottom:20px; right:20px; width:350px; height:500px; background:#1a1a1a; border:2px solid #00d4ff; border-radius:12px; display:none; flex-direction:column; z-index:5000; box-shadow:0 10px 40px rgba(0,212,255,0.3);">
+                <div style="background:#00d4ff; color:#000; padding:15px; border-radius:12px 12px 0 0; display:flex; justify-content:space-between; align-items:center; font-weight:bold;">
+                    <span><i class="fas fa-robot"></i> Asistente IA</span>
+                    <button id="closeChatBtn" style="background:none; border:none; color:#000; font-size:20px; cursor:pointer;">×</button>
+                </div>
+                <div id="chatMessages" style="flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:10px;"></div>
+                <div style="padding:15px; border-top:1px solid #333; display:flex; gap:10px;">
+                    <input type="text" id="chatInput" class="search-input" placeholder="Escribe tu pregunta..." style="flex:1; margin:0;">
+                    <button id="sendChatBtn" class="btn" style="width:50px; padding:10px; margin:0;"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+            <button id="aiChatToggle" style="position:fixed; bottom:20px; right:20px; width:60px; height:60px; background:#00d4ff; color:#000; border:none; border-radius:50%; cursor:pointer; font-size:24px; z-index:4999; box-shadow:0 5px 15px rgba(0,212,255,0.4); display:flex; align-items:center; justify-content:center; transition:all 0.3s ease;">
+                <i class="fas fa-comments"></i>
+            </button>
+        `;
+        document.body.insertAdjacentHTML('beforeend', chatHTML);
+    };
+
+    // Inicializar chat cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', () => {
+        createChatWidget();
+        
+        const chatToggle = document.getElementById('aiChatToggle');
+        const chatWidget = document.getElementById('aiChatWidget');
+        const closeBtn = document.getElementById('closeChatBtn');
+        const sendBtn = document.getElementById('sendChatBtn');
+        const chatInput = document.getElementById('chatInput');
+        const chatMessages = document.getElementById('chatMessages');
+
+        // Toggle del chat
+        chatToggle.addEventListener('click', () => {
+            if (chatWidget.style.display === 'none' || !chatWidget.style.display) {
+                chatWidget.style.display = 'flex';
+                chatToggle.style.display = 'none';
+                chatInput.focus();
+                // Mensaje inicial
+                if (chatMessages.children.length === 0) {
+                    addMessage(AIAgentStorage.responses.greeting, 'ai');
+                }
+            }
+        });
+
+        closeBtn.addEventListener('click', () => {
+            chatWidget.style.display = 'none';
+            chatToggle.style.display = 'flex';
+        });
+
+        // Enviar mensaje
+        const sendMessage = () => {
+            const text = chatInput.value.trim();
+            if (text) {
+                addMessage(text, 'user');
+                const response = getAIResponse(text);
+                setTimeout(() => addMessage(response, 'ai'), 500);
+                chatInput.value = '';
+            }
+        };
+
+        sendBtn.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // Agregar mensaje al chat
+        const addMessage = (text, sender) => {
+            const msgDiv = document.createElement('div');
+            msgDiv.style.cssText = `
+                padding: 10px 12px;
+                border-radius: 8px;
+                max-width: 90%;
+                word-wrap: break-word;
+                font-size: 13px;
+                line-height: 1.4;
+                ${sender === 'user' ? 'background:#00d4ff; color:#000; align-self:flex-end; margin-left:auto;' : 'background:#2a2a2a; color:#fff; align-self:flex-start;'}
+            `;
+            msgDiv.textContent = text;
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        };
+    });
+
+    // ==================== PANEL DE ADMINISTRADOR PARA EDITAR AGENTE ====================
+    
+    // Agregar pestaña de configuración del agente en el panel admin
+    const addAIConfigTab = () => {
+        // Esperar a que el DOM esté listo
+        setTimeout(() => {
+            const adminSection = document.getElementById('adminSection');
+            if (!adminSection) return;
+
+            // Buscar el contenedor de tabs
+            const tabs = adminSection.querySelector('.tabs');
+            if (tabs && !document.getElementById('aiConfigTab')) {
+                // Agregar botón de tab
+                const aiTabBtn = document.createElement('button');
+                aiTabBtn.className = 'tab-btn';
+                aiTabBtn.dataset.tab = 'aiConfig';
+                aiTabBtn.textContent = 'Agente IA';
+                aiTabBtn.style.cssText = 'color: #00d4ff; font-weight: bold;';
+                tabs.appendChild(aiTabBtn);
+
+                // Crear contenedor de contenido
+                const tabContent = document.createElement('div');
+                tabContent.id = 'aiConfigTab';
+                tabContent.className = 'tab-content';
+                tabContent.style.cssText = 'padding: 15px;';
+                
+                tabContent.innerHTML = `
+                    <div style="margin-bottom:20px;">
+                        <h3 style="color:#00d4ff; margin-bottom:15px;"><i class="fas fa-robot"></i> Configuración del Agente IA</h3>
+                        
+                        <div style="background:#222; padding:15px; border-radius:8px; margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:10px; color:#aaa; font-weight:bold;">Estado del Agente:</label>
+                            <div style="display:flex; gap:10px;">
+                                <button class="btn" id="enableAIBtn" style="background:#4ade80; flex:1;">Activar</button>
+                                <button class="btn" id="disableAIBtn" style="background:#ff4b4b; flex:1;">Desactivar</button>
+                            </div>
+                        </div>
+
+                        <div style="background:#222; padding:15px; border-radius:8px; margin-bottom:15px;">
+                            <label style="display:block; margin-bottom:10px; color:#aaa; font-weight:bold;">Editar Respuestas:</label>
+                            
+                            <div style="margin-bottom:15px;">
+                                <label style="color:#00d4ff; font-size:12px;">Saludo Inicial:</label>
+                                <textarea id="aiGreeting" class="search-input" style="height:60px; resize:none; margin-top:5px;"></textarea>
+                            </div>
+
+                            <div style="margin-bottom:15px;">
+                                <label style="color:#00d4ff; font-size:12px;">Información de Servicios:</label>
+                                <textarea id="aiServices" class="search-input" style="height:80px; resize:none; margin-top:5px;"></textarea>
+                            </div>
+
+                            <div style="margin-bottom:15px;">
+                                <label style="color:#00d4ff; font-size:12px;">Información de Precios:</label>
+                                <textarea id="aiPricing" class="search-input" style="height:80px; resize:none; margin-top:5px;"></textarea>
+                            </div>
+
+                            <div style="margin-bottom:15px;">
+                                <label style="color:#00d4ff; font-size:12px;">Información de Vehículos:</label>
+                                <textarea id="aiVehicles" class="search-input" style="height:80px; resize:none; margin-top:5px;"></textarea>
+                            </div>
+
+                            <div style="margin-bottom:15px;">
+                                <label style="color:#00d4ff; font-size:12px;">Cómo Reservar:</label>
+                                <textarea id="aiBooking" class="search-input" style="height:80px; resize:none; margin-top:5px;"></textarea>
+                            </div>
+
+                            <div style="margin-bottom:15px;">
+                                <label style="color:#00d4ff; font-size:12px;">Información de Pagos:</label>
+                                <textarea id="aiPayment" class="search-input" style="height:80px; resize:none; margin-top:5px;"></textarea>
+                            </div>
+
+                            <div style="margin-bottom:15px;">
+                                <label style="color:#00d4ff; font-size:12px;">Guía de Transportista:</label>
+                                <textarea id="aiTransporterGuide" class="search-input" style="height:100px; resize:none; margin-top:5px;"></textarea>
+                            </div>
+
+                            <div style="margin-bottom:15px;">
+                                <label style="color:#00d4ff; font-size:12px;">Guía de Usuario:</label>
+                                <textarea id="aiUserGuide" class="search-input" style="height:100px; resize:none; margin-top:5px;"></textarea>
+                            </div>
+
+                            <div style="display:flex; gap:10px;">
+                                <button class="btn" id="saveAIConfigBtn" style="background:#4ade80; flex:1;"><i class="fas fa-save"></i> Guardar Cambios</button>
+                                <button class="btn" id="resetAIConfigBtn" style="background:#ff4b4b; flex:1;"><i class="fas fa-undo"></i> Restaurar Defecto</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Agregar después del último tab-content
+                const lastTabContent = adminSection.querySelector('.tab-content:last-of-type');
+                if (lastTabContent) {
+                    lastTabContent.parentNode.insertBefore(tabContent, lastTabContent.nextSibling);
+                }
+
+                // Event listeners para el panel de configuración
+                document.getElementById('enableAIBtn').addEventListener('click', () => {
+                    AIAgentStorage.enabled = true;
+                    alert('Agente IA activado');
+                });
+
+                document.getElementById('disableAIBtn').addEventListener('click', () => {
+                    AIAgentStorage.enabled = false;
+                    alert('Agente IA desactivado');
+                });
+
+                document.getElementById('saveAIConfigBtn').addEventListener('click', () => {
+                    AIAgentStorage.responses.greeting = document.getElementById('aiGreeting').value;
+                    AIAgentStorage.responses.services = document.getElementById('aiServices').value;
+                    AIAgentStorage.responses.pricing = document.getElementById('aiPricing').value;
+                    AIAgentStorage.responses.vehicles = document.getElementById('aiVehicles').value;
+                    AIAgentStorage.responses.booking = document.getElementById('aiBooking').value;
+                    AIAgentStorage.responses.payment = document.getElementById('aiPayment').value;
+                    AIAgentStorage.responses.transporter_guide = document.getElementById('aiTransporterGuide').value;
+                    AIAgentStorage.responses.user_guide = document.getElementById('aiUserGuide').value;
+                    alert('✅ Configuración del Agente IA guardada correctamente');
+                });
+
+                document.getElementById('resetAIConfigBtn').addEventListener('click', () => {
+                    if (confirm('¿Restaurar todas las respuestas a los valores por defecto?')) {
+                        AIAgentStorage.responses = {
+                            greeting: "¡Hola! Soy tu asistente de ventas de MudanzasHub. ¿Cómo puedo ayudarte hoy?",
+                            services: "Ofrecemos dos tipos de servicios:\n• Con Acarreo: Incluye descarga en destino\n• Puesta Afuera: Solo transporte, sin descarga",
+                            pricing: "Nuestros precios dependen de:\n• Tipo de vehículo (Pickup, Buseta, Camión)\n• Distancia entre origen y destino\n• Peso de la carga\n• Dificultad de acceso\n\n¿Necesitas una cotización?",
+                            vehicles: "Disponemos de:\n• Pickup: Ideal para cargas pequeñas\n• Buseta: Para mudanzas medianas\n• Camión: Para mudanzas grandes",
+                            booking: "Para reservar una mudanza:\n1. Selecciona origen y destino\n2. Elige tipo de vehículo y servicio\n3. Ingresa peso de la carga\n4. Revisa las ofertas disponibles\n5. Confirma y realiza el pago",
+                            payment: "Aceptamos pagos por SINPE. Debes adjuntar el comprobante para confirmar la mudanza.",
+                            transporter_guide: "Guía para Transportistas:\n• Revisa tus ofertas disponibles\n• Acepta trabajos según tu disponibilidad\n• Usa GPS para navegación\n• Ingresa código de confirmación al finalizar",
+                            user_guide: "Guía para Clientes:\n• Crea tu cuenta o inicia sesión\n• Busca origen y destino\n• Selecciona vehículo y servicio\n• Revisa ofertas y elige transportista\n• Realiza el pago por SINPE\n• Recibe confirmación de tu mudanza"
+                        };
+                        loadAIConfigUI();
+                        alert('✅ Configuración restaurada a valores por defecto');
+                    }
+                });
+
+                // Cargar valores actuales en la UI
+                const loadAIConfigUI = () => {
+                    document.getElementById('aiGreeting').value = AIAgentStorage.responses.greeting;
+                    document.getElementById('aiServices').value = AIAgentStorage.responses.services;
+                    document.getElementById('aiPricing').value = AIAgentStorage.responses.pricing;
+                    document.getElementById('aiVehicles').value = AIAgentStorage.responses.vehicles;
+                    document.getElementById('aiBooking').value = AIAgentStorage.responses.booking;
+                    document.getElementById('aiPayment').value = AIAgentStorage.responses.payment;
+                    document.getElementById('aiTransporterGuide').value = AIAgentStorage.responses.transporter_guide;
+                    document.getElementById('aiUserGuide').value = AIAgentStorage.responses.user_guide;
+                };
+
+                loadAIConfigUI();
+
+                // Agregar event listener al tab button
+                aiTabBtn.addEventListener('click', () => {
+                    document.querySelectorAll('#adminSection .tab-content').forEach(c => c.classList.remove('active'));
+                    tabContent.classList.add('active');
+                    document.querySelectorAll('#adminSection .tab-btn').forEach(b => b.classList.remove('active'));
+                    aiTabBtn.classList.add('active');
+                });
+            }
+        }, 500);
+    };
+
+    // Llamar a la función cuando se cargue la página
+    window.addEventListener('load', addAIConfigTab);
+});
 
 </script>
 </body>
