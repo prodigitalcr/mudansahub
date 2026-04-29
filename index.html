@@ -1496,76 +1496,101 @@
     });
 </script>
 
-
-    // ==================== AGENTE DE IA EXPERTO EN VENTAS ====================
+    // ==================== AGENTE DE IA AVANZADO CON SISTEMA DE ENTRENAMIENTO ====================
     
-    // Almacenamiento local del agente de IA
-    const AIAgentStorage = {
-        responses: {
-            greeting: "¡Hola! Soy tu asistente de ventas de MudanzasHub. ¿Cómo puedo ayudarte hoy?",
-            services: "Ofrecemos dos tipos de servicios:\n• Con Acarreo: Incluye descarga en destino\n• Puesta Afuera: Solo transporte, sin descarga",
-            pricing: "Nuestros precios dependen de:\n• Tipo de vehículo (Pickup, Buseta, Camión)\n• Distancia entre origen y destino\n• Peso de la carga\n• Dificultad de acceso\n\n¿Necesitas una cotización?",
-            vehicles: "Disponemos de:\n• Pickup: Ideal para cargas pequeñas\n• Buseta: Para mudanzas medianas\n• Camión: Para mudanzas grandes",
-            booking: "Para reservar una mudanza:\n1. Selecciona origen y destino\n2. Elige tipo de vehículo y servicio\n3. Ingresa peso de la carga\n4. Revisa las ofertas disponibles\n5. Confirma y realiza el pago",
-            payment: "Aceptamos pagos por SINPE. Debes adjuntar el comprobante para confirmar la mudanza.",
-            transporter_guide: "Guía para Transportistas:\n• Revisa tus ofertas disponibles\n• Acepta trabajos según tu disponibilidad\n• Usa GPS para navegación\n• Ingresa código de confirmación al finalizar",
-            user_guide: "Guía para Clientes:\n• Crea tu cuenta o inicia sesión\n• Busca origen y destino\n• Selecciona vehículo y servicio\n• Revisa ofertas y elige transportista\n• Realiza el pago por SINPE\n• Recibe confirmación de tu mudanza"
-        },
-        enabled: true,
-        language: "es"
-    };
-
-    // Función para obtener respuesta del agente
-    const getAIResponse = (query) => {
-        const q = query.toLowerCase().trim();
+    // Sistema de almacenamiento del agente con entrenamiento
+    const AITrainingSystem = {
+        // Reglas de comportamiento
+        rules: [
+            "Siempre sé amable y profesional",
+            "Responde en español",
+            "Si no sabes, ofrece contacto con soporte",
+            "Prioriza la satisfacción del cliente",
+            "Sé conciso pero informativo"
+        ],
         
-        if (q.includes('hola') || q.includes('ayuda')) {
-            return AIAgentStorage.responses.greeting;
-        } else if (q.includes('servicio') || q.includes('tipo')) {
-            return AIAgentStorage.responses.services;
-        } else if (q.includes('precio') || q.includes('costo') || q.includes('tarifa')) {
-            return AIAgentStorage.responses.pricing;
-        } else if (q.includes('vehículo') || q.includes('vehiculo') || q.includes('camión') || q.includes('pickup') || q.includes('buseta')) {
-            return AIAgentStorage.responses.vehicles;
-        } else if (q.includes('reserv') || q.includes('cómo') || q.includes('como') || q.includes('proceso')) {
-            return AIAgentStorage.responses.booking;
-        } else if (q.includes('pago') || q.includes('sinpe') || q.includes('comprobante')) {
-            return AIAgentStorage.responses.payment;
-        } else if (q.includes('transportista') || q.includes('socio')) {
-            return AIAgentStorage.responses.transporter_guide;
-        } else if (q.includes('cliente') || q.includes('usuario') || q.includes('guía')) {
-            return AIAgentStorage.responses.user_guide;
-        } else {
-            return "No estoy seguro de tu pregunta. Puedo ayudarte con:\n• Servicios disponibles\n• Precios y cotizaciones\n• Cómo reservar\n• Métodos de pago\n• Guía de usuario\n• Guía de transportista";
+        // Base de conocimientos
+        knowledge: {
+            empresa: "MudanzasHub Costa Rica",
+            servicios: ["Con Acarreo", "Puesta Afuera"],
+            vehiculos: ["Pickup", "Buseta", "Camión"],
+            pago: "SINPE 7228-4602",
+            horario: "24/7"
+        },
+        
+        // Preguntas y Respuestas (FAQ)
+        faq: [
+            {
+                id: 1,
+                pregunta: "¿Cuáles son tus servicios?",
+                respuesta: "Ofrecemos dos tipos de servicios: Con Acarreo (incluye descarga) y Puesta Afuera (solo transporte).",
+                categoria: "servicios",
+                activo: true
+            },
+            {
+                id: 2,
+                pregunta: "¿Cuánto cuesta una mudanza?",
+                respuesta: "Los precios dependen de: tipo de vehículo, distancia, peso de la carga y dificultad de acceso. Solicita una cotización.",
+                categoria: "precios",
+                activo: true
+            }
+        ],
+        
+        // Archivos y recursos
+        archivos: [],
+        
+        // Configuración general
+        config: {
+            nombre: "Asistente MudanzasHub",
+            idioma: "es",
+            activo: true
         }
     };
 
-    // ==================== INTERFAZ DE CHAT FLOTANTE ====================
+    // ==================== INTERFAZ DE CHAT MEJORADA ====================
     
-    // Crear elementos del chat flotante
-    const createChatWidget = () => {
+    const createAdvancedChatWidget = () => {
         const chatHTML = `
-            <div id="aiChatWidget" style="position:fixed; bottom:20px; right:20px; width:350px; height:500px; background:#1a1a1a; border:2px solid #00d4ff; border-radius:12px; display:none; flex-direction:column; z-index:5000; box-shadow:0 10px 40px rgba(0,212,255,0.3);">
-                <div style="background:#00d4ff; color:#000; padding:15px; border-radius:12px 12px 0 0; display:flex; justify-content:space-between; align-items:center; font-weight:bold;">
+            <div id="aiChatWidget" style="position:fixed; bottom:20px; right:20px; width:380px; height:550px; background:#1a1a1a; border:2px solid #00d4ff; border-radius:12px; display:flex; flex-direction:column; z-index:5000; box-shadow:0 10px 40px rgba(0,212,255,0.3); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                <div style="background:linear-gradient(135deg, #00d4ff, #0099cc); color:#000; padding:15px; border-radius:12px 12px 0 0; display:flex; justify-content:space-between; align-items:center; font-weight:bold; box-shadow: 0 2px 10px rgba(0,212,255,0.2);">
                     <span><i class="fas fa-robot"></i> Asistente IA</span>
-                    <button id="closeChatBtn" style="background:none; border:none; color:#000; font-size:20px; cursor:pointer;">×</button>
+                    <button id="closeChatBtn" style="background:none; border:none; color:#000; font-size:24px; cursor:pointer; padding:0; width:30px; height:30px;">×</button>
                 </div>
-                <div id="chatMessages" style="flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:10px;"></div>
-                <div style="padding:15px; border-top:1px solid #333; display:flex; gap:10px;">
-                    <input type="text" id="chatInput" class="search-input" placeholder="Escribe tu pregunta..." style="flex:1; margin:0;">
-                    <button id="sendChatBtn" class="btn" style="width:50px; padding:10px; margin:0;"><i class="fas fa-paper-plane"></i></button>
+                <div id="chatMessages" style="flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:10px; background:#0f0f0f;"></div>
+                <div style="padding:12px; border-top:1px solid #333; display:flex; gap:8px; background:#1a1a1a;">
+                    <input type="text" id="chatInput" placeholder="Escribe tu pregunta..." style="flex:1; padding:10px 12px; background:#2a2a2a; border:1px solid #444; border-radius:6px; color:#fff; font-size:13px;">
+                    <button id="sendChatBtn" style="background:#00d4ff; color:#000; border:none; border-radius:6px; padding:10px 15px; cursor:pointer; font-weight:bold;"><i class="fas fa-paper-plane"></i></button>
                 </div>
             </div>
-            <button id="aiChatToggle" style="position:fixed; bottom:20px; right:20px; width:60px; height:60px; background:#00d4ff; color:#000; border:none; border-radius:50%; cursor:pointer; font-size:24px; z-index:4999; box-shadow:0 5px 15px rgba(0,212,255,0.4); display:flex; align-items:center; justify-content:center; transition:all 0.3s ease;">
+            <button id="aiChatToggle" style="position:fixed; bottom:20px; right:20px; width:70px; height:70px; background:linear-gradient(135deg, #00d4ff, #0099cc); color:#000; border:none; border-radius:50%; cursor:pointer; font-size:28px; z-index:4999; box-shadow:0 5px 20px rgba(0,212,255,0.5); display:flex; align-items:center; justify-content:center;">
                 <i class="fas fa-comments"></i>
             </button>
         `;
         document.body.insertAdjacentHTML('beforeend', chatHTML);
     };
 
-    // Inicializar chat cuando el DOM esté listo
+    // Función para obtener respuesta inteligente
+    const getAIResponse = (query) => {
+        const q = query.toLowerCase().trim();
+        
+        // Buscar en FAQ
+        for (let item of AITrainingSystem.faq) {
+            if (item.activo && (item.pregunta.toLowerCase().includes(q) || q.includes(item.pregunta.toLowerCase().split(' ')[0]))) {
+                return item.respuesta;
+            }
+        }
+        
+        // Búsqueda por palabras clave
+        if (q.includes('hola') || q.includes('ayuda')) {
+            return `¡Hola! Soy el asistente de ${AITrainingSystem.knowledge.empresa}. ¿Cómo puedo ayudarte?`;
+        }
+        
+        return "No estoy completamente seguro. ¿Puedes ser más específico?";
+    };
+
+    // Inicializar chat
     document.addEventListener('DOMContentLoaded', () => {
-        createChatWidget();
+        createAdvancedChatWidget();
         
         const chatToggle = document.getElementById('aiChatToggle');
         const chatWidget = document.getElementById('aiChatWidget');
@@ -1580,9 +1605,8 @@
                 chatWidget.style.display = 'flex';
                 chatToggle.style.display = 'none';
                 chatInput.focus();
-                // Mensaje inicial
                 if (chatMessages.children.length === 0) {
-                    addMessage(AIAgentStorage.responses.greeting, 'ai');
+                    addMessage('¡Hola! Soy tu asistente de MudanzasHub. ¿Cómo puedo ayudarte?', 'ai');
                 }
             }
         });
@@ -1598,7 +1622,7 @@
             if (text) {
                 addMessage(text, 'user');
                 const response = getAIResponse(text);
-                setTimeout(() => addMessage(response, 'ai'), 500);
+                setTimeout(() => addMessage(response, 'ai'), 600);
                 chatInput.value = '';
             }
         };
@@ -1612,12 +1636,12 @@
         const addMessage = (text, sender) => {
             const msgDiv = document.createElement('div');
             msgDiv.style.cssText = `
-                padding: 10px 12px;
-                border-radius: 8px;
-                max-width: 90%;
+                padding: 12px 14px;
+                border-radius: 10px;
+                max-width: 85%;
                 word-wrap: break-word;
                 font-size: 13px;
-                line-height: 1.4;
+                line-height: 1.5;
                 ${sender === 'user' ? 'background:#00d4ff; color:#000; align-self:flex-end; margin-left:auto;' : 'background:#2a2a2a; color:#fff; align-self:flex-start;'}
             `;
             msgDiv.textContent = text;
@@ -1626,156 +1650,102 @@
         };
     });
 
-    // ==================== PANEL DE ADMINISTRADOR PARA EDITAR AGENTE ====================
+    // ==================== PANEL DE ENTRENAMIENTO AVANZADO EN ADMIN ====================
     
-    // Agregar pestaña de configuración del agente en el panel admin
-    const addAIConfigTab = () => {
-        // Esperar a que el DOM esté listo
+    const addAdvancedAITrainingPanel = () => {
         setTimeout(() => {
             const adminSection = document.getElementById('adminSection');
             if (!adminSection) return;
 
-            // Buscar el contenedor de tabs
             const tabs = adminSection.querySelector('.tabs');
-            if (tabs && !document.getElementById('aiConfigTab')) {
-                // Agregar botón de tab
+            if (tabs && !document.getElementById('aiTrainingTab')) {
+                // Botón de tab
                 const aiTabBtn = document.createElement('button');
                 aiTabBtn.className = 'tab-btn';
-                aiTabBtn.dataset.tab = 'aiConfig';
-                aiTabBtn.textContent = 'Agente IA';
+                aiTabBtn.dataset.tab = 'aiTraining';
+                aiTabBtn.textContent = '🤖 Entrenar IA';
                 aiTabBtn.style.cssText = 'color: #00d4ff; font-weight: bold;';
                 tabs.appendChild(aiTabBtn);
 
-                // Crear contenedor de contenido
+                // Contenedor principal
                 const tabContent = document.createElement('div');
-                tabContent.id = 'aiConfigTab';
+                tabContent.id = 'aiTrainingTab';
                 tabContent.className = 'tab-content';
-                tabContent.style.cssText = 'padding: 15px;';
+                tabContent.style.cssText = 'padding: 15px; max-height: 70vh; overflow-y: auto;';
                 
                 tabContent.innerHTML = `
-                    <div style="margin-bottom:20px;">
-                        <h3 style="color:#00d4ff; margin-bottom:15px;"><i class="fas fa-robot"></i> Configuración del Agente IA</h3>
+                    <div>
+                        <h2 style="color:#00d4ff; margin-bottom:20px;"><i class="fas fa-brain"></i> Sistema de Entrenamiento IA</h2>
                         
-                        <div style="background:#222; padding:15px; border-radius:8px; margin-bottom:15px;">
-                            <label style="display:block; margin-bottom:10px; color:#aaa; font-weight:bold;">Estado del Agente:</label>
+                        <!-- REGLAS -->
+                        <div style="background:#222; padding:15px; border-radius:8px; margin-bottom:20px; border:1px solid #333;">
+                            <h3 style="color:#00d4ff; margin-bottom:12px;">📋 Reglas de Comportamiento</h3>
+                            <div id="rulesList"></div>
                             <div style="display:flex; gap:10px;">
-                                <button class="btn" id="enableAIBtn" style="background:#4ade80; flex:1;">Activar</button>
-                                <button class="btn" id="disableAIBtn" style="background:#ff4b4b; flex:1;">Desactivar</button>
+                                <input type="text" id="newRuleInput" class="search-input" placeholder="Nueva regla..." style="flex:1; margin:0;">
+                                <button class="btn" id="addRuleBtn" style="width:auto; padding:10px 20px;">Agregar</button>
                             </div>
                         </div>
 
-                        <div style="background:#222; padding:15px; border-radius:8px; margin-bottom:15px;">
-                            <label style="display:block; margin-bottom:10px; color:#aaa; font-weight:bold;">Editar Respuestas:</label>
-                            
-                            <div style="margin-bottom:15px;">
-                                <label style="color:#00d4ff; font-size:12px;">Saludo Inicial:</label>
-                                <textarea id="aiGreeting" class="search-input" style="height:60px; resize:none; margin-top:5px;"></textarea>
+                        <!-- BASE DE CONOCIMIENTOS -->
+                        <div style="background:#222; padding:15px; border-radius:8px; margin-bottom:20px; border:1px solid #333;">
+                            <h3 style="color:#00d4ff; margin-bottom:12px;">📚 Base de Conocimientos</h3>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
+                                <div>
+                                    <label style="color:#aaa; font-size:12px;">Empresa:</label>
+                                    <input type="text" id="aiCompanyName" class="search-input" value="MudanzasHub Costa Rica" style="margin-top:5px;">
+                                </div>
+                                <div>
+                                    <label style="color:#aaa; font-size:12px;">Pago:</label>
+                                    <input type="text" id="aiPaymentMethod" class="search-input" value="SINPE 7228-4602" style="margin-top:5px;">
+                                </div>
                             </div>
+                            <button class="btn" id="saveKnowledgeBtn" style="background:#4ade80;">Guardar</button>
+                        </div>
 
-                            <div style="margin-bottom:15px;">
-                                <label style="color:#00d4ff; font-size:12px;">Información de Servicios:</label>
-                                <textarea id="aiServices" class="search-input" style="height:80px; resize:none; margin-top:5px;"></textarea>
+                        <!-- FAQ -->
+                        <div style="background:#222; padding:15px; border-radius:8px; margin-bottom:20px; border:1px solid #333;">
+                            <h3 style="color:#00d4ff; margin-bottom:12px;">❓ Preguntas y Respuestas</h3>
+                            <div id="faqList" style="margin-bottom:15px; max-height:250px; overflow-y:auto;"></div>
+                            <div style="border-top:1px solid #444; padding-top:15px;">
+                                <input type="text" id="newFaqQuestion" class="search-input" placeholder="Pregunta..." style="margin-bottom:10px;">
+                                <textarea id="newFaqAnswer" class="search-input" placeholder="Respuesta..." style="height:70px; resize:none; margin-bottom:10px;"></textarea>
+                                <button class="btn" id="addFaqBtn" style="background:#4ade80;">Agregar FAQ</button>
                             </div>
+                        </div>
 
-                            <div style="margin-bottom:15px;">
-                                <label style="color:#00d4ff; font-size:12px;">Información de Precios:</label>
-                                <textarea id="aiPricing" class="search-input" style="height:80px; resize:none; margin-top:5px;"></textarea>
+                        <!-- ARCHIVOS -->
+                        <div style="background:#222; padding:15px; border-radius:8px; margin-bottom:20px; border:1px solid #333;">
+                            <h3 style="color:#00d4ff; margin-bottom:12px;">📁 Archivos y Fotos</h3>
+                            <div id="filesList" style="margin-bottom:15px; max-height:200px; overflow-y:auto;"></div>
+                            <div style="border-top:1px solid #444; padding-top:15px;">
+                                <input type="file" id="aiFileUpload" style="margin-bottom:10px; color:#aaa;">
+                                <input type="text" id="aiFileDescription" class="search-input" placeholder="Descripción..." style="margin-bottom:10px;">
+                                <button class="btn" id="uploadFileBtn" style="background:#4ade80;">Subir Archivo</button>
                             </div>
+                        </div>
 
-                            <div style="margin-bottom:15px;">
-                                <label style="color:#00d4ff; font-size:12px;">Información de Vehículos:</label>
-                                <textarea id="aiVehicles" class="search-input" style="height:80px; resize:none; margin-top:5px;"></textarea>
-                            </div>
-
-                            <div style="margin-bottom:15px;">
-                                <label style="color:#00d4ff; font-size:12px;">Cómo Reservar:</label>
-                                <textarea id="aiBooking" class="search-input" style="height:80px; resize:none; margin-top:5px;"></textarea>
-                            </div>
-
-                            <div style="margin-bottom:15px;">
-                                <label style="color:#00d4ff; font-size:12px;">Información de Pagos:</label>
-                                <textarea id="aiPayment" class="search-input" style="height:80px; resize:none; margin-top:5px;"></textarea>
-                            </div>
-
-                            <div style="margin-bottom:15px;">
-                                <label style="color:#00d4ff; font-size:12px;">Guía de Transportista:</label>
-                                <textarea id="aiTransporterGuide" class="search-input" style="height:100px; resize:none; margin-top:5px;"></textarea>
-                            </div>
-
-                            <div style="margin-bottom:15px;">
-                                <label style="color:#00d4ff; font-size:12px;">Guía de Usuario:</label>
-                                <textarea id="aiUserGuide" class="search-input" style="height:100px; resize:none; margin-top:5px;"></textarea>
-                            </div>
-
-                            <div style="display:flex; gap:10px;">
-                                <button class="btn" id="saveAIConfigBtn" style="background:#4ade80; flex:1;"><i class="fas fa-save"></i> Guardar Cambios</button>
-                                <button class="btn" id="resetAIConfigBtn" style="background:#ff4b4b; flex:1;"><i class="fas fa-undo"></i> Restaurar Defecto</button>
-                            </div>
+                        <!-- ACCIONES -->
+                        <div style="display:flex; gap:10px;">
+                            <button class="btn" id="saveAllTrainingBtn" style="background:#4ade80; flex:1;">💾 Guardar Todo</button>
+                            <button class="btn" id="resetTrainingBtn" style="background:#ff4b4b; flex:1;">🔄 Restaurar</button>
                         </div>
                     </div>
                 `;
 
-                // Agregar después del último tab-content
+                // Agregar al DOM
                 const lastTabContent = adminSection.querySelector('.tab-content:last-of-type');
                 if (lastTabContent) {
                     lastTabContent.parentNode.insertBefore(tabContent, lastTabContent.nextSibling);
                 }
 
-                // Event listeners para el panel de configuración
-                document.getElementById('enableAIBtn').addEventListener('click', () => {
-                    AIAgentStorage.enabled = true;
-                    alert('Agente IA activado');
-                });
+                // Cargar datos iniciales
+                loadTrainingUI();
 
-                document.getElementById('disableAIBtn').addEventListener('click', () => {
-                    AIAgentStorage.enabled = false;
-                    alert('Agente IA desactivado');
-                });
+                // Setup listeners
+                setupTrainingEventListeners();
 
-                document.getElementById('saveAIConfigBtn').addEventListener('click', () => {
-                    AIAgentStorage.responses.greeting = document.getElementById('aiGreeting').value;
-                    AIAgentStorage.responses.services = document.getElementById('aiServices').value;
-                    AIAgentStorage.responses.pricing = document.getElementById('aiPricing').value;
-                    AIAgentStorage.responses.vehicles = document.getElementById('aiVehicles').value;
-                    AIAgentStorage.responses.booking = document.getElementById('aiBooking').value;
-                    AIAgentStorage.responses.payment = document.getElementById('aiPayment').value;
-                    AIAgentStorage.responses.transporter_guide = document.getElementById('aiTransporterGuide').value;
-                    AIAgentStorage.responses.user_guide = document.getElementById('aiUserGuide').value;
-                    alert('✅ Configuración del Agente IA guardada correctamente');
-                });
-
-                document.getElementById('resetAIConfigBtn').addEventListener('click', () => {
-                    if (confirm('¿Restaurar todas las respuestas a los valores por defecto?')) {
-                        AIAgentStorage.responses = {
-                            greeting: "¡Hola! Soy tu asistente de ventas de MudanzasHub. ¿Cómo puedo ayudarte hoy?",
-                            services: "Ofrecemos dos tipos de servicios:\n• Con Acarreo: Incluye descarga en destino\n• Puesta Afuera: Solo transporte, sin descarga",
-                            pricing: "Nuestros precios dependen de:\n• Tipo de vehículo (Pickup, Buseta, Camión)\n• Distancia entre origen y destino\n• Peso de la carga\n• Dificultad de acceso\n\n¿Necesitas una cotización?",
-                            vehicles: "Disponemos de:\n• Pickup: Ideal para cargas pequeñas\n• Buseta: Para mudanzas medianas\n• Camión: Para mudanzas grandes",
-                            booking: "Para reservar una mudanza:\n1. Selecciona origen y destino\n2. Elige tipo de vehículo y servicio\n3. Ingresa peso de la carga\n4. Revisa las ofertas disponibles\n5. Confirma y realiza el pago",
-                            payment: "Aceptamos pagos por SINPE. Debes adjuntar el comprobante para confirmar la mudanza.",
-                            transporter_guide: "Guía para Transportistas:\n• Revisa tus ofertas disponibles\n• Acepta trabajos según tu disponibilidad\n• Usa GPS para navegación\n• Ingresa código de confirmación al finalizar",
-                            user_guide: "Guía para Clientes:\n• Crea tu cuenta o inicia sesión\n• Busca origen y destino\n• Selecciona vehículo y servicio\n• Revisa ofertas y elige transportista\n• Realiza el pago por SINPE\n• Recibe confirmación de tu mudanza"
-                        };
-                        loadAIConfigUI();
-                        alert('✅ Configuración restaurada a valores por defecto');
-                    }
-                });
-
-                // Cargar valores actuales en la UI
-                const loadAIConfigUI = () => {
-                    document.getElementById('aiGreeting').value = AIAgentStorage.responses.greeting;
-                    document.getElementById('aiServices').value = AIAgentStorage.responses.services;
-                    document.getElementById('aiPricing').value = AIAgentStorage.responses.pricing;
-                    document.getElementById('aiVehicles').value = AIAgentStorage.responses.vehicles;
-                    document.getElementById('aiBooking').value = AIAgentStorage.responses.booking;
-                    document.getElementById('aiPayment').value = AIAgentStorage.responses.payment;
-                    document.getElementById('aiTransporterGuide').value = AIAgentStorage.responses.transporter_guide;
-                    document.getElementById('aiUserGuide').value = AIAgentStorage.responses.user_guide;
-                };
-
-                loadAIConfigUI();
-
-                // Agregar event listener al tab button
+                // Tab button click
                 aiTabBtn.addEventListener('click', () => {
                     document.querySelectorAll('#adminSection .tab-content').forEach(c => c.classList.remove('active'));
                     tabContent.classList.add('active');
@@ -1786,8 +1756,108 @@
         }, 500);
     };
 
-    // Llamar a la función cuando se cargue la página
-    window.addEventListener('load', addAIConfigTab);
+    // Cargar UI
+    const loadTrainingUI = () => {
+        const rulesList = document.getElementById('rulesList');
+        rulesList.innerHTML = '';
+        AITrainingSystem.rules.forEach((rule, idx) => {
+            const div = document.createElement('div');
+            div.style.cssText = 'background:#1a1a1a; padding:10px; border-radius:6px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; border-left:3px solid #00d4ff;';
+            div.innerHTML = `<span style="color:#fff; font-size:13px;">${rule}</span><button onclick="AITrainingSystem.rules.splice(${idx}, 1); loadTrainingUI();" style="background:#ff4b4b; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:11px;">X</button>`;
+            rulesList.appendChild(div);
+        });
+
+        const faqList = document.getElementById('faqList');
+        faqList.innerHTML = '';
+        AITrainingSystem.faq.forEach((item, idx) => {
+            const div = document.createElement('div');
+            div.style.cssText = 'background:#1a1a1a; padding:10px; border-radius:6px; margin-bottom:8px; border:1px solid #333;';
+            div.innerHTML = `<div style="color:#00d4ff; font-weight:bold; font-size:12px;">P: ${item.pregunta}</div><div style="color:#aaa; font-size:12px;">R: ${item.respuesta}</div><button onclick="AITrainingSystem.faq.splice(${idx}, 1); loadTrainingUI();" style="background:#ff4b4b; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:11px; margin-top:8px;">Eliminar</button>`;
+            faqList.appendChild(div);
+        });
+
+        const filesList = document.getElementById('filesList');
+        filesList.innerHTML = '';
+        AITrainingSystem.archivos.forEach((file, idx) => {
+            const div = document.createElement('div');
+            div.style.cssText = 'background:#1a1a1a; padding:10px; border-radius:6px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;';
+            div.innerHTML = `<div><div style="color:#fff; font-size:12px;">${file.nombre}</div><div style="color:#aaa; font-size:11px;">${file.descripcion}</div></div><button onclick="AITrainingSystem.archivos.splice(${idx}, 1); loadTrainingUI();" style="background:#ff4b4b; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:11px;">X</button>`;
+            filesList.appendChild(div);
+        });
+    };
+
+    // Setup listeners
+    const setupTrainingEventListeners = () => {
+        document.getElementById('addRuleBtn').addEventListener('click', () => {
+            const val = document.getElementById('newRuleInput').value.trim();
+            if (val) {
+                AITrainingSystem.rules.push(val);
+                document.getElementById('newRuleInput').value = '';
+                loadTrainingUI();
+                alert('✅ Regla agregada');
+            }
+        });
+
+        document.getElementById('saveKnowledgeBtn').addEventListener('click', () => {
+            AITrainingSystem.knowledge.empresa = document.getElementById('aiCompanyName').value;
+            AITrainingSystem.knowledge.pago = document.getElementById('aiPaymentMethod').value;
+            alert('✅ Base de conocimientos actualizada');
+        });
+
+        document.getElementById('addFaqBtn').addEventListener('click', () => {
+            const q = document.getElementById('newFaqQuestion').value.trim();
+            const a = document.getElementById('newFaqAnswer').value.trim();
+            if (q && a) {
+                AITrainingSystem.faq.push({
+                    id: AITrainingSystem.faq.length + 1,
+                    pregunta: q,
+                    respuesta: a,
+                    categoria: "general",
+                    activo: true
+                });
+                document.getElementById('newFaqQuestion').value = '';
+                document.getElementById('newFaqAnswer').value = '';
+                loadTrainingUI();
+                alert('✅ FAQ agregada');
+            }
+        });
+
+        document.getElementById('uploadFileBtn').addEventListener('click', () => {
+            const file = document.getElementById('aiFileUpload').files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    AITrainingSystem.archivos.push({
+                        id: AITrainingSystem.archivos.length + 1,
+                        nombre: file.name,
+                        tipo: file.type.includes('image') ? 'imagen' : 'documento',
+                        url: e.target.result,
+                        descripcion: document.getElementById('aiFileDescription').value || file.name
+                    });
+                    document.getElementById('aiFileUpload').value = '';
+                    document.getElementById('aiFileDescription').value = '';
+                    loadTrainingUI();
+                    alert('✅ Archivo subido');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('saveAllTrainingBtn').addEventListener('click', () => {
+            localStorage.setItem('AITrainingSystem', JSON.stringify(AITrainingSystem));
+            alert('✅ Todo guardado');
+        });
+
+        document.getElementById('resetTrainingBtn').addEventListener('click', () => {
+            if (confirm('¿Restaurar valores por defecto?')) {
+                localStorage.removeItem('AITrainingSystem');
+                location.reload();
+            }
+        });
+    };
+
+    // Inicializar
+    window.addEventListener('load', addAdvancedAITrainingPanel);
 });
 
 </script>
