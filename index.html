@@ -7,121 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
-    const createAIWidget = () => { 
-        const chatWidget = document.getElementById("aiChatWidget"); 
-        const chatToggle = document.getElementById("aiChatToggle"); 
-        const closeChat = document.getElementById("closeChatBtn"); 
-        const sendBtn = document.getElementById("sendChatBtn"); 
-        const chatInput = document.getElementById("chatInput"); 
-        const chatMessages = document.getElementById("chatMessages"); 
-        if(!chatWidget) return; 
-        chatToggle.onclick = () => { 
-            chatWidget.style.display = "flex"; 
-            chatToggle.style.display = "none"; 
-            if (chatMessages.children.length === 0) addMsg("¡Hola! Soy tu asistente de MudanzasHub. ¿En qué puedo ayudarte?", "ai"); 
-        }; 
-        closeChat.onclick = () => { 
-            chatWidget.style.display = "none"; 
-            chatToggle.style.display = "flex"; 
-        }; 
-        const addMsg = (text, sender) => { 
-            const div = document.createElement("div"); 
-            div.style.cssText = `padding:10px 14px; border-radius:10px; max-width:85%; font-size:13px; line-height:1.4; ${sender==="user"?"background:#00d4ff; color:#000; align-self:flex-end":"background:#2a2a2a; color:#fff; align-self:flex-start"}`; 
-            div.textContent = text; 
-            chatMessages.appendChild(div); 
-            chatMessages.scrollTop = chatMessages.scrollHeight; 
-        }; 
-        const getAIResponse = (q) => { 
-            q = q.toLowerCase(); 
-            const knowledge = document.getElementById("aiKnowledgeInput").value.toLowerCase(); 
-            if (q.includes("hola")) return "¡Hola! ¿Cómo puedo ayudarte hoy?"; 
-            const lines = knowledge.split("\n"); 
-            for (let line of lines) { 
-                if (line.includes("p:") && line.includes("r:")) { 
-                    const parts = line.split("r:"); 
-                    const questionPart = parts[0].replace("p:", "").trim(); 
-                    const answerPart = parts[1].trim(); 
-                    if (q.includes(questionPart)) return answerPart; 
-                } 
-            } 
-            return "No estoy seguro de eso. ¿Puedes preguntar sobre servicios o pagos?"; 
-        }; 
-        const handleSend = () => { 
-            const text = chatInput.value.trim(); 
-            if (!text) return; 
-            addMsg(text, "user"); 
-            chatInput.value = ""; 
-            setTimeout(() => addMsg(getAIResponse(text), "ai"), 600); 
-        }; 
-        sendBtn.onclick = handleSend; 
-        chatInput.onkeypress = (e) => { if(e.key === "Enter") handleSend(); }; 
-        document.getElementById("saveAITrainingBtn").onclick = () => { 
-            localStorage.setItem("ai_rules", document.getElementById("aiRulesInput").value); 
-            localStorage.setItem("ai_knowledge", document.getElementById("aiKnowledgeInput").value); 
-            alert("✅ Entrenamiento guardado."); 
-        }; 
-        if(localStorage.getItem("ai_rules")) document.getElementById("aiRulesInput").value = localStorage.getItem("ai_rules"); 
-        if(localStorage.getItem("ai_knowledge")) document.getElementById("aiKnowledgeInput").value = localStorage.getItem("ai_knowledge"); 
-    }; 
-    setTimeout(createAIWidget, 1000);
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    const createAIWidget = () => { 
-        const chatWidget = document.getElementById("aiChatWidget"); 
-        const chatToggle = document.getElementById("aiChatToggle"); 
-        const closeChat = document.getElementById("closeChatBtn"); 
-        const sendBtn = document.getElementById("sendChatBtn"); 
-        const chatInput = document.getElementById("chatInput"); 
-        const chatMessages = document.getElementById("chatMessages"); 
-        if(!chatWidget) return; 
-        chatToggle.onclick = () => { 
-            chatWidget.style.display = "flex"; 
-            chatToggle.style.display = "none"; 
-            if (chatMessages.children.length === 0) addMsg("¡Hola! Soy tu asistente de MudanzasHub. ¿En qué puedo ayudarte?", "ai"); 
-        }; 
-        closeChat.onclick = () => { 
-            chatWidget.style.display = "none"; 
-            chatToggle.style.display = "flex"; 
-        }; 
-        const addMsg = (text, sender) => { 
-            const div = document.createElement("div"); 
-            div.style.cssText = `padding:10px 14px; border-radius:10px; max-width:85%; font-size:13px; line-height:1.4; ${sender==="user"?"background:#00d4ff; color:#000; align-self:flex-end":"background:#2a2a2a; color:#fff; align-self:flex-start"}`; 
-            div.textContent = text; 
-            chatMessages.appendChild(div); 
-            chatMessages.scrollTop = chatMessages.scrollHeight; 
-        }; 
-        const getAIResponse = (q) => { 
-            q = q.toLowerCase(); 
-            const knowledge = document.getElementById("aiKnowledgeInput").value.toLowerCase(); 
-            if (q.includes("hola")) return "¡Hola! ¿Cómo puedo ayudarte hoy?"; 
-            const lines = knowledge.split("\n"); 
-            for (let line of lines) { 
-                if (line.includes("p:") && line.includes("r:")) { 
-                    const parts = line.split("r:"); 
-                    const questionPart = parts[0].replace("p:", "").trim(); 
-                    const answerPart = parts[1].trim(); 
-                    if (q.includes(questionPart)) return answerPart; 
-                } 
-            } 
-            return "No estoy seguro de eso. ¿Puedes preguntar sobre servicios o pagos?"; 
-        }; 
-        const handleSend = () => { 
-            const text = chatInput.value.trim(); 
-            if (!text) return; 
-            addMsg(text, "user"); 
-            chatInput.value = ""; 
-            setTimeout(() => addMsg(getAIResponse(text), "ai"), 600); 
-        }; 
-        sendBtn.onclick = handleSend; 
-        chatInput.onkeypress = (e) => { if(e.key === "Enter") handleSend(); }; 
-        document.getElementById("saveAITrainingBtn").onclick = () => { 
-            localStorage.setItem("ai_rules", document.getElementById("aiRulesInput").value); 
-            localStorage.setItem("ai_knowledge", document.getElementById("aiKnowledgeInput").value); 
-            alert("✅ Entrenamiento guardado."); 
-        }; 
-        if(localStorage.getItem("ai_rules")) document.getElementById("aiRulesInput").value = localStorage.getItem("ai_rules"); 
-        if(localStorage.getItem("ai_knowledge")) document.getElementById("aiKnowledgeInput").value = localStorage.getItem("ai_knowledge"); 
-    }; 
-    setTimeout(createAIWidget, 1000);
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <style>
         /* ESTILOS ORIGINALES Y NUEVOS */
@@ -443,7 +329,6 @@
                 <button class="tab-btn" data-tab="partners">Socios</button>
                 <button class="tab-btn" data-tab="clients">Clientes</button>
                 <button class="tab-btn" data-tab="docs">Documentación</button>
-                <button class="tab-btn" data-tab="aiTraining">🤖 Entrenar IA</button>
             </div>
             <div id="movesTab" class="tab-content active">
                 <div style="display:flex; gap:10px; margin-bottom:15px; align-items:center; flex-wrap:wrap;">
@@ -489,20 +374,6 @@
                             <span class="finance-label">Balance Neto:</span><span class="finance-value" id="netBalance">₡0</span>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div id="aiTrainingTab" class="tab-content">
-                <div style="padding:15px; background:#222; border-radius:8px; border:1px solid #333;">
-                    <h3 style="color:#00d4ff; margin-bottom:15px;"><i class="fas fa-brain"></i> Entrenamiento del Agente IA</h3>
-                    <div class="form-group">
-                        <label>Reglas de Comportamiento:</label>
-                        <textarea id="aiRulesInput" class="search-input" style="height:80px; resize:none;">Siempre sé amable y profesional. Responde en español.</textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Base de Conocimiento (FAQ):</label>
-                        <textarea id="aiKnowledgeInput" class="search-input" style="height:150px; resize:none;">P: ¿Servicios? R: Acarreo y Puesta Afuera.\nP: ¿Pago? R: SINPE 7228-4602.</textarea>
-                    </div>
-                    <button class="btn" id="saveAITrainingBtn">💾 Guardar Entrenamiento</button>
                 </div>
             </div>
         </div>
@@ -630,121 +501,7 @@
     </div>
 </div>
 
-    const createAIWidget = () => { 
-        const chatWidget = document.getElementById("aiChatWidget"); 
-        const chatToggle = document.getElementById("aiChatToggle"); 
-        const closeChat = document.getElementById("closeChatBtn"); 
-        const sendBtn = document.getElementById("sendChatBtn"); 
-        const chatInput = document.getElementById("chatInput"); 
-        const chatMessages = document.getElementById("chatMessages"); 
-        if(!chatWidget) return; 
-        chatToggle.onclick = () => { 
-            chatWidget.style.display = "flex"; 
-            chatToggle.style.display = "none"; 
-            if (chatMessages.children.length === 0) addMsg("¡Hola! Soy tu asistente de MudanzasHub. ¿En qué puedo ayudarte?", "ai"); 
-        }; 
-        closeChat.onclick = () => { 
-            chatWidget.style.display = "none"; 
-            chatToggle.style.display = "flex"; 
-        }; 
-        const addMsg = (text, sender) => { 
-            const div = document.createElement("div"); 
-            div.style.cssText = `padding:10px 14px; border-radius:10px; max-width:85%; font-size:13px; line-height:1.4; ${sender==="user"?"background:#00d4ff; color:#000; align-self:flex-end":"background:#2a2a2a; color:#fff; align-self:flex-start"}`; 
-            div.textContent = text; 
-            chatMessages.appendChild(div); 
-            chatMessages.scrollTop = chatMessages.scrollHeight; 
-        }; 
-        const getAIResponse = (q) => { 
-            q = q.toLowerCase(); 
-            const knowledge = document.getElementById("aiKnowledgeInput").value.toLowerCase(); 
-            if (q.includes("hola")) return "¡Hola! ¿Cómo puedo ayudarte hoy?"; 
-            const lines = knowledge.split("\n"); 
-            for (let line of lines) { 
-                if (line.includes("p:") && line.includes("r:")) { 
-                    const parts = line.split("r:"); 
-                    const questionPart = parts[0].replace("p:", "").trim(); 
-                    const answerPart = parts[1].trim(); 
-                    if (q.includes(questionPart)) return answerPart; 
-                } 
-            } 
-            return "No estoy seguro de eso. ¿Puedes preguntar sobre servicios o pagos?"; 
-        }; 
-        const handleSend = () => { 
-            const text = chatInput.value.trim(); 
-            if (!text) return; 
-            addMsg(text, "user"); 
-            chatInput.value = ""; 
-            setTimeout(() => addMsg(getAIResponse(text), "ai"), 600); 
-        }; 
-        sendBtn.onclick = handleSend; 
-        chatInput.onkeypress = (e) => { if(e.key === "Enter") handleSend(); }; 
-        document.getElementById("saveAITrainingBtn").onclick = () => { 
-            localStorage.setItem("ai_rules", document.getElementById("aiRulesInput").value); 
-            localStorage.setItem("ai_knowledge", document.getElementById("aiKnowledgeInput").value); 
-            alert("✅ Entrenamiento guardado."); 
-        }; 
-        if(localStorage.getItem("ai_rules")) document.getElementById("aiRulesInput").value = localStorage.getItem("ai_rules"); 
-        if(localStorage.getItem("ai_knowledge")) document.getElementById("aiKnowledgeInput").value = localStorage.getItem("ai_knowledge"); 
-    }; 
-    setTimeout(createAIWidget, 1000);
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    const createAIWidget = () => { 
-        const chatWidget = document.getElementById("aiChatWidget"); 
-        const chatToggle = document.getElementById("aiChatToggle"); 
-        const closeChat = document.getElementById("closeChatBtn"); 
-        const sendBtn = document.getElementById("sendChatBtn"); 
-        const chatInput = document.getElementById("chatInput"); 
-        const chatMessages = document.getElementById("chatMessages"); 
-        if(!chatWidget) return; 
-        chatToggle.onclick = () => { 
-            chatWidget.style.display = "flex"; 
-            chatToggle.style.display = "none"; 
-            if (chatMessages.children.length === 0) addMsg("¡Hola! Soy tu asistente de MudanzasHub. ¿En qué puedo ayudarte?", "ai"); 
-        }; 
-        closeChat.onclick = () => { 
-            chatWidget.style.display = "none"; 
-            chatToggle.style.display = "flex"; 
-        }; 
-        const addMsg = (text, sender) => { 
-            const div = document.createElement("div"); 
-            div.style.cssText = `padding:10px 14px; border-radius:10px; max-width:85%; font-size:13px; line-height:1.4; ${sender==="user"?"background:#00d4ff; color:#000; align-self:flex-end":"background:#2a2a2a; color:#fff; align-self:flex-start"}`; 
-            div.textContent = text; 
-            chatMessages.appendChild(div); 
-            chatMessages.scrollTop = chatMessages.scrollHeight; 
-        }; 
-        const getAIResponse = (q) => { 
-            q = q.toLowerCase(); 
-            const knowledge = document.getElementById("aiKnowledgeInput").value.toLowerCase(); 
-            if (q.includes("hola")) return "¡Hola! ¿Cómo puedo ayudarte hoy?"; 
-            const lines = knowledge.split("\n"); 
-            for (let line of lines) { 
-                if (line.includes("p:") && line.includes("r:")) { 
-                    const parts = line.split("r:"); 
-                    const questionPart = parts[0].replace("p:", "").trim(); 
-                    const answerPart = parts[1].trim(); 
-                    if (q.includes(questionPart)) return answerPart; 
-                } 
-            } 
-            return "No estoy seguro de eso. ¿Puedes preguntar sobre servicios o pagos?"; 
-        }; 
-        const handleSend = () => { 
-            const text = chatInput.value.trim(); 
-            if (!text) return; 
-            addMsg(text, "user"); 
-            chatInput.value = ""; 
-            setTimeout(() => addMsg(getAIResponse(text), "ai"), 600); 
-        }; 
-        sendBtn.onclick = handleSend; 
-        chatInput.onkeypress = (e) => { if(e.key === "Enter") handleSend(); }; 
-        document.getElementById("saveAITrainingBtn").onclick = () => { 
-            localStorage.setItem("ai_rules", document.getElementById("aiRulesInput").value); 
-            localStorage.setItem("ai_knowledge", document.getElementById("aiKnowledgeInput").value); 
-            alert("✅ Entrenamiento guardado."); 
-        }; 
-        if(localStorage.getItem("ai_rules")) document.getElementById("aiRulesInput").value = localStorage.getItem("ai_rules"); 
-        if(localStorage.getItem("ai_knowledge")) document.getElementById("aiKnowledgeInput").value = localStorage.getItem("ai_knowledge"); 
-    }; 
-    setTimeout(createAIWidget, 1000);
 <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
 
 <script type="module">
@@ -1737,75 +1494,188 @@
             opt.classList.add('active');
         }
     });
-    const createAIWidget = () => { 
-        const chatWidget = document.getElementById("aiChatWidget"); 
-        const chatToggle = document.getElementById("aiChatToggle"); 
-        const closeChat = document.getElementById("closeChatBtn"); 
-        const sendBtn = document.getElementById("sendChatBtn"); 
-        const chatInput = document.getElementById("chatInput"); 
-        const chatMessages = document.getElementById("chatMessages"); 
-        if(!chatWidget) return; 
-        chatToggle.onclick = () => { 
-            chatWidget.style.display = "flex"; 
-            chatToggle.style.display = "none"; 
-            if (chatMessages.children.length === 0) addMsg("¡Hola! Soy tu asistente de MudanzasHub. ¿En qué puedo ayudarte?", "ai"); 
-        }; 
-        closeChat.onclick = () => { 
-            chatWidget.style.display = "none"; 
-            chatToggle.style.display = "flex"; 
-        }; 
-        const addMsg = (text, sender) => { 
-            const div = document.createElement("div"); 
-            div.style.cssText = `padding:10px 14px; border-radius:10px; max-width:85%; font-size:13px; line-height:1.4; ${sender==="user"?"background:#00d4ff; color:#000; align-self:flex-end":"background:#2a2a2a; color:#fff; align-self:flex-start"}`; 
-            div.textContent = text; 
-            chatMessages.appendChild(div); 
-            chatMessages.scrollTop = chatMessages.scrollHeight; 
-        }; 
-        const getAIResponse = (q) => { 
-            q = q.toLowerCase(); 
-            const knowledge = document.getElementById("aiKnowledgeInput").value.toLowerCase(); 
-            if (q.includes("hola")) return "¡Hola! ¿Cómo puedo ayudarte hoy?"; 
-            const lines = knowledge.split("\n"); 
-            for (let line of lines) { 
-                if (line.includes("p:") && line.includes("r:")) { 
-                    const parts = line.split("r:"); 
-                    const questionPart = parts[0].replace("p:", "").trim(); 
-                    const answerPart = parts[1].trim(); 
-                    if (q.includes(questionPart)) return answerPart; 
-                } 
-            } 
-            return "No estoy seguro de eso. ¿Puedes preguntar sobre servicios o pagos?"; 
-        }; 
-        const handleSend = () => { 
-            const text = chatInput.value.trim(); 
-            if (!text) return; 
-            addMsg(text, "user"); 
-            chatInput.value = ""; 
-            setTimeout(() => addMsg(getAIResponse(text), "ai"), 600); 
-        }; 
-        sendBtn.onclick = handleSend; 
-        chatInput.onkeypress = (e) => { if(e.key === "Enter") handleSend(); }; 
-        document.getElementById("saveAITrainingBtn").onclick = () => { 
-            localStorage.setItem("ai_rules", document.getElementById("aiRulesInput").value); 
-            localStorage.setItem("ai_knowledge", document.getElementById("aiKnowledgeInput").value); 
-            alert("✅ Entrenamiento guardado."); 
-        }; 
-        if(localStorage.getItem("ai_rules")) document.getElementById("aiRulesInput").value = localStorage.getItem("ai_rules"); 
-        if(localStorage.getItem("ai_knowledge")) document.getElementById("aiKnowledgeInput").value = localStorage.getItem("ai_knowledge"); 
-    }; 
-    setTimeout(createAIWidget, 1000);
 </script>
-<div id="aiChatWidget" style="position:fixed; bottom:20px; right:20px; width:350px; height:500px; background:#1a1a1a; border:2px solid #00d4ff; border-radius:12px; display:none; flex-direction:column; z-index:9999; box-shadow:0 10px 40px rgba(0,0,0,0.5);"> 
-    <div style="background:#00d4ff; color:#000; padding:15px; border-radius:12px 12px 0 0; display:flex; justify-content:space-between; align-items:center; font-weight:bold;"> 
-        <span><i class="fas fa-robot"></i> Asistente IA</span> 
-        <button id="closeChatBtn" style="background:none; border:none; font-size:20px; cursor:pointer; color:#000;">×</button> 
-    </div> 
-    <div id="chatMessages" style="flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:10px; background:#0f0f0f;"></div> 
-    <div style="padding:10px; border-top:1px solid #333; display:flex; gap:5px; background:#1a1a1a;"> 
-        <input type="text" id="chatInput" placeholder="Escribe tu pregunta..." style="flex:1; padding:10px; background:#2a2a2a; border:1px solid #444; color:#fff; border-radius:6px; outline:none;"> 
-        <button id="sendChatBtn" style="background:#00d4ff; border:none; padding:10px 15px; border-radius:6px; cursor:pointer; color:#000; font-weight:bold;"><i class="fas fa-paper-plane"></i></button> 
-    </div> 
-</div> 
-<button id="aiChatToggle" style="position:fixed; bottom:20px; right:20px; width:60px; height:60px; background:#00d4ff; border:none; border-radius:50%; cursor:pointer; z-index:9998; font-size:24px; box-shadow:0 5px 15px rgba(0,212,255,0.4); display:flex; align-items:center; justify-content:center; color:#000;">💬</button>
+
+/* ============================================================
+   AGENTE DE IA EXPERTO EN VENTAS Y CIERRE - MUDANZASHUB
+   ============================================================ */
+
+const SalesAgentSystem = {
+    config: {
+        name: "Asistente Experto MudanzasHub",
+        personality: "Vendedor profesional, amable y persuasivo. Siempre busca cerrar la venta u ofrecer una cotización.",
+        closingPhrases: [
+            "¿Te gustaría que reservemos tu mudanza ahora mismo para asegurar el mejor precio?",
+            "¡Excelente elección! ¿Quieres que un asesor te llame para finalizar los detalles?",
+            "Si reservas hoy, podemos darte prioridad en el horario. ¿Qué te parece?"
+        ]
+    },
+    
+    // Base de datos de entrenamiento (se carga de localStorage)
+    training: {
+        rules: "Sé persuasivo. Usa el nombre del cliente si lo sabes. Enfócate en la seguridad y rapidez.",
+        knowledge: "P: ¿Servicios? R: Ofrecemos Acarreo (completo) y Puesta Afuera (económico).\nP: ¿Precio? R: Varía por distancia y camión, pero somos los más competitivos de CR.\nP: ¿Pago? R: SINPE al 7228-4602."
+    },
+
+    init() {
+        this.loadTraining();
+        this.createWidget();
+        this.injectAdminTab();
+    },
+
+    loadTraining() {
+        const savedRules = localStorage.getItem('sales_ai_rules');
+        const savedKnowledge = localStorage.getItem('sales_ai_knowledge');
+        if (savedRules) this.training.rules = savedRules;
+        if (savedKnowledge) this.training.knowledge = savedKnowledge;
+    },
+
+    createWidget() {
+        if (document.getElementById('aiChatWidget')) return;
+        const html = `
+            <div id="aiChatWidget" style="position:fixed; bottom:20px; right:20px; width:360px; height:520px; background:#1a1a1a; border:2px solid #00d4ff; border-radius:15px; display:none; flex-direction:column; z-index:10000; box-shadow:0 15px 50px rgba(0,0,0,0.6); font-family: 'Segoe UI', Roboto, sans-serif; overflow:hidden;">
+                <div style="background:linear-gradient(135deg, #00d4ff, #008fb3); color:#000; padding:18px; display:flex; justify-content:space-between; align-items:center; font-weight:bold;">
+                    <span><i class="fas fa-user-tie"></i> Experto en Ventas IA</span>
+                    <button id="closeSalesChat" style="background:none; border:none; font-size:24px; cursor:pointer; color:#000;">&times;</button>
+                </div>
+                <div id="salesChatMessages" style="flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:12px; background:#0f0f0f;"></div>
+                <div style="padding:12px; background:#1a1a1a; border-top:1px solid #333; display:flex; gap:8px;">
+                    <input type="text" id="salesChatInput" placeholder="Pregunta por tu mudanza..." style="flex:1; padding:12px; background:#2a2a2a; border:1px solid #444; color:#fff; border-radius:8px; outline:none; font-size:14px;">
+                    <button id="sendSalesMsg" style="background:#00d4ff; border:none; width:45px; height:45px; border-radius:8px; cursor:pointer; color:#000;"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+            <button id="salesChatToggle" style="position:fixed; bottom:20px; right:20px; width:65px; height:65px; background:#00d4ff; border:none; border-radius:50%; cursor:pointer; z-index:9999; box-shadow:0 8px 20px rgba(0,212,255,0.4); display:flex; align-items:center; justify-content:center; color:#000; font-size:28px;">
+                <i class="fas fa-comment-dots"></i>
+            </button>
+        `;
+        document.body.insertAdjacentHTML('beforeend', html);
+
+        // Eventos
+        document.getElementById('salesChatToggle').onclick = () => {
+            document.getElementById('aiChatWidget').style.display = 'flex';
+            document.getElementById('salesChatToggle').style.display = 'none';
+            if (document.getElementById('salesChatMessages').children.length === 0) {
+                this.addMessage("¡Hola! Soy tu asesor experto de MudanzasHub. ¿Buscas el mejor precio para tu mudanza hoy?", 'ai');
+            }
+        };
+
+        document.getElementById('closeSalesChat').onclick = () => {
+            document.getElementById('aiChatWidget').style.display = 'none';
+            document.getElementById('salesChatToggle').style.display = 'flex';
+        };
+
+        document.getElementById('sendSalesMsg').onclick = () => this.handleUserMessage();
+        document.getElementById('salesChatInput').onkeypress = (e) => { if(e.key === 'Enter') this.handleUserMessage(); };
+    },
+
+    addMessage(text, sender) {
+        const msgDiv = document.createElement('div');
+        msgDiv.style.cssText = `padding:12px 16px; border-radius:12px; max-width:85%; font-size:14px; line-height:1.5; ${sender==='user' ? 'background:#00d4ff; color:#000; align-self:flex-end; margin-left:auto;' : 'background:#2a2a2a; color:#fff; align-self:flex-start;'}`;
+        msgDiv.innerHTML = text;
+        const container = document.getElementById('salesChatMessages');
+        container.appendChild(msgDiv);
+        container.scrollTop = container.scrollHeight;
+    },
+
+    handleUserMessage() {
+        const input = document.getElementById('salesChatInput');
+        const text = input.value.trim();
+        if (!text) return;
+
+        this.addMessage(text, 'user');
+        input.value = '';
+
+        setTimeout(() => {
+            const response = this.generateSalesResponse(text);
+            this.addMessage(response, 'ai');
+        }, 700);
+    },
+
+    generateSalesResponse(query) {
+        const q = query.toLowerCase();
+        const knowledge = this.training.knowledge.toLowerCase();
+        
+        // Lógica de ventas: Buscar en conocimiento
+        const lines = knowledge.split('\n');
+        for (let line of lines) {
+            if (line.includes('p:') && line.includes('r:')) {
+                const parts = line.split('r:');
+                const question = parts[0].replace('p:', '').trim();
+                const answer = parts[1].trim();
+                if (q.includes(question)) {
+                    // Agregar frase de cierre aleatoria
+                    const closing = this.config.closingPhrases[Math.floor(Math.random() * this.config.closingPhrases.length)];
+                    return `${answer.charAt(0).toUpperCase() + answer.slice(1)}. ${closing}`;
+                }
+            }
+        }
+
+        if (q.includes('hola')) return "¡Hola! Es un gusto saludarte. Estoy aquí para ayudarte a que tu mudanza sea rápida, segura y al mejor precio. ¿A dónde te mudas?";
+        if (q.includes('precio') || q.includes('cuanto')) return "Nuestros precios son los más competitivos. Dependen del camión y la distancia. ¿Te gustaría que te demos una cotización personalizada ahora mismo?";
+        
+        return "Entiendo perfectamente. En MudanzasHub nos especializamos en soluciones a tu medida. ¿Te gustaría hablar con un agente humano o prefieres que te ayude a cotizar por aquí?";
+    },
+
+    injectAdminTab() {
+        const checkAdmin = setInterval(() => {
+            const adminSection = document.getElementById('adminSection');
+            if (adminSection) {
+                clearInterval(checkAdmin);
+                const tabs = adminSection.querySelector('.tabs');
+                if (tabs && !document.getElementById('salesAiTabBtn')) {
+                    const btn = document.createElement('button');
+                    btn.id = 'salesAiTabBtn';
+                    btn.className = 'tab-btn';
+                    btn.dataset.tab = 'salesAi';
+                    btn.innerHTML = '<i class="fas fa-robot"></i> Entrenar Ventas';
+                    tabs.appendChild(btn);
+
+                    const content = document.createElement('div');
+                    content.id = 'salesAiTab';
+                    content.className = 'tab-content';
+                    content.innerHTML = `
+                        <div style="padding:20px; background:#222; border-radius:10px; border:1px solid #333; margin-top:10px;">
+                            <h3 style="color:#00d4ff; margin-bottom:15px;">Entrenamiento del Agente de Ventas</h3>
+                            <div class="form-group">
+                                <label>Reglas de Persuasión:</label>
+                                <textarea id="salesRulesInput" class="search-input" style="height:80px; resize:none;">${this.training.rules}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Base de Conocimiento (P: Pregunta R: Respuesta):</label>
+                                <textarea id="salesKnowledgeInput" class="search-input" style="height:180px; resize:none;">${this.training.knowledge}</textarea>
+                            </div>
+                            <button class="btn" id="saveSalesTraining">💾 Guardar y Aplicar Entrenamiento</button>
+                        </div>
+                    `;
+                    adminSection.appendChild(content);
+
+                    // Eventos de Tab
+                    btn.onclick = () => {
+                        document.querySelectorAll('#adminSection .tab-btn').forEach(b => b.classList.remove('active'));
+                        document.querySelectorAll('#adminSection .tab-content').forEach(c => c.classList.remove('active'));
+                        btn.classList.add('active');
+                        content.classList.add('active');
+                    };
+
+                    document.getElementById('saveSalesTraining').onclick = () => {
+                        localStorage.setItem('sales_ai_rules', document.getElementById('salesRulesInput').value);
+                        localStorage.setItem('sales_ai_knowledge', document.getElementById('salesKnowledgeInput').value);
+                        this.loadTraining();
+                        alert('✅ Agente de Ventas entrenado correctamente.');
+                    };
+                }
+            }
+        }, 1000);
+    }
+};
+
+// Iniciar sistema
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => SalesAgentSystem.init());
+} else {
+    SalesAgentSystem.init();
+}
+
+</script>
 </body>
 </html>
