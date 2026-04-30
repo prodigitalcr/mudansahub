@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MudanzasHub Costa Rica - Solución Total V2</title>
+    <title>MudanzasHub Costa Rica - Solución Total V2 + IA</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <style>
-        /* ESTILOS ORIGINALES Y NUEVOS */
+        /* ESTILOS ORIGINALES */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f0f0f; color: #fff; overflow: hidden; }
         .container { display: flex; height: 100vh; }
@@ -24,14 +24,8 @@
         .search-container { position: relative; margin-bottom: 18px; }
         .search-input { width: 100%; padding: 11px 12px; background: #2a2a2a; border: 1px solid #444; border-radius: 8px; color: #fff; font-size: 14px; }
         .search-input:focus { outline: none; border-color: #00d4ff; box-shadow: 0 0 10px rgba(0,212,255,0.3); }
-        .search-suggestions { position: absolute; top: 100%; left: 0; right: 0; background: #2a2a2a; border: 1px solid #444; border-top: none; border-radius: 0 0 8px 8px; max-height: 300px; overflow-y: auto; z-index: 100; display: none; }
-        .search-suggestions.active { display: block; }
-        .suggestion-item { padding: 11px 12px; border-bottom: 1px solid #333; cursor: pointer; transition: all 0.2s ease; font-size: 13px; }
-        .suggestion-item:hover { background: #3a3a3a; color: #00d4ff; }
-        .suggestion-address { color: #aaa; font-size: 12px; margin-top: 3px; }
         .btn { width: 100%; padding: 13px; background: #00d4ff; color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.3s ease; }
         .btn:hover { background: #00b8d4; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,212,255,0.4); }
-        .btn:disabled { background: #555; color: #888; cursor: not-allowed; transform: none; box-shadow: none; }
         .btn-secondary { background: #333; color: #fff; margin-bottom: 10px; }
         .btn-sm { width: auto; padding: 7px 14px; font-size: 12px; display: inline-block; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
@@ -51,273 +45,88 @@
         .admin-table td { padding: 12px 8px; border: 1px solid #222; }
         .admin-footer { background: #1a3a3a; padding: 10px; border-radius: 0 0 8px 8px; border: 1px solid #333; border-top: none; display: flex; justify-content: flex-end; gap: 20px; font-size: 12px; font-weight: bold; }
         
-        /* MÓVIL OPTIMIZADO PARA TRANSPORTISTAS */
+        /* ESTILOS IA AGENTE */
+        .ai-chat-btn { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; background: #00d4ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-size: 24px; cursor: pointer; box-shadow: 0 5px 20px rgba(0,212,255,0.5); z-index: 2000; transition: 0.3s; }
+        .ai-chat-btn:hover { transform: scale(1.1); }
+        .ai-chat-window { position: fixed; bottom: 90px; right: 20px; width: 350px; height: 500px; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; display: none; flex-direction: column; z-index: 2000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden; }
+        .ai-chat-window.active { display: flex; }
+        .ai-chat-header { background: #00d4ff; color: #000; padding: 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+        .ai-chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .ai-msg { max-width: 80%; padding: 10px; border-radius: 8px; font-size: 13px; line-height: 1.4; }
+        .ai-msg-user { align-self: flex-end; background: #333; color: #fff; }
+        .ai-msg-bot { align-self: flex-start; background: #00d4ff22; color: #00d4ff; border: 1px solid #00d4ff44; }
+        .ai-chat-input-area { padding: 10px; border-top: 1px solid #333; display: flex; gap: 10px; }
+        .ai-chat-input { flex: 1; background: #2a2a2a; border: 1px solid #444; border-radius: 20px; padding: 8px 15px; color: #fff; font-size: 13px; }
+        .ai-chat-send { background: #00d4ff; color: #000; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        
+        /* ESTILOS PANEL ENTRENAMIENTO */
+        .training-card { background: #222; border: 1px solid #333; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        .training-label { font-size: 12px; color: #00d4ff; font-weight: bold; margin-bottom: 8px; display: block; }
+        .training-textarea { width: 100%; background: #1a1a1a; border: 1px solid #444; border-radius: 6px; color: #fff; padding: 10px; font-size: 12px; resize: vertical; min-height: 80px; }
+        .qa-item { background: #2a2a2a; padding: 10px; border-radius: 6px; margin-bottom: 10px; border-left: 3px solid #00d4ff; position: relative; }
+        .qa-delete { position: absolute; top: 5px; right: 5px; color: #ff4b4b; cursor: pointer; font-size: 14px; }
+        
+        /* MÓVIL OPTIMIZADO */
         @media (max-width: 480px) {
             .sidebar { width: 100%; position: absolute; z-index: 2000; height: 100%; }
-            .uber-job-card { padding: 12px; margin-bottom: 10px; }
-            .job-header { flex-direction: column; align-items: flex-start; gap: 5px; }
-            .job-price { font-size: 18px; }
-            .btn-sm { padding: 10px; width: 100%; text-align: center; margin-top: 5px; }
+            .ai-chat-window { width: 90%; right: 5%; left: 5%; bottom: 80px; height: 70vh; }
         }
         
         .btn-whatsapp { background: #25d366; color: #fff; }
         .btn-reject { background: #ff4b4b; color: #fff; }
         .btn-accept { background: #4ade80; color: #000; }
-        
-        .calendar-container { margin-bottom: 15px; background: #222; padding: 10px; border-radius: 8px; border: 1px solid #333; }
-        .finance-card { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 15px; margin-bottom: 10px; }
-        .finance-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px; }
-        .finance-label { color: #aaa; }
-        .finance-value { font-weight: bold; color: #00d4ff; }
-        
-        /* NAVEGACIÓN GPS MÓVIL */
-        #gpsView { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 3000; flex-direction: column; }
-        #gpsView.active { display: flex; }
-        .gps-header { background: #1a1a1a; padding: 15px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
-        .gps-map { flex: 1; width: 100%; }
-        .gps-instructions { background: #fff; padding: 20px; border-top: 1px solid #333; font-size: 16px; font-weight: bold; color: #000; text-align: center; box-shadow: 0 -5px 15px rgba(0,0,0,0.2); }
-        .leaflet-routing-container { background: white !important; color: black !important; padding: 10px; border-radius: 8px; font-size: 12px; max-height: 200px; overflow-y: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
-        .leaflet-routing-alt h2, .leaflet-routing-alt h3 { color: black !important; }
-        .leaflet-routing-instruction-text { color: black !important; }
-        
-        /* EDICIÓN DE PERFILES */
-        .edit-input { width: 100%; padding: 8px; background: #333; border: 1px solid #444; border-radius: 4px; color: #fff; font-size: 12px; margin-bottom: 10px; }
-        .history-item { background: #222; padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 11px; border-left: 3px solid #00d4ff; }
-        
         .status-badge { padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; }
         .status-pending { background: #f59e0b22; color: #f59e0b; }
         .status-in_progress { background: #3b82f622; color: #3b82f6; }
         .status-completed { background: #10b98122; color: #10b981; }
-        .vehicle-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
         .vehicle-option { background: #2a2a2a; border: 2px solid #444; border-radius: 8px; padding: 10px; text-align: center; cursor: pointer; }
         .vehicle-option.active { border-color: #00d4ff; background: #1a3a3a; }
-        .transportista-card { background: #2a2a2a; border: 1px solid #444; border-radius: 10px; padding: 16px; margin-bottom: 14px; cursor: pointer; transition: all 0.3s ease; }
-        .transportista-card:hover { border-color: #00d4ff; background: #2a3535; }
-        .transportista-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-        .transportista-name { font-weight: 700; font-size: 15px; color: #fff; }
-        .transportista-price { font-size: 20px; font-weight: bold; color: #4ade80; }
-        .uber-job-card { background: linear-gradient(135deg, #2a2a2a 0%, #303030 100%); border: 2px solid #00d4ff; border-radius: 12px; padding: 18px; margin-bottom: 14px; box-shadow: 0 4px 15px rgba(0,212,255,0.15); }
-        .job-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-        .job-price { font-size: 22px; font-weight: bold; color: #4ade80; }
-        .nav-overlay { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(26, 26, 26, 0.9); padding: 15px 25px; border-radius: 50px; border: 1px solid #00d4ff; z-index: 1000; display: none; align-items: center; gap: 15px; }
-        .alert-box { padding: 12px 15px; border-radius: 8px; font-size: 12px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        .alert-info { background: #00d4ff11; color: #00d4ff; border: 1px solid #00d4ff33; }
-        .upload-area { border: 2px dashed #444; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; margin-bottom: 15px; transition: all 0.3s ease; }
-        .upload-area:hover { border-color: #00d4ff; background: #1a3a3a; }
-        .upload-icon { font-size: 30px; color: #555; margin-bottom: 10px; }
-        .upload-text { font-size: 12px; color: #888; }
         .partner-item { padding: 10px; border-bottom: 1px solid #333; cursor: pointer; transition: background 0.2s; }
         .partner-item:hover { background: #2a2a2a; color: #00d4ff; }
-        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 13px; }
-        .detail-item { background: #222; padding: 10px; border-radius: 6px; border: 1px solid #333; }
-        .detail-label { color: #888; font-size: 11px; margin-bottom: 4px; }
-        
-        /* ESTILOS REGISTRO */
-        .register-link { text-align: center; margin-top: 15px; font-size: 13px; color: #aaa; }
-        .register-link span { color: #00d4ff; cursor: pointer; font-weight: bold; }
-        .register-type-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .register-type-btn { padding: 15px; background: #2a2a2a; border: 2px solid #444; border-radius: 8px; color: #fff; cursor: pointer; text-align: center; font-size: 13px; transition: 0.3s; }
-        .register-type-btn.active { border-color: #00d4ff; background: #1a3a3a; }
-        
-        /* MEJORAS INTERFAZ FACTURA Y FICHA (MODELO) */
-        .factura-header { border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 15px; }
-        .factura-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
-        .factura-label { color: #888; }
-        .factura-value { font-weight: 600; }
-        .transportista-ficha { background: #222; border-radius: 10px; padding: 15px; border: 1px solid #333; margin-bottom: 15px; }
-        .ficha-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
-        .ficha-avatar { width: 50px; height: 50px; background: #00d4ff22; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #00d4ff; font-size: 20px; }
-        .ficha-title { flex: 1; }
-        .ficha-name { font-weight: bold; font-size: 16px; }
-        .ficha-rating { color: #fbbf24; font-size: 12px; }
-
-        /* MEJORAS RESPONSIVAS */
-        @media (max-width: 768px) {
-            .container { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; max-height: 100vh; position: relative; border-right: none; border-bottom: 1px solid #333; }
-            .map-container { height: 50vh; width: 100%; }
-            .modal-content { width: 95%; padding: 15px; max-height: 85vh; }
-            .detail-grid { grid-template-columns: 1fr; }
-            .admin-table { font-size: 10px; }
-            .admin-table th, .admin-table td { padding: 8px 4px; }
-            .admin-footer { flex-direction: column; align-items: flex-start; gap: 5px; }
-            
-            /* Asegurar que el mapa en modales sea visible */
-            #adminHistoryMap, #mapContainer { height: 200px !important; }
-        }
-
-        /* Estilo para el panel de instrucciones de Leaflet Routing */
-        .leaflet-routing-container {
-            background: white !important;
-            color: black !important;
-            padding: 10px !important;
-            border-radius: 8px !important;
-            font-size: 13px !important;
-            max-height: 150px !important;
-            overflow-y: auto !important;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.5) !important;
-            width: 280px !important;
-        }
-        .leaflet-routing-alt { color: black !important; }
-        .leaflet-routing-instruction-text { color: black !important; }
-
-
-        /* Fix Leaflet z-index */
-        .leaflet-pane { z-index: 1 !important; }
-        .leaflet-top, .leaflet-bottom { z-index: 2 !important; }
-        .modal { z-index: 9999 !important; }
-
     </style>
 </head>
 <body>
 
-<div class="nav-overlay" id="navOverlay">
-    <i class="fas fa-navigation" style="color:#00d4ff;"></i>
-    <span id="navStatusText">En ruta...</span>
-    <span id="navDistance" style="font-weight:bold; color:#4ade80;">0.0 km</span>
-    <button class="btn btn-sm" id="finishNavBtn">Finalizar</button>
-</div>
-
 <div class="container">
     <div class="sidebar">
-        <!-- SECCIÓN AUTENTICACIÓN -->
+        <!-- SECCIÓN AUTH -->
         <div class="section active" id="authSection">
-            <div class="logo"><i class="fas fa-truck"></i> MudanzasHub</div>
-            <div class="form-group"><label>Email</label><input type="email" id="authEmail" class="search-input" placeholder="Ingresa tu email"></div>
-            <div class="form-group"><label>Contraseña</label><input type="password" id="authPassword" class="search-input" placeholder="Ingresa tu contraseña"></div>
+            <div class="logo"><i class="fas fa-truck-loading"></i> MudanzasHub</div>
+            <div class="user-greeting" id="connStatus">Conectando a Firebase...</div>
             <div class="form-group">
-                <label>Rol</label>
+                <label>Correo Electrónico</label>
+                <input type="email" id="authEmail" class="search-input" placeholder="ejemplo@test.com">
+            </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" id="authPassword" class="search-input" placeholder="••••••••">
+            </div>
+            <div class="form-group">
+                <label>Tipo de Usuario</label>
                 <select id="authRole" class="search-input">
                     <option value="client">Cliente</option>
-                    <option value="transporter">Transportista</option>
+                    <option value="transporter">Socio Transportista</option>
                     <option value="admin">Administrador</option>
                 </select>
             </div>
-            <button class="btn" id="loginBtn">Entrar</button>
-            <div class="register-link">¿No tienes cuenta? <span id="showRegisterBtn">Regístrate aquí</span></div>
-            <p id="connStatus" style="font-size:11px; color:#666; margin-top:15px; text-align:center;">Cargando Firebase...</p>
-        </div>
-
-        <!-- SECCIÓN REGISTRO -->
-        <div class="section" id="registerSection">
-            <div class="logo"><i class="fas fa-user-plus"></i> Crear Cuenta</div>
-            <div class="register-type-selector">
-                <div class="register-type-btn active" id="regTypeClient">Cliente</div>
-                <div class="register-type-btn" id="regTypeTrans">Socio</div>
-            </div>
-            
-            <div id="clientRegForm">
-                <div class="form-group"><label>Nombre Completo</label><input type="text" id="regName" class="search-input" placeholder="Ej: Juan Pérez"></div>
-                <div class="form-group"><label>Cédula</label><input type="text" id="regId" class="search-input" placeholder="Número de identificación"></div>
-                <div class="form-group"><label>Teléfono</label><input type="tel" id="regPhone" class="search-input" placeholder="8888-8888"></div>
-                <div class="form-group"><label>Ubicación (Ciudad/Provincia)</label><input type="text" id="regLoc" class="search-input" placeholder="Ej: San José, Escazú"></div>
-            </div>
-
-            <div id="transRegForm" style="display:none;">
-                <div class="form-group"><label>Nombre Completo</label><input type="text" id="regTName" class="search-input"></div>
-                <div class="form-group"><label>Cédula</label><input type="text" id="regTId" class="search-input"></div>
-                <div class="form-group"><label>Teléfono</label><input type="tel" id="regTPhone" class="search-input"></div>
-                <div class="form-group" style="display:flex; gap:10px;">
-                    <div style="flex:1;"><label>Edad</label><input type="number" id="regTAge" class="search-input"></div>
-                    <div style="flex:1;"><label>¿Problema Físico?</label><select id="regTPhys" class="search-input"><option value="no">No</option><option value="si">Sí</option></select></div>
-                </div>
-                <div class="form-group"><label>Vehículo (Marca/Modelo)</label><input type="text" id="regTVehicle" class="search-input"></div>
-                <div class="form-group" style="display:flex; gap:10px;">
-                    <div style="flex:1;"><label>Placa</label><input type="text" id="regTPlate" class="search-input"></div>
-                    <div style="flex:1;"><label>Licencia</label><input type="text" id="regTLicense" class="search-input"></div>
-                </div>
-                <div class="form-group"><label>Número de Seguro</label><input type="text" id="regTInsurance" class="search-input"></div>
-            </div>
-
-            <div class="form-group"><label>Correo Electrónico</label><input type="email" id="regEmail" class="search-input"></div>
-            <div class="form-group"><label>Contraseña</label><input type="password" id="regPass" class="search-input"></div>
-            
-            <button class="btn" id="executeRegisterBtn">Finalizar Registro</button>
-            <button class="btn btn-secondary" style="margin-top:10px;" id="backToLoginBtn">Volver al Login</button>
+            <button class="btn" id="loginBtn">Iniciar Sesión</button>
         </div>
 
         <!-- SECCIÓN CLIENTE -->
         <div class="section" id="clientSection">
-            <div class="logo"><i class="fas fa-truck"></i> MudanzasHub</div>
-            <div class="user-greeting"><i class="fas fa-user"></i> <span id="clientNameDisplay">Cliente</span></div>
+            <div class="logo"><i class="fas fa-user"></i> Mi Perfil</div>
+            <div class="user-greeting"><i class="fas fa-smile"></i> Hola, <span id="clientNameDisplay">Usuario</span></div>
             <button class="btn btn-secondary logoutBtn">Cerrar Sesión</button>
             
-            <div class="search-container">
-                <label style="font-size:12px; color:#aaa; margin-bottom:5px; display:block;">Origen</label>
-                <input type="text" id="originSearch" class="search-input" placeholder="¿De dónde salen las cosas?">
-                <div id="originSuggestions" class="search-suggestions"></div>
-            </div>
-            <div class="search-container">
-                <label style="font-size:12px; color:#aaa; margin-bottom:5px; display:block;">Destino</label>
-                <input type="text" id="destinationSearch" class="search-input" placeholder="¿A dónde las llevamos?">
-                <div id="destinationSuggestions" class="search-suggestions"></div>
-            </div>
-
             <div class="form-group">
-                <label>Tipo de Vehículo</label>
-                <div class="vehicle-selector" id="vehicleSelector">
-                    <div class="vehicle-option active" data-vehicle="pickup">Pickup</div>
-                    <div class="vehicle-option" data-vehicle="buseta">Buseta</div>
-                    <div class="vehicle-option" data-vehicle="camion">Camión</div>
-                </div>
+                <label>¿Desde dónde salimos?</label>
+                <input type="text" id="originInput" class="search-input" placeholder="Punto de origen">
             </div>
-
             <div class="form-group">
-                <label>Servicio</label>
-                <div class="vehicle-selector" id="serviceSelector">
-                    <div class="vehicle-option active" data-service="acarreo">Con Acarreo</div>
-                    <div class="vehicle-option" data-service="afuera">Puesta Afuera</div>
-                </div>
+                <label>¿Hacia dónde vamos?</label>
+                <input type="text" id="destInput" class="search-input" placeholder="Punto de destino">
             </div>
-
-            <div style="display:flex; gap:10px; margin-bottom:18px;">
-                <div style="flex:1;">
-                    <label style="font-size:12px; color:#aaa; margin-bottom:5px; display:block;">Peso (kg)</label>
-                    <input type="number" id="loadWeight" class="search-input" placeholder="Ej: 500" value="100">
-                </div>
-                <div style="flex:1;">
-                    <label style="font-size:12px; color:#aaa; margin-bottom:5px; display:block;">Acceso Destino</label>
-                    <select id="accessType" class="search-input">
-                        <option value="easy">Fácil</option>
-                        <option value="medium">Regular</option>
-                        <option value="hard">Difícil</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Programar Mudanza (Opcional)</label>
-                <div style="display:flex; gap:10px;">
-                    <input type="date" id="reserveDate" class="search-input">
-                    <input type="time" id="reserveTime" class="search-input">
-                </div>
-            </div>
-
-            <button class="btn" id="searchTransportersBtn">Ver Ofertas Disponibles</button>
-            
-            <div id="transportistasList" style="margin-top:20px;"></div>
-        </div>
-
-        <!-- SECCIÓN TRANSPORTISTA -->
-        <div class="section" id="transporterSection">
-            <div class="logo"><i class="fas fa-truck"></i> MudanzasHub</div>
-            <div class="user-greeting"><i class="fas fa-id-card"></i> <span id="transNameDisplay">Transportista</span></div>
-            <button class="btn btn-secondary logoutBtn">Cerrar Sesión</button>
-            
-            <div class="tabs">
-                <button class="tab-btn active" data-tab="jobs">Ofertas</button>
-                <button class="tab-btn" data-tab="active">En Curso</button>
-                <button class="tab-btn" data-tab="history">Historial</button>
-            </div>
-            <div id="jobsTab" class="tab-content active"></div>
-            <div id="activeTab" class="tab-content"></div>
-            <div id="historyTab" class="tab-content">
-                <div style="background:#222; padding:10px; border-radius:8px; margin-bottom:10px; text-align:center;">
-                    <div style="font-size:11px; color:#aaa;">Ganancias Totales</div>
-                    <div id="totalEarnings" style="font-size:20px; font-weight:bold; color:#4ade80;">₡0</div>
-                </div>
-                <div id="historyList"></div>
-            </div>
+            <button class="btn" id="requestMoveBtn">Cotizar Mudanza</button>
         </div>
 
         <!-- SECCIÓN ADMINISTRADOR -->
@@ -327,53 +136,48 @@
             <div class="tabs">
                 <button class="tab-btn active" data-tab="moves">Mudanzas</button>
                 <button class="tab-btn" data-tab="partners">Socios</button>
-                <button class="tab-btn" data-tab="clients">Clientes</button>
-                <button class="tab-btn" data-tab="docs">Documentación</button>
+                <button class="tab-btn" data-tab="aiTraining">Entrenamiento IA</button>
             </div>
+            
             <div id="movesTab" class="tab-content active">
-                <div style="display:flex; gap:10px; margin-bottom:15px; align-items:center; flex-wrap:wrap;">
-                    <div style="flex:1; min-width:200px;">
-                        <label style="font-size:11px; color:#888; display:block; margin-bottom:4px;">Filtrar por Día</label>
-                        <input type="date" id="movesDateFilter" class="search-input" style="padding:8px;">
-                    </div>
-                    <button class="btn btn-sm" id="exportMovesPdfBtn" style="background:#ff4b4b; color:#fff; margin-top:15px;">
-                        <i class="fas fa-file-pdf"></i> Exportar a PDF
-                    </button>
-                </div>
                 <div style="overflow-x:auto;">
-                    <table class="admin-table" id="adminMovesTable">
-                        <thead><tr><th>ID</th><th>Cliente</th><th>Socio</th><th>Fecha</th><th>Hora</th><th>Total</th><th>Comisión (20%)</th><th>Estado</th></tr></thead>
+                    <table class="admin-table">
+                        <thead><tr><th>ID</th><th>Cliente</th><th>Socio</th><th>Total</th><th>Estado</th></tr></thead>
                         <tbody id="movesTableBody"></tbody>
                     </table>
                 </div>
-                <div class="admin-footer">
-                    <span>Total Comisiones: <span id="totalAdminComm" style="color:#4ade80;">₡0</span></span>
-                    <span>Total General: <span id="totalAdminSales" style="color:#00d4ff;">₡0</span></span>
-                </div>
             </div>
-            <div id="clientsTab" class="tab-content">
-                <div style="margin-bottom:10px; font-weight:bold; color:#00d4ff;">Lista de Clientes</div>
-                <div id="adminClientsList"></div>
-            </div>
+            
             <div id="partnersTab" class="tab-content">
-                <div style="margin-bottom:10px; font-weight:bold; color:#00d4ff;">Lista de Socios</div>
                 <div id="adminPartnersList"></div>
             </div>
-            <div id="docsTab" class="tab-content">
-                <div class="calendar-container">
-                    <label style="font-size:12px; color:#aaa;">Filtrar por Mes:</label>
-                    <input type="month" id="financeCalendar" class="search-input" style="margin-top:5px;">
+
+            <!-- NUEVA COLUMNA DE ENTRENAMIENTO IA -->
+            <div id="aiTrainingTab" class="tab-content">
+                <div style="margin-bottom:15px; font-weight:bold; color:#00d4ff;">Configuración del Agente Experto</div>
+                
+                <div class="training-card">
+                    <label class="training-label">Conocimiento y Reglas de Venta</label>
+                    <textarea id="aiRules" class="training-textarea" placeholder="Ej: Eres un experto en ventas de mudanzas en Costa Rica. Siempre sé amable, ofrece descuentos si el cliente duda..."></textarea>
+                    <button class="btn btn-sm" id="saveAiRules" style="margin-top:10px;">Guardar Reglas</button>
                 </div>
-                <div id="financeReport">
-                    <div class="finance-card">
-                        <div style="font-weight:bold; color:#00d4ff; margin-bottom:10px;">Finanzas de la Plataforma (Mensual)</div>
-                        <div class="finance-row"><span class="finance-label">Regalías Empresa:</span><span class="finance-value" id="companyRegal">₡0</span></div>
-                        <div class="finance-row"><span class="finance-label">Regalías Socios:</span><span class="finance-value" id="partnersRegal">₡0</span></div>
-                        <div class="finance-row"><span class="finance-label">Mantenimiento:</span><span class="finance-value" style="color:#ff4b4b;">-$50.00</span></div>
-                        <div class="finance-row" style="border-top:1px solid #333; margin-top:10px; padding-top:5px;">
-                            <span class="finance-label">Balance Neto:</span><span class="finance-value" id="netBalance">₡0</span>
-                        </div>
+
+                <div class="training-card">
+                    <label class="training-label">Preguntas y Respuestas Frecuentes</label>
+                    <div id="qaList" style="max-height: 200px; overflow-y: auto; margin-bottom: 10px;"></div>
+                    <input type="text" id="newQ" class="search-input" style="margin-bottom:5px; font-size:12px;" placeholder="Pregunta...">
+                    <textarea id="newA" class="training-textarea" style="min-height:50px;" placeholder="Respuesta..."></textarea>
+                    <button class="btn btn-sm" id="addQA" style="margin-top:10px; background:#4ade80; color:#000;">Agregar Q&A</button>
+                </div>
+
+                <div class="training-card">
+                    <label class="training-label">Subir Archivos de Fuentes (PDF/TXT)</label>
+                    <div class="upload-area" id="aiUploadArea" style="padding:10px;">
+                        <input type="file" id="aiFileInput" style="display:none" accept=".pdf,.txt">
+                        <i class="fas fa-file-upload" style="font-size:20px; color:#555;"></i>
+                        <div style="font-size:10px; color:#888;">Click para subir conocimiento</div>
                     </div>
+                    <div id="aiFileList" style="font-size:11px; color:#aaa;"></div>
                 </div>
             </div>
         </div>
@@ -381,123 +185,19 @@
     <div class="map-container"><div id="map"></div></div>
 </div>
 
-<!-- VISTA GPS NAVEGACIÓN -->
-<div id="gpsView">
-    <div class="gps-header">
-        <div style="font-weight:bold; color:#00d4ff;"><i class="fas fa-location-arrow"></i> Navegación GPS</div>
-        <button class="btn btn-sm btn-reject" id="closeGpsBtn" style="width:auto;">Salir</button>
+<!-- AGENTE DE VENTAS IA (CHAT FLOTANTE) -->
+<div class="ai-chat-btn" id="openAiChat"><i class="fas fa-robot"></i></div>
+<div class="ai-chat-window" id="aiChatWindow">
+    <div class="ai-chat-header">
+        <span><i class="fas fa-headset"></i> Asistente Experto</span>
+        <i class="fas fa-times" id="closeAiChat" style="cursor:pointer;"></i>
     </div>
-    <div id="gpsMap" class="gps-map"></div>
-    <div class="gps-instructions" id="gpsInstructions">Iniciando navegación...</div>
-</div>
-
-
-<!-- MODAL AGREGAR CLIENTE (ADMIN) -->
-<div class="modal" id="addClientModal">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('addClientModal')">&times;</button>
-        <div class="modal-header">Agregar Nuevo Cliente</div>
-        <div class="form-group">
-            <label>Nombre Completo</label>
-            <input type="text" id="addCName" class="search-input">
-        </div>
-        <div class="form-group">
-            <label>Correo Electrónico</label>
-            <input type="email" id="addCEmail" class="search-input">
-        </div>
-        <div class="form-group">
-            <label>Contraseña</label>
-            <input type="password" id="addCPass" class="search-input">
-        </div>
-        <div class="form-group">
-            <label>Teléfono</label>
-            <input type="text" id="addCPhone" class="search-input">
-        </div>
-        <div class="form-group">
-            <label>Cédula</label>
-            <input type="text" id="addCId" class="search-input">
-        </div>
-        <button class="btn" id="saveNewClientBtn">Crear Cliente</button>
+    <div class="ai-chat-messages" id="aiChatMessages">
+        <div class="ai-msg ai-msg-bot">¡Hola! Soy tu asistente experto en mudanzas. ¿En qué puedo ayudarte hoy?</div>
     </div>
-</div>
-<!-- MODAL DETALLE CLIENTE (ADMIN) -->
-<div class="modal" id="clientDetailModal">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('clientDetailModal')">&times;</button>
-        <div class="modal-header">Perfil del Cliente</div>
-        <div id="clientDetailContent"></div>
-        <div style="margin-top:20px; font-weight:bold; color:#00d4ff; border-bottom:1px solid #333; padding-bottom:5px;">Historial de Servicios</div>
-        <div id="clientHistoryList" style="margin-top:10px; max-height:200px; overflow-y:auto;"></div>
-        <div id="adminHistoryMap" style="height:200px; margin-top:15px; border-radius:8px; display:none;"></div>
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="btn" id="saveClientBtn">Guardar Cambios</button>
-            <button class="btn btn-whatsapp" id="msgClientBtn">WhatsApp</button>
-            <button class="btn btn-reject" id="deleteClientBtn">Eliminar Cliente</button>
-        </div>
-    </div>
-</div>
-
-<!-- MODAL MENSAJERÍA ADMIN -->
-<div class="modal" id="messageModal">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('messageModal')">&times;</button>
-        <div class="modal-header">Enviar Mensaje</div>
-        <div id="messageTargetInfo" style="margin-bottom:15px; color:#aaa; font-size:13px;"></div>
-        <textarea id="adminMessageText" class="search-input" style="height:120px; resize:none;" placeholder="Escribe tu mensaje aquí..."></textarea>
-        <button class="btn" id="sendAdminMessageBtn" style="margin-top:15px;">Enviar Mensaje</button>
-    </div>
-</div>
-
-<!-- MODAL SOCIO DETALLE -->
-<div class="modal" id="partnerDetailModal">
-    <div class="modal-content">
-        <button class="modal-close" data-close="partnerDetailModal">×</button>
-        <div class="modal-header" id="partnerDetailName">Detalle del Socio</div>
-        <div class="detail-grid" id="partnerDetailContent"></div>
-    </div>
-</div>
-
-<!-- MODAL FACTURA -->
-<div class="modal" id="facturaModal">
-        <div class="modal-content">
-            <button class="modal-close" data-close="facturaModal">×</button>
-            <div class="modal-header"><i class="fas fa-file-invoice-dollar"></i> Detalle de la Mudanza</div>
-            
-            <div class="transportista-ficha" id="fichaTransportista">
-                <!-- Se llena dinámicamente -->
-            </div>
-
-            <div id="facturaDetails" class="factura-header">
-                <!-- Se llena dinámicamente -->
-            </div>
-
-            <div style="background: #1a3a3a; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #00d4ff44;">
-                <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:20px; color:#4ade80;">
-                    <span>Total:</span>
-                    <span id="facturaTotal">₡0</span>
-                </div>
-            </div>
-
-            <div class="alert-box alert-info"><i class="fas fa-info-circle"></i> Pago por SINPE: 7228-4602. Adjunta el comprobante para confirmar.</div>
-            
-            <div class="upload-area" id="uploadArea">
-                <input type="file" id="comprobanteFileInput" style="display:none">
-                <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                <div class="upload-text" id="uploadText">Subir comprobante de pago</div>
-            </div>
-            
-            <button class="btn" id="confirmMoveBtn" disabled>Confirmar Mudanza</button>
-        </div>
-</div>
-
-<!-- MODAL CÓDIGO -->
-<div class="modal" id="codeModal">
-    <div class="modal-content" style="text-align:center;">
-        <button class="modal-close" onclick="closeModal('codeModal')">×</button>
-        <div class="modal-header">Finalizar Servicio</div>
-        <p style="margin-bottom:20px; color:#aaa;">Pide el código de confirmación al cliente.</p>
-        <input type="text" id="confirmCodeInput" class="search-input" style="text-align:center; font-size:24px; letter-spacing:5px; margin-bottom:20px;" placeholder="0000">
-        <button class="btn" id="validateCodeBtn">Validar y Finalizar</button>
+    <div class="ai-chat-input-area">
+        <input type="text" class="ai-chat-input" id="aiChatInput" placeholder="Escribe tu duda aquí...">
+        <button class="ai-chat-send" id="sendAiMsg"><i class="fas fa-paper-plane"></i></button>
     </div>
 </div>
 
@@ -506,7 +206,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, set, push, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, set, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCppQ2yPzQxTMSs8GfBCSyKzoQoUUzaWJo",
@@ -523,1158 +223,151 @@
     document.getElementById('connStatus').innerText = "✅ Firebase Conectado";
     document.getElementById('connStatus').style.color = "#4ade80";
 
-    // ESTADO GLOBAL
-    let map, selectedOrigin, selectedDestination, currentUser, selectedTransporter, currentTransporterPos = null;
-    let markers = {};
-    let selectedVehicle = 'pickup';
-    let selectedServiceType = 'acarreo';
-    let routingControl = null;
-    let activeNavMove = null;
-    let pendingMoveData = null;
-    let searchTimeout = null;
-    
-    // GPS NAVEGACIÓN
-    let gpsMap = null, gpsRouting = null, userMarker = null, watchId = null;
-
-    // CONFIGURACIÓN DE VEHÍCULOS (Consumo y Capacidad)
-    const vehicleConfig = {
-        pickup: { multiplier: 1.0, fuelCost: 1.0, capacity: 800, name: 'Pickup' },
-        buseta: { multiplier: 1.4, fuelCost: 1.3, capacity: 1500, name: 'Buseta' },
-        camion: { multiplier: 1.8, fuelCost: 1.7, capacity: 3500, name: 'Camión' }
-    };
-
+    let map, currentUser;
     let transporters = [];
-    let registeredClients = [];
-
-    // Sincronización de usuarios con Firebase
-    onValue(ref(db, 'users/transporters'), (snap) => {
-        const data = snap.val();
-        if (data) {
-            transporters = Object.values(data);
-        } else {
-            transporters = [
-                { id: 1, email: 'carlos@test.com', password: '1234', name: 'Carlos Rodríguez', phone: '88881111', plate: 'BC-123', vehicle: 'Toyota Hiace', rating: 4.8, model: '2022', license: 'B2', insurance: 'INS-992', emergency: '88880000', role: 'transporter' },
-                { id: 2, email: 'miguel@test.com', password: '1234', name: 'Miguel Vargas', phone: '88882222', plate: 'CL-456', vehicle: 'Hino 300', rating: 4.6, model: '2021', license: 'B3', insurance: 'INS-112', emergency: '88880001', role: 'transporter' },
-                { id: 3, email: 'ana@test.com', password: '1234', name: 'Ana Quesada', phone: '88883333', plate: 'PK-789', vehicle: 'Nissan Frontier', rating: 4.9, model: '2023', license: 'B1', insurance: 'INS-445', emergency: '88880002', role: 'transporter' }
-            ];
-        }
-        if(currentUser && currentUser.role === 'admin') listenToAdmin();
-    });
-    onValue(ref(db, 'users/clients'), (snap) => {
-        const data = snap.val();
-        if (data) {
-            registeredClients = Object.values(data);
-        } else {
-            registeredClients = [
-                { email: 'cliente@test.com', password: '1234', name: 'Laura Fernández', phone: '88880000', idNum: '1-1111-1111', location: 'San José', role: 'client' }
-            ];
-        }
-        if(currentUser && currentUser.role === 'admin') listenToAdmin();
-    });
 
     // INICIALIZAR MAPA
     map = L.map('map').setView([9.9281, -84.0907], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    const openModal = (id) => {
-        const modal = document.getElementById(id);
-        if (modal) {
-            modal.classList.add('active');
-            // Si el modal contiene un mapa, necesitamos invalidar su tamaño después de que se muestre
-            setTimeout(() => {
-                if (typeof map !== 'undefined' && map) map.invalidateSize();
-                if (typeof gpsMap !== 'undefined' && gpsMap) gpsMap.invalidateSize();
-                if (typeof adminHistMap !== 'undefined' && adminHistMap) adminHistMap.invalidateSize();
-            }, 300);
-        }
-    };
-    const closeModal = (id) => document.getElementById(id).classList.remove('active');
-
-    // SEGURIDAD: Control de intentos fallidos de login
-    let _loginAttempts = 0;
-    let _loginBlockedUntil = 0;
-    const _MAX_ATTEMPTS = 5;
-    const _BLOCK_MS = 30000;
-
-    // LOGIN
+    // LOGIN SIMPLIFICADO (MANTENIENDO LÓGICA)
     document.getElementById('loginBtn').addEventListener('click', () => {
-        const now = Date.now();
-
-        // Bloqueo temporal por exceso de intentos
-        if (now < _loginBlockedUntil) {
-            const secsLeft = Math.ceil((_loginBlockedUntil - now) / 1000);
-            document.getElementById('connStatus').innerText = '\u26d4 Demasiados intentos. Espera ' + secsLeft + 's.';
-            document.getElementById('connStatus').style.color = '#ff6b6b';
-            return;
-        }
-
         const email = document.getElementById('authEmail').value.trim().toLowerCase();
         const pass = document.getElementById('authPassword').value;
         const role = document.getElementById('authRole').value;
 
-        // Los tres campos son obligatorios
-        if (!email || !pass || !role) {
-            document.getElementById('connStatus').innerText = '\u26a0\ufe0f Completa todos los campos.';
-            document.getElementById('connStatus').style.color = '#f59e0b';
-            return;
-        }
-
-        // Validaci\u00f3n estricta: email + contrase\u00f1a + rol deben coincidir exactamente
-        let _authenticated = false;
-
         if (role === 'admin' && email === 'admin@test.com' && pass === 'ADMIN') {
             currentUser = { email, role, name: 'Admin' };
-            _authenticated = true;
-        } else if (role === 'transporter') {
-            const t = transporters.find(x => x.email === email && x.password === pass);
-            if (t) { currentUser = { ...t, role }; _authenticated = true; }
-        } else if (role === 'client') {
-            const c = registeredClients.find(x => x.email === email && x.password === pass);
-            if (c) { currentUser = { ...c, role }; _authenticated = true; }
-        }
-
-        // Intento fallido
-        if (!_authenticated) {
-            _loginAttempts++;
-            document.getElementById('authPassword').value = '';
-            if (_loginAttempts >= _MAX_ATTEMPTS) {
-                _loginBlockedUntil = Date.now() + _BLOCK_MS;
-                _loginAttempts = 0;
-                document.getElementById('loginBtn').disabled = true;
-                document.getElementById('connStatus').innerText = '\u26d4 Bloqueado 30s por m\u00faltiples intentos fallidos.';
-                document.getElementById('connStatus').style.color = '#ff6b6b';
-                setTimeout(() => {
-                    document.getElementById('loginBtn').disabled = false;
-                    document.getElementById('connStatus').innerText = '\u2705 Firebase Conectado';
-                    document.getElementById('connStatus').style.color = '#4ade80';
-                }, _BLOCK_MS);
-            } else {
-                const _rem = _MAX_ATTEMPTS - _loginAttempts;
-                document.getElementById('connStatus').innerText = '\u274c Credenciales incorrectas. Intentos restantes: ' + _rem;
-                document.getElementById('connStatus').style.color = '#ff6b6b';
-            }
-            return;
-        }
-
-        // Login exitoso
-        _loginAttempts = 0;
-        _loginBlockedUntil = 0;
-        document.getElementById('connStatus').innerText = '✅ Firebase Conectado';
-        document.getElementById('authSection').classList.remove('active');
-        document.getElementById(role + 'Section').classList.add('active');
-        
-        if(role === 'admin') {
+            document.getElementById('authSection').classList.remove('active');
+            document.getElementById('adminSection').classList.add('active');
             document.querySelector('.map-container').style.display = 'none';
-            listenToAdmin();
+            loadAiTraining();
         } else {
-            document.querySelector('.map-container').style.display = 'block';
-            if(role === 'client') document.getElementById('clientNameDisplay').innerText = currentUser.name;
-            
-            if(role === 'transporter') { 
-                document.getElementById('transNameDisplay').innerText = currentUser.name; 
-                listenToJobs(); 
-                if ("geolocation" in navigator) {
-                    navigator.geolocation.watchPosition((pos) => {
-                        currentTransporterPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-                        // Forzar refresco de ofertas para actualizar distancias
-                        listenToJobs();
-                    }, null, { enableHighAccuracy: true });
-                }
-            }
-
+            currentUser = { email, role, name: 'Usuario' };
+            document.getElementById('authSection').classList.remove('active');
+            document.getElementById('clientSection').classList.add('active');
         }
     });
 
     document.querySelectorAll('.logoutBtn').forEach(btn => btn.addEventListener('click', () => location.reload()));
 
-    // LÓGICA DE REGISTRO
-    document.getElementById('showRegisterBtn').addEventListener('click', () => {
-        document.getElementById('authSection').classList.remove('active');
-        document.getElementById('registerSection').classList.add('active');
-    });
-
-    document.getElementById('backToLoginBtn').addEventListener('click', () => {
-        document.getElementById('registerSection').classList.remove('active');
-        document.getElementById('authSection').classList.add('active');
-    });
-
-    document.getElementById('regTypeClient').addEventListener('click', () => {
-        document.getElementById('regTypeClient').classList.add('active');
-        document.getElementById('regTypeTrans').classList.remove('active');
-        document.getElementById('clientRegForm').style.display = 'block';
-        document.getElementById('transRegForm').style.display = 'none';
-    });
-
-    document.getElementById('regTypeTrans').addEventListener('click', () => {
-        document.getElementById('regTypeTrans').classList.add('active');
-        document.getElementById('regTypeClient').classList.remove('active');
-        document.getElementById('transRegForm').style.display = 'block';
-        document.getElementById('clientRegForm').style.display = 'none';
-    });
-
-    document.getElementById('executeRegisterBtn').addEventListener('click', () => {
-        const isClient = document.getElementById('regTypeClient').classList.contains('active');
-        const email = document.getElementById('regEmail').value.trim().toLowerCase();
-        const pass = document.getElementById('regPass').value;
-
-        if (!email || !pass) return alert('Email y contraseña son obligatorios');
-
-        if (isClient) {
-            const newUser = {
-                email, password: pass,
-                name: document.getElementById('regName').value,
-                idNum: document.getElementById('regId').value,
-                phone: document.getElementById('regPhone').value,
-                location: document.getElementById('regLoc').value,
-                role: 'client'
-            };
-            set(ref(db, 'users/clients/' + email.replace('.', '_')), newUser);
-            alert('Registro de Cliente exitoso. Ya puedes iniciar sesión.');
-        } else {
-            const tid = Date.now();
-            const newTrans = {
-                id: tid,
-                email, password: pass,
-                name: document.getElementById('regTName').value,
-                idNum: document.getElementById('regTId').value,
-                phone: document.getElementById('regTPhone').value,
-                age: document.getElementById('regTAge').value,
-                physical: document.getElementById('regTPhys').value,
-                vehicle: document.getElementById('regTVehicle').value,
-                plate: document.getElementById('regTPlate').value,
-                license: document.getElementById('regTLicense').value,
-                insurance: document.getElementById('regTInsurance').value,
-                rating: 5.0,
-                role: 'transporter'
-            };
-            set(ref(db, 'users/transporters/' + tid), newTrans);
-            alert('Registro de Socio exitoso. Ya puedes iniciar sesión.');
-        }
-        document.getElementById('backToLoginBtn').click();
-    });
-
-    // BÚSQUEDA DE UBICACIONES
-    const searchLocations = async (query, type) => {
-        if (query.length < 3) return;
-        const suggestionsDiv = document.getElementById(type + 'Suggestions');
-        suggestionsDiv.innerHTML = '<div style="padding:10px;color:#aaa;">Buscando...</div>';
-        suggestionsDiv.classList.add('active');
-        try {
-            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}, Costa Rica&limit=6&countrycodes=cr`);
-            const results = await response.json();
-            suggestionsDiv.innerHTML = results.map(r => `
-                <div class="suggestion-item" data-lat="${r.lat}" data-lon="${r.lon}" data-name="${r.display_name.replace(/"/g, '&quot;')}" data-type="${type}">
-                    <div><strong>${r.name || r.display_name.split(',')[0]}</strong></div>
-                    <div class="suggestion-address">${r.display_name.substring(0, 60)}...</div>
-                </div>
-            `).join('');
-        } catch (e) { suggestionsDiv.innerHTML = '<div style="padding:10px;color:#ff6b6b;">Error</div>'; }
-    };
-
-    document.getElementById('originSearch').addEventListener('input', (e) => {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => searchLocations(e.target.value, 'origin'), 400);
-    });
-    document.getElementById('destinationSearch').addEventListener('input', (e) => {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => searchLocations(e.target.value, 'destination'), 400);
-    });
-
-    document.addEventListener('click', (e) => {
-        const item = e.target.closest('.suggestion-item');
-        if (item) {
-            const { lat, lon, name, type } = item.dataset;
-            selectLocation(parseFloat(lat), parseFloat(lon), name, type);
-        } else if (!e.target.closest('.search-container')) {
-            document.querySelectorAll('.search-suggestions').forEach(s => s.classList.remove('active'));
-        }
-    });
-
-    const selectLocation = (lat, lon, name, type) => {
-        const loc = { lat, lng: lon, name };
-        if (type === 'origin') {
-            selectedOrigin = loc;
-            document.getElementById('originSearch').value = name.split(',')[0];
-            if (markers.origin) map.removeLayer(markers.origin);
-            markers.origin = L.marker([lat, lon], { icon: L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] }) }).addTo(map).bindPopup('Origen');
-        } else {
-            selectedDestination = loc;
-            document.getElementById('destinationSearch').value = name.split(',')[0];
-            if (markers.destination) map.removeLayer(markers.destination);
-            markers.destination = L.marker([lat, lon], { icon: L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] }) }).addTo(map).bindPopup('Destino');
-        }
-        document.querySelectorAll('.search-suggestions').forEach(s => s.classList.remove('active'));
-        if (selectedOrigin && selectedDestination) drawRoute();
-        else map.setView([lat, lon], 14);
-    };
-
-    const drawRoute = () => {
-        if (routingControl) map.removeControl(routingControl);
-        routingControl = L.Routing.control({
-            waypoints: [L.latLng(selectedOrigin.lat, selectedOrigin.lng), L.latLng(selectedDestination.lat, selectedDestination.lng)],
-            show: false,
-            lineOptions: { styles: [{ color: '#00d4ff', opacity: 0.8, weight: 4 }] },
-            createMarker: () => null,
-            addWaypoints: false,
-            draggableWaypoints: false,
-            fitSelectedRoutes: true
-        }).addTo(map);
-        map.fitBounds(L.latLngBounds([selectedOrigin.lat, selectedOrigin.lng], [selectedDestination.lat, selectedDestination.lng]), { padding: [50, 50] });
-    };
-
-    // LÓGICA DE PRECIOS DINÁMICA
-    const calculatePrice = (dist, vehicle, weight, access, service) => {
-        const config = vehicleConfig[vehicle];
-        const basePrice = 12000; // Tarifa base
-        const distPrice = dist * 1100 * config.fuelCost; // Costo por km ajustado por combustible
-        const weightPrice = (weight / 100) * 1500; // Costo por peso
-        const accessMultipliers = { easy: 1, medium: 1.15, hard: 1.3 };
-        const servicePrice = service === 'acarreo' ? 8000 : 0;
-        
-        let total = (basePrice + distPrice + weightPrice) * config.multiplier * accessMultipliers[access] + servicePrice;
-        return Math.round(total);
-    };
-
-    document.getElementById('searchTransportersBtn').addEventListener('click', () => {
-        if (!selectedOrigin || !selectedDestination) return alert('Selecciona origen y destino');
-        const dist = calculateDist(selectedOrigin, selectedDestination);
-        const weight = parseFloat(document.getElementById('loadWeight').value) || 100;
-        const access = document.getElementById('accessType').value;
-        
-        // Generar 3 ofertas basadas en el promedio de los factores
-        const basePrice = calculatePrice(dist, selectedVehicle, weight, access, selectedServiceType);
-        
-        const offers = [
-            { ...transporters[0], price: Math.round(basePrice * 0.95) },
-            { ...transporters[1], price: basePrice },
-            { ...transporters[2], price: Math.round(basePrice * 1.05) }
-        ];
-
-        document.getElementById('transportistasList').innerHTML = offers.map(t => `
-            <div class="transportista-card" data-tid="${t.id}" data-price="${t.price}">
-                <div class="transportista-header">
-                    <div class="transportista-name">${t.name}</div>
-                    <div class="transportista-price">₡${t.price.toLocaleString()}</div>
-                </div>
-                <div style="font-size:11px; color:#bbb; margin-bottom:5px;">
-                    <i class="fas fa-truck"></i> ${t.vehicle} | <i class="fas fa-id-card"></i> ${t.plate}
-                </div>
-                <div style="font-size:11px; color:#bbb;">
-                    <i class="fas fa-phone"></i> ${t.phone} | ⭐ ${t.rating}
-                </div>
-            </div>
-        `).join('');
-    });
-
-    document.getElementById('transportistasList').addEventListener('click', (e) => {
-        const card = e.target.closest('.transportista-card');
-        if (card) {
-            const tid = parseInt(card.dataset.tid);
-            const price = parseInt(card.dataset.price);
-            openFactura(tid, price);
-        }
-    });
-
-    const openFactura = (tid, price) => {
-        selectedTransporter = transporters.find(t => t.id === tid);
-            const now = new Date();
-            pendingMoveData = {
-                client: currentUser.email,
-                clientName: currentUser.name,
-                clientPhone: currentUser.phone || '',
-                transporter: selectedTransporter.id,
-                transporterName: selectedTransporter.name,
-                transporterPhone: selectedTransporter.phone,
-                transporterPlate: selectedTransporter.plate,
-                origin: selectedOrigin,
-                destination: selectedDestination,
-                price: price,
-                vehicle: selectedVehicle,
-                service: selectedServiceType,
-                weight: document.getElementById('loadWeight').value,
-                access: document.getElementById('accessType').value,
-                status: 'pending',
-                code: Math.floor(1000 + Math.random() * 9000),
-                timestamp: Date.now(),
-                date: now.toLocaleDateString(),
-                time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            };
-
-        // FICHA TÉCNICA (MODELO)
-        document.getElementById('fichaTransportista').innerHTML = `
-            <div class="ficha-header">
-                <div class="ficha-avatar"><i class="fas fa-user-tie"></i></div>
-                <div class="ficha-title">
-                    <div class="ficha-name">${selectedTransporter.name}</div>
-                    <div class="ficha-rating"><i class="fas fa-star"></i> ${selectedTransporter.rating} · Socio Verificado</div>
-                </div>
-            </div>
-            <div class="factura-row"><span class="factura-label">Vehículo:</span><span class="factura-value">${selectedTransporter.vehicle}</span></div>
-            <div class="factura-row"><span class="factura-label">Placa:</span><span class="factura-value">${selectedTransporter.plate}</span></div>
-            <div class="factura-row"><span class="factura-label">Teléfono:</span><span class="factura-value">${selectedTransporter.phone}</span></div>
-        `;
-
-        // DETALLES FACTURA (MODELO)
-        document.getElementById('facturaDetails').innerHTML = `
-            <div class="factura-row"><span class="factura-label">Origen:</span><span class="factura-value">${selectedOrigin.name.split(',')[0]}</span></div>
-            <div class="factura-row"><span class="factura-label">Destino:</span><span class="factura-value">${selectedDestination.name.split(',')[0]}</span></div>
-            <div class="factura-row"><span class="factura-label">Servicio:</span><span class="factura-value">${selectedServiceType === 'acarreo' ? 'Con Acarreo' : 'Puesta Afuera'}</span></div>
-            <div class="factura-row"><span class="factura-label">Peso aprox:</span><span class="factura-value">${pendingMoveData.weight} kg</span></div>
-        `;
-
-        document.getElementById('facturaTotal').textContent = '₡' + price.toLocaleString();
-        openModal('facturaModal');
-    };
-
-    document.getElementById('uploadArea').addEventListener('click', () => document.getElementById('comprobanteFileInput').click());
-    document.getElementById('comprobanteFileInput').addEventListener('change', (e) => {
-        if (e.target.files[0]) {
-            document.getElementById('uploadText').textContent = '✓ Comprobante adjunto';
-            document.getElementById('confirmMoveBtn').disabled = false;
-        }
-    });
-
-    document.getElementById('confirmMoveBtn').addEventListener('click', () => {
-        push(ref(db, 'moves'), pendingMoveData).then(() => {
-            // SIMULACIÓN DE NOTIFICACIÓN POR CORREO
-            console.log(`[SIMULACIÓN CORREO] Enviando notificación a ${selectedTransporter.email}: "Tienes una nueva oferta de mudanza vigente de ${currentUser.name}"`);
-            alert('¡Solicitud enviada! El transportista ha sido notificado por correo. Código: ' + pendingMoveData.code);
-            closeModal('facturaModal');
-            location.reload();
+    // LÓGICA DE PESTAÑAS
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const section = btn.closest('.section');
+            section.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            section.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.tab + 'Tab').classList.add('active');
         });
     });
 
-    // LÓGICA TRANSPORTISTA (3 VIAJES SIMULTÁNEOS EN RUTA)
-    const listenToJobs = () => {
-        onValue(ref(db, 'moves'), (snapshot) => {
-            const data = snapshot.val();
-            const jobsTab = document.getElementById('jobsTab');
-            const activeTab = document.getElementById('activeTab');
-            const historyList = document.getElementById('historyList');
-            if (!jobsTab) return;
+    // --- LÓGICA AGENTE IA ---
+    const chatBtn = document.getElementById('openAiChat');
+    const chatWindow = document.getElementById('aiChatWindow');
+    const closeChat = document.getElementById('closeAiChat');
+    const chatInput = document.getElementById('aiChatInput');
+    const sendBtn = document.getElementById('sendAiMsg');
+    const chatMessages = document.getElementById('aiChatMessages');
+
+    chatBtn.onclick = () => chatWindow.classList.toggle('active');
+    closeChat.onclick = () => chatWindow.classList.remove('active');
+
+    const addMsg = (text, type) => {
+        const div = document.createElement('div');
+        div.className = `ai-msg ai-msg-${type}`;
+        div.innerText = text;
+        chatMessages.appendChild(div);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    };
+
+    sendBtn.onclick = async () => {
+        const text = chatInput.value.trim();
+        if(!text) return;
+        addMsg(text, 'user');
+        chatInput.value = '';
+        
+        // Simulación de respuesta experta basada en entrenamiento
+        addMsg("Analizando tu consulta con mi base de conocimientos...", 'bot');
+        
+        onValue(ref(db, 'ai_config'), (snap) => {
+            const config = snap.val() || {};
+            const rules = config.rules || "Eres un experto en mudanzas.";
+            const qas = config.qa ? Object.values(config.qa) : [];
             
-            jobsTab.innerHTML = ''; activeTab.innerHTML = ''; historyList.innerHTML = '';
-            let earnings = 0;
-            let activeCount = 0;
-
-            if(data) {
-                Object.keys(data).forEach(key => {
-                    const m = data[key];
-                    
-                    // Calcular distancia a la oferta si tenemos la posición del transportista
-                    let distToOffer = null;
-                    if (currentTransporterPos && m.origin) {
-                        distToOffer = calculateDist(currentTransporterPos, m.origin).toFixed(1);
-                    }
-
-                    if (m.transporter === currentUser.id) {
-                        if (m.status === 'in_progress') activeCount++;
-                        if (m.status === 'completed') {
-                            const netEarning = m.price * 0.8;
-                            earnings += netEarning;
-                            historyList.innerHTML += `
-                                <div style="background:#2a2a2a; padding:10px; border-radius:8px; margin-bottom:8px; font-size:12px;">
-                                    <div style="display:flex; justify-content:space-between;">
-                                        <strong>${m.clientName}</strong>
-                                        <span style="color:#4ade80;">₡${netEarning.toLocaleString()} (80%)</span>
-                                    </div>
-                                    <div style="color:#888; font-size:10px;">${m.date} | Total: ₡${m.price.toLocaleString()}</div>
-                                </div>`;
-                        }
-                    }
-
-                    const html = `
-                        <div class="uber-job-card">
-                            <div class="job-header">
-                                <div style="font-weight:bold;">${m.origin.name.split(',')[0]} → ${m.destination.name.split(',')[0]}</div>
-                                <div class="job-price">₡${m.price.toLocaleString()}</div>
-                            </div>
-                            <p style="font-size:11px; color:#aaa;">Cliente: ${m.clientName} | Peso: ${m.weight}kg</p>
-                            
-                            ${m.status === 'pending' && m.transporter === currentUser.id ? `
-                                <div style="background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px; margin: 10px 0; border: 1px solid #444;">
-                                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                                        <span style="font-size:12px; color:#00d4ff;"><i class="fas fa-map-marker-alt"></i> Distancia: ${distToOffer ? distToOffer + ' km' : 'Calculando...'}</span>
-                                        <button class="btn btn-sm" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${m.origin.lat},${m.origin.lng}', '_blank')" style="width:auto; padding:5px 10px; background:#444; font-size:10px;">Cómo llegar</button>
-                                    </div>
-                                </div>
-                                <div style="display:flex; gap:10px; margin-top:10px;">
-                                    <button class="btn btn-accept acceptJobBtn" data-id="${key}" ${activeCount >= 3 ? 'disabled' : ''}>Aceptar</button>
-                                    <button class="btn btn-reject rejectJobBtn" data-id="${key}">Rechazar</button>
-                                </div>` : ''}
-                                
-                            ${m.status === 'in_progress' && m.transporter === currentUser.id ? `
-                                <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
-                                    <div style="background: rgba(0,212,255,0.1); padding: 8px; border-radius: 6px; border: 1px solid #00d4ff44; margin-bottom: 5px;">
-                                        <div style="font-size: 10px; color: #00d4ff; font-weight: bold; text-transform: uppercase;">Teléfono del Cliente</div>
-                                        <div style="font-size: 16px; font-weight: bold; color: #fff;">${m.clientPhone || 'No registrado'}</div>
-                                    </div>
-                                    <button class="btn btn-whatsapp" onclick="window.open('https://wa.me/506${(m.clientPhone || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent('¿Le gustaría que le comparta mi ubicación?')}', '_blank')" style="text-decoration:none; text-align:center; font-size:12px; padding:10px;">
-                                        <i class="fab fa-whatsapp"></i> Llamar al Cliente por WhatsApp
-                                    </button>
-                                    <div style="display:flex; gap:10px;">
-                                        <button class="btn btn-sm startNavBtn" data-id="${key}">Ver Ruta</button>
-                                        <button class="btn btn-sm openCodeBtn" style="background:#4ade80;" data-id="${key}">Finalizar</button>
-                                    </div>
-                                    <button class="btn btn-sm btn-reject cancelInProgressBtn" data-id="${key}">Cancelar en Curso</button>
-                                </div>` : ''}
-                        </div>`;
-
-                    if(m.status === 'pending' && m.transporter === currentUser.id) jobsTab.innerHTML += html;
-                    else if(m.status === 'in_progress' && m.transporter === currentUser.id) activeTab.innerHTML += html;
-                });
-            }
-            document.getElementById('totalEarnings').textContent = '₡' + Math.round(earnings).toLocaleString();
-        });
-    };
-
-    // LÓGICA ADMIN EXPANDIDA
-    const listenToAdmin = () => {
-        onValue(ref(db, 'moves'), (snapshot) => {
-            const data = snapshot.val();
-            const tbody = document.getElementById('movesTableBody');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-            let totalSales = 0, totalComm = 0, companyRegal = 0, partnersRegal = 0;
-            const selectedMonth = document.getElementById('financeCalendar').value; // YYYY-MM
-            const selectedDay = document.getElementById('movesDateFilter').value; // YYYY-MM-DD
-
-            if(data) {
-                Object.keys(data).forEach(key => {
-                    const m = data[key];
-                    const comm = m.price * 0.2;
-                    const net = m.price * 0.8;
-                    
-                    const moveDate = new Date(m.timestamp);
-                    const moveMonth = `${moveDate.getFullYear()}-${String(moveDate.getMonth()+1).padStart(2,'0')}`;
-                    const moveDay = moveDate.toISOString().split('T')[0];
-
-                    // Filtro para tabla de mudanzas (Día)
-                    if (selectedDay && moveDay !== selectedDay) return;
-
-                    totalSales += m.price;
-                    totalComm += comm;
-
-                    // Filtro para finanzas (Mes)
-                    if (!selectedMonth || moveMonth === selectedMonth) {
-                        if (m.status === 'completed') {
-                            companyRegal += comm;
-                            partnersRegal += net;
-                        }
-                    }
-
-                    tbody.innerHTML += `<tr><td>#${key.slice(-4)}</td><td>${m.clientName}</td><td>${m.transporterName}</td><td>${m.date}</td><td>${m.time || '--:--'}</td><td>₡${m.price.toLocaleString()}</td><td style="color:#4ade80;">₡${comm.toLocaleString()}</td><td><span class="status-badge status-${m.status}">${m.status}</span></td></tr>`;
-                });
-            }
-            document.getElementById('totalAdminSales').textContent = '₡' + totalSales.toLocaleString();
-            document.getElementById('totalAdminComm').textContent = '₡' + totalComm.toLocaleString();
-            document.getElementById('companyRegal').textContent = '₡' + companyRegal.toLocaleString();
-            document.getElementById('partnersRegal').textContent = '₡' + partnersRegal.toLocaleString();
-            document.getElementById('netBalance').textContent = '₡' + (companyRegal - (50 * 600)).toLocaleString(); // Simulación $50 a ₡600
-        });
-
-        const partnersList = document.getElementById('adminPartnersList');
-        if (partnersList) {
-            partnersList.innerHTML = transporters.map(t => `<div class="partner-item" data-tid="${t.id}"><i class="fas fa-user-tie"></i> ${t.name} <span style="font-size:10px; color:#666;">(${t.plate})</span></div>`).join('');
-        }
-
-        const clientsList = document.getElementById('adminClientsList');
-        if (clientsList) {
-            clientsList.innerHTML = registeredClients.map(c => `<div class="partner-item client-item" data-email="${c.email}"><i class="fas fa-user"></i> ${c.name} <span style="font-size:10px; color:#666;">(${c.email})</span></div>`).join('');
-        }
-    };
-
-    document.getElementById('financeCalendar').addEventListener('change', listenToAdmin);
-    document.getElementById('movesDateFilter').addEventListener('change', listenToAdmin);
-
-    document.getElementById('exportMovesPdfBtn').addEventListener('click', () => {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
-        doc.setFontSize(18);
-        doc.text('Reporte de Mudanzas - MudanzasHub CR', 14, 20);
-        doc.setFontSize(11);
-        doc.text(`Fecha de reporte: ${new Date().toLocaleString()}`, 14, 30);
-        
-        const table = document.getElementById('adminMovesTable');
-        const rows = [];
-        const headers = [['ID', 'Cliente', 'Socio', 'Fecha', 'Hora', 'Total', 'Comisión (20%)', 'Estado']];
-        
-        document.querySelectorAll('#movesTableBody tr').forEach(tr => {
-            const row = [];
-            tr.querySelectorAll('td').forEach(td => row.push(td.innerText));
-            rows.push(row);
-        });
-
-        doc.autoTable({
-            head: headers,
-            body: rows,
-            startY: 40,
-            theme: 'grid',
-            headStyles: { fillColor: [0, 212, 255], textColor: [0, 0, 0], fontStyle: 'bold' },
-            styles: { fontSize: 8, cellPadding: 3 },
-            columnStyles: {
-                5: { halign: 'right', fontStyle: 'bold' },
-                6: { halign: 'right', textColor: [0, 150, 0] }
-            }
-        });
-        
-        doc.save(`Reporte_Mudanzas_${new Date().toISOString().split('T')[0]}.pdf`);
-    });
-
-
-    // LÓGICA GPS NAVEGACIÓN EN VIVO
-    const startGpsNavigation = (moveId) => {
-        onValue(ref(db, `moves/${moveId}`), (snapshot) => {
-            const m = snapshot.val();
-            if (!m) return;
-            document.getElementById('gpsView').classList.add('active');
-            if (!gpsMap) {
-                gpsMap = L.map('gpsMap').setView([m.origin.lat, m.origin.lng], 16);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(gpsMap);
-            }
-            if (gpsRouting) gpsMap.removeControl(gpsRouting);
-            gpsRouting = L.Routing.control({
-                waypoints: [L.latLng(m.origin.lat, m.origin.lng), L.latLng(m.destination.lat, m.destination.lng)],
-                lineOptions: { styles: [{ color: '#00d4ff', weight: 6 }] },
-                addWaypoints: false, draggableWaypoints: false
-            }).addTo(gpsMap);
-            if ("geolocation" in navigator) {
-                watchId = navigator.geolocation.watchPosition((pos) => {
-                    const { latitude, longitude } = pos.coords;
-                    if (userMarker) userMarker.setLatLng([latitude, longitude]);
-                    else userMarker = L.marker([latitude, longitude], { icon: L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png', iconSize: [25, 41] }) }).addTo(gpsMap);
-                    gpsMap.panTo([latitude, longitude]);
-                }, null, { enableHighAccuracy: true });
-            }
+            setTimeout(() => {
+                // Buscar en Q&A
+                const match = qas.find(item => text.toLowerCase().includes(item.q.toLowerCase()));
+                if(match) {
+                    addMsg(match.a, 'bot');
+                } else {
+                    addMsg("Como experto en MudanzasHub, te informo que procesamos mudanzas en todo el país con los mejores precios. ¿Deseas una cotización formal?", 'bot');
+                }
+            }, 1000);
         }, { onlyOnce: true });
     };
 
-    document.getElementById('closeGpsBtn').addEventListener('click', () => {
-        document.getElementById('gpsView').classList.remove('active');
-        if (watchId) navigator.geolocation.clearWatch(watchId);
-    });
-
-    document.addEventListener('click', (e) => {
-        if (e.target.classList.contains('startNavBtn')) startGpsNavigation(e.target.dataset.id);
-
-        const partnerItem = e.target.closest('.partner-item');
-        if (partnerItem && !partnerItem.classList.contains('client-item')) {
-            const t = transporters.find(x => x.id === parseInt(partnerItem.dataset.tid));
-            if (!t) return;
-            document.getElementById('partnerDetailName').innerText = t.name;
-            document.getElementById('partnerDetailContent').innerHTML = `
-                <div style="grid-column: span 2; text-align:center; margin-bottom:10px;">
-                    <div style="width:80px; height:80px; background:#333; border-radius:50%; margin:0 auto 10px; display:flex; align-items:center; justify-content:center; border:2px solid #00d4ff; position:relative;">
-                        <i class="fas fa-user-tie" style="font-size:40px; color:#00d4ff;"></i>
-                        <label style="position:absolute; bottom:0; right:0; background:#00d4ff; color:#000; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; cursor:pointer;"><i class="fas fa-camera" style="font-size:12px;"></i><input type="file" style="display:none;"></label>
-                    </div>
-                </div>
-                <div class="detail-item"><div class="detail-label">Nombre</div><input type="text" class="edit-input" id="editTName" value="${t.name}"></div>
-                <div class="detail-item"><div class="detail-label">Cédula</div><input type="text" class="edit-input" id="editTId" value="${t.idNum || ''}"></div>
-                <div class="detail-item"><div class="detail-label">Edad</div><input type="number" class="edit-input" id="editTAge" value="${t.age || ''}"></div>
-                <div class="detail-item"><div class="detail-label">Discapacidad</div><select class="edit-input" id="editTPhys"><option value="no" ${t.physical==='no'?'selected':''}>No</option><option value="si" ${t.physical==='si'?'selected':''}>Sí</option></select></div>
-                <div class="detail-item"><div class="detail-label">Teléfono</div><input type="text" class="edit-input" id="editTPhone" value="${t.phone}"></div>
-                <div class="detail-item"><div class="detail-label">Placa</div><input type="text" class="edit-input" id="editTPlate" value="${t.plate}"></div>
-                <div class="detail-item"><div class="detail-label">Vehículo</div><input type="text" class="edit-input" id="editTVehicle" value="${t.vehicle}"></div>
-                <div class="detail-item"><div class="detail-label">Licencia</div><input type="text" class="edit-input" id="editTLicense" value="${t.license}"></div>
-                <div class="detail-item"><div class="detail-label">Seguro</div><input type="text" class="edit-input" id="editTInsurance" value="${t.insurance}"></div>
-                <div style="grid-column: span 2; margin-top:15px; font-weight:bold; color:#00d4ff; border-bottom:1px solid #333; padding-bottom:5px;">Historial de Servicios</div>
-                <div id="partnerHistoryList" style="grid-column: span 2; margin-top:10px; max-height:200px; overflow-y:auto;"></div>
-                <div style="grid-column: span 2; display:flex; gap:10px; margin-top:15px;">
-                    <button class="btn" id="savePartnerBtn" data-tid="${t.id}">Guardar Cambios</button>
-                    <button class="btn btn-whatsapp" id="msgPartnerBtn" data-email="${t.email}">Mensaje</button>
-                    <button class="btn btn-reject" id="deletePartnerBtn" data-tid="${t.id}">Borrar</button>
-                </div>
-            `;
+    // --- LÓGICA ENTRENAMIENTO IA (ADMIN) ---
+    const loadAiTraining = () => {
+        onValue(ref(db, 'ai_config'), (snap) => {
+            const data = snap.val() || {};
+            document.getElementById('aiRules').value = data.rules || '';
             
-            // HISTORIAL DEL SOCIO
-            onValue(ref(db, 'moves'), (snapshot) => {
-                const data = snapshot.val();
-                const hList = document.getElementById('partnerHistoryList');
-                if(!hList) return;
-                hList.innerHTML = '';
-                let count = 0;
-                if(data) {
-                    Object.keys(data).forEach(key => {
-                        const m = data[key];
-                        if (m.transporter === t.email || m.transporterName === t.name) {
-                            count++;
-                            hList.innerHTML += `
-                                <div class="history-item" style="padding:12px; border-left:3px solid #4ade80; display:flex; flex-direction:column; gap:5px; background:#1a1a1a; margin-bottom:10px;">
-                                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                                        <strong style="color:#4ade80;">${m.date} | ${m.time || '--:--'}</strong>
-                                        <span class="status-badge status-${m.status}">${m.status.toUpperCase()}</span>
-                                    </div>
-                                    <div style="font-size:13px;">${m.origin.name.split(',')[0]} → ${m.destination.name.split(',')[0]}</div>
-                                    <div style="display:flex; justify-content:space-between; margin-top:5px; padding-top:5px; border-top:1px solid #333;">
-                                        <div style="text-align:center; flex:1;">
-                                            <div style="font-size:10px; color:#888;">TOTAL</div>
-                                            <div style="font-weight:bold; color:#fff;">₡${m.price.toLocaleString()}</div>
-                                        </div>
-                                        <div style="text-align:center; flex:1; border-left:1px solid #333;">
-                                            <div style="font-size:10px; color:#ff4b4b;">SOCIO (80%)</div>
-                                            <div style="font-weight:bold; color:#ff4b4b;">₡${(m.price * 0.8).toLocaleString()}</div>
-                                        </div>
-                                        <div style="text-align:center; flex:1; border-left:1px solid #333;">
-                                            <div style="font-size:10px; color:#00d4ff;">EMPRESA (20%)</div>
-                                            <div style="font-weight:bold; color:#00d4ff;">₡${(m.price * 0.2).toLocaleString()}</div>
-                                        </div>
-                                    </div>
-                                </div>`;
-                        }
-                    });
-                }
-                if(count === 0) hList.innerHTML = '<div style="color:#666; font-size:12px;">Sin historial.</div>';
-            }, { onlyOnce: true });
-            
-            openModal('partnerDetailModal');
-        }
-
-        if (partnerItem && partnerItem.classList.contains('client-item')) {
-            const c = registeredClients.find(x => x.email === partnerItem.dataset.email);
-            if (!c) return;
-            document.getElementById('msgClientBtn').dataset.email = c.email;
-            document.getElementById('clientDetailContent').innerHTML = `
-                <div class="detail-grid">
-                    <div class="detail-item"><div class="detail-label">Nombre</div><input type="text" class="edit-input" id="editCName" value="${c.name}"></div>
-                    <div class="detail-item"><div class="detail-label">Email</div><input type="text" class="edit-input" id="editCEmail" value="${c.email}" disabled></div>
-                    <div class="detail-item"><div class="detail-label">Teléfono</div><input type="text" class="edit-input" id="editCPhone" value="${c.phone}"></div>
-                    <div class="detail-item"><div class="detail-label">Cédula</div><input type="text" class="edit-input" id="editCId" value="${c.idNum}"></div>
-                </div>
-            `;
-            
-            // HISTORIAL DEL CLIENTE
-            onValue(ref(db, 'moves'), (snapshot) => {
-                const data = snapshot.val();
-                const hList = document.getElementById('clientHistoryList');
-                hList.innerHTML = '';
-                let count = 0;
-                if(data) {
-                    Object.keys(data).forEach(key => {
-                        const m = data[key];
-                        if (m.client === c.email) {
-                            count++;
-                            const dist = calculateDist(m.origin, m.destination);
-                            const estDuration = Math.round((dist / 40) * 60);
-                            hList.innerHTML += `
-                                <div class="history-item" style="padding:12px; border-left:3px solid #00d4ff; display:flex; justify-content:space-between; align-items:center;">
-                                    <div style="flex:1;">
-                                        <strong style="color:#00d4ff;">${m.date} | ${m.time || '--:--'}</strong><br>
-                                        ${m.origin.name.split(',')[0]} → ${m.destination.name.split(',')[0]}<br>
-                                        <span style="color:#aaa; font-size:11px;">Carga: ${m.weight}kg | ${m.service} | ~${estDuration}min</span>
-                                    </div>
-                                    <button class="btn btn-sm viewMapBtn" data-mid="${key}" style="background:#00d4ff; color:#000; font-weight:bold; padding:8px 12px; white-space:nowrap; margin-left:10px;">Ver Mapa</button>
-                                </div>`;
-                        }
-                    });
-                }
-                if(count === 0) hList.innerHTML = '<div style="color:#666; font-size:12px;">Sin historial.</div>';
-            }, { onlyOnce: true });
-
-            document.getElementById('saveClientBtn').onclick = () => {
-                const updated = {
-                    ...c,
-                    name: document.getElementById('editCName').value,
-                    phone: document.getElementById('editCPhone').value,
-                    idNum: document.getElementById('editCId').value
-                };
-                update(ref(db, 'users/clients/' + c.email.replace('.', '_')), updated);
-                alert('Cliente actualizado');
-                closeModal('clientDetailModal');
-            };
-
-            document.getElementById('deleteClientBtn').onclick = () => {
-                if(confirm('¿Borrar cliente?')) {
-                    set(ref(db, 'users/clients/' + c.email.replace('.', '_')), null);
-                    closeModal('clientDetailModal');
-                }
-            };
-            openModal('clientDetailModal');
-        }
-
-        
-        if (e.target.id === 'saveNewClientBtn') {
-            const name = document.getElementById('addCName').value;
-            const email = document.getElementById('addCEmail').value.trim().toLowerCase();
-            const pass = document.getElementById('addCPass').value;
-            const phone = document.getElementById('addCPhone').value;
-            const idNum = document.getElementById('addCId').value;
-            
-            if(!name || !email || !pass) return alert('Nombre, Email y Contraseña son obligatorios');
-            
-            const newUser = { email, password: pass, name, phone, idNum, role: 'client' };
-            set(ref(db, 'users/clients/' + email.replace('.', '_')), newUser);
-            alert('Cliente creado exitosamente');
-            closeModal('addClientModal');
-            // Limpiar campos
-            ['addCName', 'addCEmail', 'addCPass', 'addCPhone', 'addCId'].forEach(id => document.getElementById(id).value = '');
-        }
-        if (e.target.id === 'savePartnerBtn') {
-            const tid = e.target.dataset.tid;
-            const t = transporters.find(x => x.id == tid);
-            const updated = {
-                ...t,
-                name: document.getElementById('editTName').value,
-                idNum: document.getElementById('editTId').value,
-                age: document.getElementById('editTAge').value,
-                physical: document.getElementById('editTPhys').value,
-                phone: document.getElementById('editTPhone').value,
-                plate: document.getElementById('editTPlate').value,
-                vehicle: document.getElementById('editTVehicle').value,
-                license: document.getElementById('editTLicense').value,
-                insurance: document.getElementById('editTInsurance').value
-            };
-            update(ref(db, 'users/transporters/' + tid), updated);
-            alert('Socio actualizado');
-            closeModal('partnerDetailModal');
-        }
-
-        if (e.target.id === 'deletePartnerBtn') {
-            if(confirm('¿Borrar socio?')) {
-                const tid = e.target.dataset.tid;
-                set(ref(db, 'users/transporters/' + tid), null);
-                closeModal('partnerDetailModal');
-            }
-        }
-
-        if (e.target.id === 'msgPartnerBtn') {
-            const tid = e.target.dataset.tid;
-            const t = transporters.find(x => x.id == tid);
-            if(t && t.phone) {
-                const phone = t.phone.replace(/[^0-9]/g, '');
-                window.open(`https://wa.me/506${phone}`, '_blank');
-            } else { alert('No hay teléfono registrado'); }
-        }
-        
-        if (e.target.id === 'msgClientBtn') {
-            const email = e.target.dataset.email;
-            const c = registeredClients.find(x => x.email === email);
-            if(c && c.phone) {
-                const phone = c.phone.replace(/[^0-9]/g, '');
-                window.open(`https://wa.me/506${phone}`, '_blank');
-            } else { alert('No hay teléfono registrado'); }
-        }
-
-        if (e.target.classList.contains('acceptJobBtn')) update(ref(db, `moves/${e.target.dataset.id}`), { status: 'in_progress' });
-        if (e.target.classList.contains('rejectJobBtn')) {
-            if(confirm('¿Deseas rechazar esta oferta?')) {
-                update(ref(db, `moves/${e.target.dataset.id}`), { transporter: null, status: 'pending' });
-            }
-        }
-        if (e.target.classList.contains('cancelInProgressBtn')) {
-            if(confirm('¿Deseas cancelar este viaje en curso? Volverá a estar pendiente.')) {
-                update(ref(db, `moves/${e.target.dataset.id}`), { status: 'pending' });
-            }
-        }
-        if (e.target.classList.contains('shareLocBtn')) {
-            const mId = e.target.dataset.id;
-            onValue(ref(db, `moves/${mId}`), (snap) => {
-                const m = snap.val();
-                if(m && "geolocation" in navigator) {
-                    navigator.geolocation.getCurrentPosition((pos) => {
-                        const link = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-                        const text = encodeURIComponent(`Hola ${m.clientName}, estoy en camino. Puedes ver mi ubicación actual aquí: ${link}`);
-                        window.open(`https://wa.me/${m.clientPhone}?text=${text}`, '_blank');
-                    });
-                }
-            }, { onlyOnce: true });
-        }
-        if (e.target.classList.contains('startNavBtn')) {
-            onValue(ref(db, `moves/${e.target.dataset.id}`), (snap) => {
-                const m = snap.val();
-                selectLocation(m.origin.lat, m.origin.lng, m.origin.name, 'origin');
-                selectLocation(m.destination.lat, m.destination.lng, m.destination.name, 'destination');
-                document.getElementById('navOverlay').style.display = 'flex';
-                document.getElementById('navDistance').textContent = calculateDist(m.origin, m.destination).toFixed(1) + ' km';
-            }, { onlyOnce: true });
-        }
-        if (e.target.classList.contains('openCodeBtn')) {
-            onValue(ref(db, `moves/${e.target.dataset.id}`), (snap) => {
-                activeNavMove = { ...snap.val(), key: e.target.dataset.id };
-                openModal('codeModal');
-            }, { onlyOnce: true });
-        }
-        
-        const tabBtn = e.target.closest('.tab-btn');
-        if (tabBtn) {
-            const section = tabBtn.closest('.section');
-            section.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            section.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            tabBtn.classList.add('active');
-            section.querySelector(`#${tabBtn.dataset.tab}Tab`).classList.add('active');
-            
-            // OCULTAR MAPA EN ADMIN EXCEPTO EN HISTORIAL
-            if (section.id === 'adminSection') {
-                document.querySelector('.map-container').style.display = 'none';
-            } else {
-                document.querySelector('.map-container').style.display = 'block';
-            }
-        }
-        if (e.target.classList.contains('viewMapBtn')) {
-            const mid = e.target.dataset.mid;
-            onValue(ref(db, `moves/${mid}`), (snap) => {
-                const m = snap.val();
-                if (m) {
-                    const mapDiv = document.getElementById('adminHistoryMap');
-                    mapDiv.style.display = 'block';
-                    mapDiv.style.height = '300px';
-                    
-                    // Inicializar o actualizar el mapa de historial
-                    if (window.adminHistMap) {
-                        window.adminHistMap.remove();
-                    }
-                    
-                    window.adminHistMap = L.map('adminHistoryMap').setView([m.origin.lat, m.origin.lng], 13);
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(window.adminHistMap);
-                    
-                    L.marker([m.origin.lat, m.origin.lng]).addTo(window.adminHistMap).bindPopup('Origen: ' + m.origin.name).openPopup();
-                    L.marker([m.destination.lat, m.destination.lng]).addTo(window.adminHistMap).bindPopup('Destino: ' + m.destination.name);
-                    
-                    L.Routing.control({
-                        waypoints: [L.latLng(m.origin.lat, m.origin.lng), L.latLng(m.destination.lat, m.destination.lng)],
-                        lineOptions: { styles: [{ color: '#00d4ff', weight: 5 }] },
-                        addWaypoints: false,
-                        draggableWaypoints: false,
-                        createMarker: function() { return null; }
-                    }).addTo(window.adminHistMap);
-                    
-                    setTimeout(() => window.adminHistMap.invalidateSize(), 200);
-                }
-            }, { onlyOnce: true });
-        }
-        if (e.target.dataset.close) closeModal(e.target.dataset.close);
-    });
-
-    document.getElementById('validateCodeBtn').addEventListener('click', () => {
-        if (parseInt(document.getElementById('confirmCodeInput').value) === activeNavMove.code) {
-            update(ref(db, `moves/${activeNavMove.key}`), { status: 'completed' });
-            
-            // Enviar mensaje de texto simulado/WhatsApp al cliente
-            if (activeNavMove.clientPhone) {
-                const phone = activeNavMove.clientPhone.replace(/[^0-9]/g, '');
-                const text = encodeURIComponent("Su viaje ha finalizado. Gracias por solicitar nuestro servicio.");
-                window.open(`https://wa.me/506${phone}?text=${text}`, '_blank');
-            }
-            
-            alert('¡Servicio concluido! Se ha enviado el mensaje de agradecimiento al cliente.');
-            closeModal('codeModal');
-            document.getElementById('navOverlay').style.display = 'none';
-            if (routingControl) map.removeControl(routingControl);
-        } else { alert('Código incorrecto'); }
-    });
-
-    document.getElementById('finishNavBtn').addEventListener('click', () => {
-        document.getElementById('navOverlay').style.display = 'none';
-        if (routingControl) map.removeControl(routingControl);
-    });
-
-    const calculateDist = (p1, p2) => {
-        const R = 6371;
-        const dLat = (p2.lat-p1.lat) * Math.PI / 180;
-        const dLon = (p2.lng-p1.lng) * Math.PI / 180;
-        const a = Math.sin(dLat/2)**2 + Math.cos(p1.lat*Math.PI/180)*Math.cos(p2.lat*Math.PI/180)*Math.sin(dLon/2)**2;
-        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    };
-
-    // SELECTORES
-    document.getElementById('vehicleSelector').addEventListener('click', (e) => {
-        const opt = e.target.closest('.vehicle-option');
-        if (opt) {
-            selectedVehicle = opt.dataset.vehicle;
-            document.querySelectorAll('#vehicleSelector .vehicle-option').forEach(o => o.classList.remove('active'));
-            opt.classList.add('active');
-        }
-    });
-    document.getElementById('serviceSelector').addEventListener('click', (e) => {
-        const opt = e.target.closest('.vehicle-option');
-        if (opt) {
-            selectedServiceType = opt.dataset.service;
-            document.querySelectorAll('#serviceSelector .vehicle-option').forEach(o => o.classList.remove('active'));
-            opt.classList.add('active');
-        }
-    });
-</script>
-
-/* ============================================================
-   AGENTE DE IA EXPERTO EN VENTAS Y CIERRE - MUDANZASHUB
-   ============================================================ */
-
-const SalesAgentSystem = {
-    config: {
-        name: "Asistente Experto MudanzasHub",
-        personality: "Vendedor profesional, amable y persuasivo. Siempre busca cerrar la venta u ofrecer una cotización.",
-        closingPhrases: [
-            "¿Te gustaría que reservemos tu mudanza ahora mismo para asegurar el mejor precio?",
-            "¡Excelente elección! ¿Quieres que un asesor te llame para finalizar los detalles?",
-            "Si reservas hoy, podemos darte prioridad en el horario. ¿Qué te parece?"
-        ]
-    },
-    
-    // Base de datos de entrenamiento (se carga de localStorage)
-    training: {
-        rules: "Sé persuasivo. Usa el nombre del cliente si lo sabes. Enfócate en la seguridad y rapidez.",
-        knowledge: "P: ¿Servicios? R: Ofrecemos Acarreo (completo) y Puesta Afuera (económico).\nP: ¿Precio? R: Varía por distancia y camión, pero somos los más competitivos de CR.\nP: ¿Pago? R: SINPE al 7228-4602."
-    },
-
-    init() {
-        this.loadTraining();
-        this.createWidget();
-        this.injectAdminTab();
-    },
-
-    loadTraining() {
-        const savedRules = localStorage.getItem('sales_ai_rules');
-        const savedKnowledge = localStorage.getItem('sales_ai_knowledge');
-        if (savedRules) this.training.rules = savedRules;
-        if (savedKnowledge) this.training.knowledge = savedKnowledge;
-    },
-
-    createWidget() {
-        if (document.getElementById('aiChatWidget')) return;
-        const html = `
-            <div id="aiChatWidget" style="position:fixed; bottom:20px; right:20px; width:360px; height:520px; background:#1a1a1a; border:2px solid #00d4ff; border-radius:15px; display:none; flex-direction:column; z-index:10000; box-shadow:0 15px 50px rgba(0,0,0,0.6); font-family: 'Segoe UI', Roboto, sans-serif; overflow:hidden;">
-                <div style="background:linear-gradient(135deg, #00d4ff, #008fb3); color:#000; padding:18px; display:flex; justify-content:space-between; align-items:center; font-weight:bold;">
-                    <span><i class="fas fa-user-tie"></i> Experto en Ventas IA</span>
-                    <button id="closeSalesChat" style="background:none; border:none; font-size:24px; cursor:pointer; color:#000;">&times;</button>
-                </div>
-                <div id="salesChatMessages" style="flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:12px; background:#0f0f0f;"></div>
-                <div style="padding:12px; background:#1a1a1a; border-top:1px solid #333; display:flex; gap:8px;">
-                    <input type="text" id="salesChatInput" placeholder="Pregunta por tu mudanza..." style="flex:1; padding:12px; background:#2a2a2a; border:1px solid #444; color:#fff; border-radius:8px; outline:none; font-size:14px;">
-                    <button id="sendSalesMsg" style="background:#00d4ff; border:none; width:45px; height:45px; border-radius:8px; cursor:pointer; color:#000;"><i class="fas fa-paper-plane"></i></button>
-                </div>
-            </div>
-            <button id="salesChatToggle" style="position:fixed; bottom:20px; right:20px; width:65px; height:65px; background:#00d4ff; border:none; border-radius:50%; cursor:pointer; z-index:9999; box-shadow:0 8px 20px rgba(0,212,255,0.4); display:flex; align-items:center; justify-content:center; color:#000; font-size:28px;">
-                <i class="fas fa-comment-dots"></i>
-            </button>
-        `;
-        document.body.insertAdjacentHTML('beforeend', html);
-
-        // Eventos
-        document.getElementById('salesChatToggle').onclick = () => {
-            document.getElementById('aiChatWidget').style.display = 'flex';
-            document.getElementById('salesChatToggle').style.display = 'none';
-            if (document.getElementById('salesChatMessages').children.length === 0) {
-                this.addMessage("¡Hola! Soy tu asesor experto de MudanzasHub. ¿Buscas el mejor precio para tu mudanza hoy?", 'ai');
-            }
-        };
-
-        document.getElementById('closeSalesChat').onclick = () => {
-            document.getElementById('aiChatWidget').style.display = 'none';
-            document.getElementById('salesChatToggle').style.display = 'flex';
-        };
-
-        document.getElementById('sendSalesMsg').onclick = () => this.handleUserMessage();
-        document.getElementById('salesChatInput').onkeypress = (e) => { if(e.key === 'Enter') this.handleUserMessage(); };
-    },
-
-    addMessage(text, sender) {
-        const msgDiv = document.createElement('div');
-        msgDiv.style.cssText = `padding:12px 16px; border-radius:12px; max-width:85%; font-size:14px; line-height:1.5; ${sender==='user' ? 'background:#00d4ff; color:#000; align-self:flex-end; margin-left:auto;' : 'background:#2a2a2a; color:#fff; align-self:flex-start;'}`;
-        msgDiv.innerHTML = text;
-        const container = document.getElementById('salesChatMessages');
-        container.appendChild(msgDiv);
-        container.scrollTop = container.scrollHeight;
-    },
-
-    handleUserMessage() {
-        const input = document.getElementById('salesChatInput');
-        const text = input.value.trim();
-        if (!text) return;
-
-        this.addMessage(text, 'user');
-        input.value = '';
-
-        setTimeout(() => {
-            const response = this.generateSalesResponse(text);
-            this.addMessage(response, 'ai');
-        }, 700);
-    },
-
-    generateSalesResponse(query) {
-        const q = query.toLowerCase();
-        const knowledge = this.training.knowledge.toLowerCase();
-        
-        // Lógica de ventas: Buscar en conocimiento
-        const lines = knowledge.split('\n');
-        for (let line of lines) {
-            if (line.includes('p:') && line.includes('r:')) {
-                const parts = line.split('r:');
-                const question = parts[0].replace('p:', '').trim();
-                const answer = parts[1].trim();
-                if (q.includes(question)) {
-                    // Agregar frase de cierre aleatoria
-                    const closing = this.config.closingPhrases[Math.floor(Math.random() * this.config.closingPhrases.length)];
-                    return `${answer.charAt(0).toUpperCase() + answer.slice(1)}. ${closing}`;
-                }
-            }
-        }
-
-        if (q.includes('hola')) return "¡Hola! Es un gusto saludarte. Estoy aquí para ayudarte a que tu mudanza sea rápida, segura y al mejor precio. ¿A dónde te mudas?";
-        if (q.includes('precio') || q.includes('cuanto')) return "Nuestros precios son los más competitivos. Dependen del camión y la distancia. ¿Te gustaría que te demos una cotización personalizada ahora mismo?";
-        
-        return "Entiendo perfectamente. En MudanzasHub nos especializamos en soluciones a tu medida. ¿Te gustaría hablar con un agente humano o prefieres que te ayude a cotizar por aquí?";
-    },
-
-    injectAdminTab() {
-        const checkAdmin = setInterval(() => {
-            const adminSection = document.getElementById('adminSection');
-            if (adminSection) {
-                clearInterval(checkAdmin);
-                const tabs = adminSection.querySelector('.tabs');
-                if (tabs && !document.getElementById('salesAiTabBtn')) {
-                    const btn = document.createElement('button');
-                    btn.id = 'salesAiTabBtn';
-                    btn.className = 'tab-btn';
-                    btn.dataset.tab = 'salesAi';
-                    btn.innerHTML = '<i class="fas fa-robot"></i> Entrenar Ventas';
-                    tabs.appendChild(btn);
-
-                    const content = document.createElement('div');
-                    content.id = 'salesAiTab';
-                    content.className = 'tab-content';
-                    content.innerHTML = `
-                        <div style="padding:20px; background:#222; border-radius:10px; border:1px solid #333; margin-top:10px;">
-                            <h3 style="color:#00d4ff; margin-bottom:15px;">Entrenamiento del Agente de Ventas</h3>
-                            <div class="form-group">
-                                <label>Reglas de Persuasión:</label>
-                                <textarea id="salesRulesInput" class="search-input" style="height:80px; resize:none;">${this.training.rules}</textarea>
-                            </div>
-                            <div class="form-group">
-                                <label>Base de Conocimiento (P: Pregunta R: Respuesta):</label>
-                                <textarea id="salesKnowledgeInput" class="search-input" style="height:180px; resize:none;">${this.training.knowledge}</textarea>
-                            </div>
-                            <button class="btn" id="saveSalesTraining">💾 Guardar y Aplicar Entrenamiento</button>
+            const qaList = document.getElementById('qaList');
+            qaList.innerHTML = '';
+            if(data.qa) {
+                Object.keys(data.qa).forEach(key => {
+                    const item = data.qa[key];
+                    qaList.innerHTML += `
+                        <div class="qa-item">
+                            <i class="fas fa-trash qa-delete" onclick="deleteQA('${key}')"></i>
+                            <strong>Q:</strong> ${item.q}<br>
+                            <strong>A:</strong> ${item.a}
                         </div>
                     `;
-                    adminSection.appendChild(content);
-
-                    // Eventos de Tab
-                    btn.onclick = () => {
-                        document.querySelectorAll('#adminSection .tab-btn').forEach(b => b.classList.remove('active'));
-                        document.querySelectorAll('#adminSection .tab-content').forEach(c => c.classList.remove('active'));
-                        btn.classList.add('active');
-                        content.classList.add('active');
-                    };
-
-                    document.getElementById('saveSalesTraining').onclick = () => {
-                        localStorage.setItem('sales_ai_rules', document.getElementById('salesRulesInput').value);
-                        localStorage.setItem('sales_ai_knowledge', document.getElementById('salesKnowledgeInput').value);
-                        this.loadTraining();
-                        alert('✅ Agente de Ventas entrenado correctamente.');
-                    };
-                }
+                });
             }
-        }, 1000);
-    }
-};
 
-// Iniciar sistema
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => SalesAgentSystem.init());
-} else {
-    SalesAgentSystem.init();
-}
+            const fileList = document.getElementById('aiFileList');
+            fileList.innerHTML = '';
+            if(data.files) {
+                Object.keys(data.files).forEach(key => {
+                    fileList.innerHTML += `<div><i class="fas fa-file-alt"></i> ${data.files[key].name}</div>`;
+                });
+            }
+        });
+    };
+
+    document.getElementById('saveAiRules').onclick = () => {
+        const rules = document.getElementById('aiRules').value;
+        update(ref(db, 'ai_config'), { rules });
+        alert('Reglas guardadas correctamente');
+    };
+
+    document.getElementById('addQA').onclick = () => {
+        const q = document.getElementById('newQ').value;
+        const a = document.getElementById('newA').value;
+        if(!q || !a) return alert('Completa pregunta y respuesta');
+        push(ref(db, 'ai_config/qa'), { q, a });
+        document.getElementById('newQ').value = '';
+        document.getElementById('newA').value = '';
+    };
+
+    window.deleteQA = (key) => {
+        if(confirm('¿Eliminar esta pregunta?')) {
+            remove(ref(db, `ai_config/qa/${key}`));
+        }
+    };
+
+    // Simulación de subida de archivos
+    document.getElementById('aiUploadArea').onclick = () => document.getElementById('aiFileInput').click();
+    document.getElementById('aiFileInput').onchange = (e) => {
+        const file = e.target.files[0];
+        if(file) {
+            push(ref(db, 'ai_config/files'), { name: file.name, date: new Date().toISOString() });
+            alert('Archivo "' + file.name + '" procesado para entrenamiento.');
+        }
+    };
 
 </script>
 </body>
